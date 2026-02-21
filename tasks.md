@@ -48,7 +48,7 @@ Checkbox list of tasks organized by phase. Stack: React + TypeScript + Tailwind 
 
 ### User Endpoints
 
-- [ ] `GET /api/users/me` — return the authenticated user's profile (exclude password_hash)
+- [x] `GET /api/users/me` — return the authenticated user's profile (exclude password_hash)
 - [ ] `PATCH /api/users/me` — allow updating `display_name` and `timezone`; validate timezone is a valid IANA string
 - [ ] `DELETE /api/users/me` — delete the user and cascade-delete all their data; invalidate tokens
 
