@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { listMoodLogs } from '../services/mood-log.service';
+import { createMoodLog, listMoodLogs } from '../services/mood-log.service';
 
 export async function listMoodLogsHandler(req: Request, res: Response): Promise<void> {
   const { startDate, endDate, limit, offset } = req.query as Record<string, string | undefined>;
@@ -48,4 +48,51 @@ export async function listMoodLogsHandler(req: Request, res: Response): Promise<
   });
 
   res.status(200).json(logs);
+}
+
+function isValidScore(v: unknown): v is number {
+  return typeof v === 'number' && Number.isInteger(v) && (v as number) >= 1 && (v as number) <= 5;
+}
+
+export async function createMoodLogHandler(req: Request, res: Response): Promise<void> {
+  const { moodScore, energyLevel, stressLevel, notes, loggedAt } = req.body as Record<
+    string,
+    unknown
+  >;
+
+  if (!isValidScore(moodScore)) {
+    res.status(422).json({ error: 'moodScore must be an integer between 1 and 5' });
+    return;
+  }
+  if (energyLevel !== undefined && !isValidScore(energyLevel)) {
+    res.status(422).json({ error: 'energyLevel must be an integer between 1 and 5' });
+    return;
+  }
+  if (stressLevel !== undefined && !isValidScore(stressLevel)) {
+    res.status(422).json({ error: 'stressLevel must be an integer between 1 and 5' });
+    return;
+  }
+  if (notes !== undefined && typeof notes !== 'string') {
+    res.status(422).json({ error: 'notes must be a string' });
+    return;
+  }
+
+  let parsedLoggedAt: Date | undefined;
+  if (loggedAt !== undefined) {
+    parsedLoggedAt = new Date(loggedAt as string);
+    if (isNaN(parsedLoggedAt.getTime())) {
+      res.status(422).json({ error: 'loggedAt must be a valid ISO 8601 date string' });
+      return;
+    }
+  }
+
+  const log = await createMoodLog(req.user!.userId, {
+    moodScore: moodScore as number,
+    energyLevel: energyLevel as number | undefined,
+    stressLevel: stressLevel as number | undefined,
+    notes: notes as string | undefined,
+    loggedAt: parsedLoggedAt,
+  });
+
+  res.status(201).json(log);
 }
