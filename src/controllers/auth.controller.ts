@@ -1,8 +1,24 @@
 import { Request, Response } from 'express';
-import { login, refreshTokens, register } from '../services/auth.service';
+import { forgotPassword, login, refreshTokens, register } from '../services/auth.service';
 
 function isValidEmail(email: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+export async function forgotPasswordHandler(req: Request, res: Response): Promise<void> {
+  const { email } = req.body as Record<string, unknown>;
+
+  if (typeof email !== 'string' || !isValidEmail(email)) {
+    res.status(422).json({ error: 'A valid email address is required' });
+    return;
+  }
+
+  const appBaseUrl = process.env['APP_BASE_URL'] ?? 'http://localhost:3000';
+
+  await forgotPassword({ email: email.toLowerCase().trim(), appBaseUrl });
+
+  // Always 200 — never reveal whether the email is registered
+  res.status(200).json({ message: 'If that email is registered, a reset link has been sent' });
 }
 
 export async function refreshHandler(req: Request, res: Response): Promise<void> {
