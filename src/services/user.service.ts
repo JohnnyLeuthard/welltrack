@@ -37,6 +37,11 @@ export function isValidIANATimezone(tz: string): boolean {
   }
 }
 
+export async function deleteMe(userId: string): Promise<void> {
+  // Cascade deletes (all logs, tokens, custom symptoms/habits) are handled by FK onDelete: Cascade
+  await prisma.user.delete({ where: { id: userId } });
+}
+
 export async function updateMe(userId: string, input: UpdateMeInput): Promise<UserProfile> {
   const user = await prisma.user.update({
     where: { id: userId },
