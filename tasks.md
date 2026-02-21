@@ -82,10 +82,10 @@ Checkbox list of tasks organized by phase. Stack: React + TypeScript + Tailwind 
 
 ### Medication Logs CRUD
 
-- [ ] `GET /api/medication-logs` — return logs with optional `startDate` / `endDate` filters
-- [ ] `POST /api/medication-logs` — log a medication as taken or not taken
-- [ ] `PATCH /api/medication-logs/:id` — update a medication log
-- [ ] `DELETE /api/medication-logs/:id` — delete a medication log
+- [x] `GET /api/medication-logs` — return logs with optional `startDate` / `endDate` filters
+- [x] `POST /api/medication-logs` — log a medication as taken or not taken
+- [x] `PATCH /api/medication-logs/:id` — update a medication log
+- [x] `DELETE /api/medication-logs/:id` — delete a medication log
 
 ### Habits CRUD
 
