@@ -48,16 +48,16 @@ Checkbox list of tasks organized by phase. Stack: React + TypeScript + Tailwind 
 
 ### User Endpoints
 
-- [ ] `GET /api/users/me` — return the authenticated user's profile (exclude password_hash)
-- [ ] `PATCH /api/users/me` — allow updating `display_name` and `timezone`; validate timezone is a valid IANA string
-- [ ] `DELETE /api/users/me` — delete the user and cascade-delete all their data; invalidate tokens
+- [x] `GET /api/users/me` — return the authenticated user's profile (exclude password_hash)
+- [x] `PATCH /api/users/me` — allow updating `display_name` and `timezone`; validate timezone is a valid IANA string
+- [x] `DELETE /api/users/me` — delete the user and cascade-delete all their data; invalidate tokens
 
 ### Symptoms CRUD
 
-- [ ] `GET /api/symptoms` — return system symptoms (user_id = null) plus the user's own custom symptoms
-- [ ] `POST /api/symptoms` — create a custom symptom for the authenticated user
-- [ ] `PATCH /api/symptoms/:id` — update a symptom (only if it belongs to the current user; system defaults are read-only)
-- [ ] `DELETE /api/symptoms/:id` — delete a custom symptom (block deletion of system symptoms)
+- [x] `GET /api/symptoms` — return system symptoms (user_id = null) plus the user's own custom symptoms
+- [x] `POST /api/symptoms` — create a custom symptom for the authenticated user
+- [x] `PATCH /api/symptoms/:id` — update a symptom (only if it belongs to the current user; system defaults are read-only)
+- [x] `DELETE /api/symptoms/:id` — delete a custom symptom (block deletion of system symptoms)
 
 ### Symptom Logs CRUD
 
