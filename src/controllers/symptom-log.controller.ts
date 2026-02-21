@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { createSymptomLog, listSymptomLogs, updateSymptomLog } from '../services/symptom-log.service';
+import { createSymptomLog, deleteSymptomLog, listSymptomLogs, updateSymptomLog } from '../services/symptom-log.service';
 
 export async function listSymptomLogsHandler(req: Request, res: Response): Promise<void> {
   const { startDate, endDate, limit, offset } = req.query as Record<string, string | undefined>;
@@ -91,6 +91,26 @@ export async function createSymptomLogHandler(req: Request, res: Response): Prom
     const status = (err as Error & { status?: number }).status;
     if (status === 404) {
       res.status(404).json({ error: (err as Error).message });
+      return;
+    }
+    throw err;
+  }
+}
+
+export async function deleteSymptomLogHandler(req: Request, res: Response): Promise<void> {
+  const id = req.params['id'] as string;
+
+  try {
+    await deleteSymptomLog(req.user!.userId, id);
+    res.status(204).send();
+  } catch (err) {
+    const status = (err as Error & { status?: number }).status;
+    if (status === 404) {
+      res.status(404).json({ error: (err as Error).message });
+      return;
+    }
+    if (status === 403) {
+      res.status(403).json({ error: (err as Error).message });
       return;
     }
     throw err;
