@@ -103,10 +103,10 @@ Checkbox list of tasks organized by phase. Stack: React + TypeScript + Tailwind 
 
 ### Validation & Error Handling
 
-- [ ] Add `zod` (or `express-validator`) to validate request bodies on all POST/PATCH endpoints
-- [ ] Create a centralized error-handling middleware that returns consistent `{ error: string }` JSON responses
-- [ ] Return `401` for missing/invalid auth, `403` for ownership violations, `404` for not found, `422` for validation errors
-- [ ] Add a catch-all 404 handler for unknown routes
+- [x] Add `zod` (or `express-validator`) to validate request bodies on all POST/PATCH endpoints
+- [x] Create a centralized error-handling middleware that returns consistent `{ error: string }` JSON responses
+- [x] Return `401` for missing/invalid auth, `403` for ownership violations, `404` for not found, `422` for validation errors
+- [x] Add a catch-all 404 handler for unknown routes
 
 ---
 
