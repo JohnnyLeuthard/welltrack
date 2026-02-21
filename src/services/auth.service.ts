@@ -1,7 +1,8 @@
-import { randomUUID } from 'crypto';
+import { createHash, randomBytes, randomUUID } from 'crypto';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import prisma from '../lib/prisma';
+import { sendPasswordResetEmail } from './email.service';
 
 const BCRYPT_ROUNDS = 12;
 const ACCESS_TOKEN_TTL = '15m';
@@ -130,6 +131,42 @@ export async function login(input: LoginInput): Promise<AuthResult> {
     accessToken,
     refreshToken,
   };
+}
+
+const RESET_TOKEN_TTL_MS = 60 * 60 * 1000; // 1 hour
+
+export interface ForgotPasswordInput {
+  email: string;
+  /** Base URL used to build the reset link, e.g. "https://app.example.com" */
+  appBaseUrl: string;
+}
+
+export async function forgotPassword(input: ForgotPasswordInput): Promise<void> {
+  const user = await prisma.user.findUnique({ where: { email: input.email } });
+
+  // Always return without error — never reveal whether the email is registered
+  if (!user) return;
+
+  // Invalidate any existing unused tokens for this user
+  await prisma.passwordResetToken.updateMany({
+    where: { userId: user.id, used: false },
+    data: { used: true },
+  });
+
+  // Generate a cryptographically random token and hash it for storage
+  const rawToken = randomBytes(32).toString('hex');
+  const hashedToken = createHash('sha256').update(rawToken).digest('hex');
+
+  await prisma.passwordResetToken.create({
+    data: {
+      userId: user.id,
+      token: hashedToken,
+      expiresAt: new Date(Date.now() + RESET_TOKEN_TTL_MS),
+    },
+  });
+
+  const resetUrl = `${input.appBaseUrl}/reset-password?token=${rawToken}`;
+  sendPasswordResetEmail(user.email, resetUrl);
 }
 
 export async function register(input: RegisterInput): Promise<AuthResult> {
