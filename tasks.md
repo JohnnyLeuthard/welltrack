@@ -63,7 +63,7 @@ Checkbox list of tasks organized by phase. Stack: React + TypeScript + Tailwind 
 
 - [x] `GET /api/symptom-logs` — return logs filtered by optional `startDate`, `endDate`, `limit`, `offset` query params; only return the user's own logs
 - [x] `POST /api/symptom-logs` — create a symptom log entry; validate severity is 1–10
-- [ ] `PATCH /api/symptom-logs/:id` — update a log entry (must belong to current user)
+- [x] `PATCH /api/symptom-logs/:id` — update a log entry (must belong to current user)
 - [ ] `DELETE /api/symptom-logs/:id` — delete a log entry (must belong to current user)
 
 ### Mood Logs CRUD
