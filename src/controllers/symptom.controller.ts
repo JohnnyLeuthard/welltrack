@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { createSymptom, listSymptoms } from '../services/symptom.service';
+import { createSymptom, listSymptoms, updateSymptom } from '../services/symptom.service';
 
 export async function listSymptomsHandler(req: Request, res: Response): Promise<void> {
   const symptoms = await listSymptoms(req.user!.userId);
@@ -23,4 +23,43 @@ export async function createSymptomHandler(req: Request, res: Response): Promise
     category: typeof category === 'string' ? category : undefined,
   });
   res.status(201).json(symptom);
+}
+
+export async function updateSymptomHandler(req: Request, res: Response): Promise<void> {
+  const id = req.params['id'] as string;
+  const { name, category, isActive } = req.body as Record<string, unknown>;
+
+  if (name !== undefined && (typeof name !== 'string' || name.trim().length === 0)) {
+    res.status(422).json({ error: 'name must be a non-empty string' });
+    return;
+  }
+  if (category !== undefined && category !== null && typeof category !== 'string') {
+    res.status(422).json({ error: 'category must be a string or null' });
+    return;
+  }
+  if (isActive !== undefined && typeof isActive !== 'boolean') {
+    res.status(422).json({ error: 'isActive must be a boolean' });
+    return;
+  }
+
+  try {
+    const input: { name?: string; category?: string | null; isActive?: boolean } = {};
+    if (name !== undefined) input.name = name as string;
+    if (category !== undefined) input.category = category as string | null;
+    if (isActive !== undefined) input.isActive = isActive as boolean;
+
+    const symptom = await updateSymptom(req.user!.userId, id, input);
+    res.status(200).json(symptom);
+  } catch (err) {
+    const status = (err as Error & { status?: number }).status;
+    if (status === 404) {
+      res.status(404).json({ error: (err as Error).message });
+      return;
+    }
+    if (status === 403) {
+      res.status(403).json({ error: (err as Error).message });
+      return;
+    }
+    throw err;
+  }
 }
