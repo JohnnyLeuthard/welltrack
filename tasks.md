@@ -12,7 +12,7 @@ Checkbox list of tasks organized by phase. Stack: React + TypeScript + Tailwind 
 - [x] Set up Express with a basic `src/index.ts` entry point
 - [x] Create folder structure: `src/routes`, `src/controllers`, `src/middleware`, `src/services`, `src/types`
 - [x] Configure `.env` with `dotenv` for `DATABASE_URL`, `JWT_SECRET`, `JWT_REFRESH_SECRET`, `PORT`
-- [ ] Add ESLint + Prettier with a shared config
+- [x] Add ESLint + Prettier with a shared config
 - [x] Add a `package.json` dev script for `nodemon` and a build script for production
 
 ### Database & Schema
