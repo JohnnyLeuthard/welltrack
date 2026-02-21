@@ -38,7 +38,7 @@ Checkbox list of tasks organized by phase. Stack: React + TypeScript + Tailwind 
 
 ### Auth Endpoints
 
-- [ ] `POST /api/auth/register` — validate input, hash password with bcrypt (rounds = 12), create user, return JWT access token + refresh token
+- [x] `POST /api/auth/register` — validate input, hash password with bcrypt (rounds = 12), create user, return JWT access token + refresh token
 - [ ] `POST /api/auth/login` — verify email/password, return JWT access token + refresh token; store refresh token in DB
 - [ ] `POST /api/auth/refresh` — validate refresh token from DB, issue new access token (rotate refresh token)
 - [ ] `POST /api/auth/logout` — delete refresh token from DB
