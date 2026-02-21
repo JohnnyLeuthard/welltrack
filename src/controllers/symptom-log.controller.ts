@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { listSymptomLogs } from '../services/symptom-log.service';
+import { createSymptomLog, listSymptomLogs } from '../services/symptom-log.service';
 
 export async function listSymptomLogsHandler(req: Request, res: Response): Promise<void> {
   const { startDate, endDate, limit, offset } = req.query as Record<string, string | undefined>;
@@ -52,4 +52,47 @@ export async function listSymptomLogsHandler(req: Request, res: Response): Promi
   });
 
   res.status(200).json(logs);
+}
+
+export async function createSymptomLogHandler(req: Request, res: Response): Promise<void> {
+  const { symptomId, severity, notes, loggedAt } = req.body as Record<string, unknown>;
+
+  if (typeof symptomId !== 'string' || symptomId.trim().length === 0) {
+    res.status(422).json({ error: 'symptomId is required' });
+    return;
+  }
+  if (typeof severity !== 'number' || !Number.isInteger(severity) || severity < 1 || severity > 10) {
+    res.status(422).json({ error: 'severity must be an integer between 1 and 10' });
+    return;
+  }
+  if (notes !== undefined && typeof notes !== 'string') {
+    res.status(422).json({ error: 'notes must be a string' });
+    return;
+  }
+
+  let parsedLoggedAt: Date | undefined;
+  if (loggedAt !== undefined) {
+    parsedLoggedAt = new Date(loggedAt as string);
+    if (isNaN(parsedLoggedAt.getTime())) {
+      res.status(422).json({ error: 'loggedAt must be a valid ISO 8601 date string' });
+      return;
+    }
+  }
+
+  try {
+    const log = await createSymptomLog(req.user!.userId, {
+      symptomId: symptomId.trim(),
+      severity,
+      notes: typeof notes === 'string' ? notes : undefined,
+      loggedAt: parsedLoggedAt,
+    });
+    res.status(201).json(log);
+  } catch (err) {
+    const status = (err as Error & { status?: number }).status;
+    if (status === 404) {
+      res.status(404).json({ error: (err as Error).message });
+      return;
+    }
+    throw err;
+  }
 }

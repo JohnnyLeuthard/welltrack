@@ -21,6 +21,46 @@ export interface ListSymptomLogsOptions {
 const DEFAULT_LIMIT = 50;
 const MAX_LIMIT = 200;
 
+export interface CreateSymptomLogInput {
+  symptomId: string;
+  severity: number;
+  notes?: string;
+  loggedAt?: Date;
+}
+
+export async function createSymptomLog(
+  userId: string,
+  input: CreateSymptomLogInput,
+): Promise<SymptomLogResult> {
+  // Verify the symptom is accessible to this user (system or owned)
+  const symptom = await prisma.symptom.findUnique({ where: { id: input.symptomId } });
+  if (!symptom || (symptom.userId !== null && symptom.userId !== userId)) {
+    const err = new Error('Symptom not found');
+    (err as Error & { status: number }).status = 404;
+    throw err;
+  }
+
+  return prisma.symptomLog.create({
+    data: {
+      userId,
+      symptomId: input.symptomId,
+      severity: input.severity,
+      notes: input.notes ?? null,
+      loggedAt: input.loggedAt ?? new Date(),
+    },
+    select: {
+      id: true,
+      userId: true,
+      symptomId: true,
+      severity: true,
+      notes: true,
+      loggedAt: true,
+      createdAt: true,
+      symptom: { select: { id: true, name: true, category: true } },
+    },
+  });
+}
+
 export async function listSymptomLogs(
   userId: string,
   opts: ListSymptomLogsOptions = {},
