@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { createMoodLog, listMoodLogs } from '../services/mood-log.service';
+import { createMoodLog, listMoodLogs, updateMoodLog } from '../services/mood-log.service';
 
 export async function listMoodLogsHandler(req: Request, res: Response): Promise<void> {
   const { startDate, endDate, limit, offset } = req.query as Record<string, string | undefined>;
@@ -95,4 +95,55 @@ export async function createMoodLogHandler(req: Request, res: Response): Promise
   });
 
   res.status(201).json(log);
+}
+
+export async function updateMoodLogHandler(req: Request, res: Response): Promise<void> {
+  const id = req.params['id'] as string;
+  const { moodScore, energyLevel, stressLevel, notes, loggedAt } = req.body as Record<
+    string,
+    unknown
+  >;
+
+  if (moodScore !== undefined && !isValidScore(moodScore)) {
+    res.status(422).json({ error: 'moodScore must be an integer between 1 and 5' });
+    return;
+  }
+  if (energyLevel !== undefined && energyLevel !== null && !isValidScore(energyLevel)) {
+    res.status(422).json({ error: 'energyLevel must be an integer between 1 and 5' });
+    return;
+  }
+  if (stressLevel !== undefined && stressLevel !== null && !isValidScore(stressLevel)) {
+    res.status(422).json({ error: 'stressLevel must be an integer between 1 and 5' });
+    return;
+  }
+  if (notes !== undefined && notes !== null && typeof notes !== 'string') {
+    res.status(422).json({ error: 'notes must be a string or null' });
+    return;
+  }
+
+  let parsedLoggedAt: Date | undefined;
+  if (loggedAt !== undefined) {
+    parsedLoggedAt = new Date(loggedAt as string);
+    if (isNaN(parsedLoggedAt.getTime())) {
+      res.status(422).json({ error: 'loggedAt must be a valid ISO 8601 date string' });
+      return;
+    }
+  }
+
+  try {
+    const input: Parameters<typeof updateMoodLog>[2] = {};
+    if (moodScore !== undefined) input.moodScore = moodScore as number;
+    if (energyLevel !== undefined) input.energyLevel = energyLevel as number | null;
+    if (stressLevel !== undefined) input.stressLevel = stressLevel as number | null;
+    if (notes !== undefined) input.notes = notes as string | null;
+    if (parsedLoggedAt !== undefined) input.loggedAt = parsedLoggedAt;
+
+    const log = await updateMoodLog(req.user!.userId, id, input);
+    res.status(200).json(log);
+  } catch (err) {
+    const status = (err as Error & { status?: number }).status;
+    if (status === 404) { res.status(404).json({ error: (err as Error).message }); return; }
+    if (status === 403) { res.status(403).json({ error: (err as Error).message }); return; }
+    throw err;
+  }
 }
