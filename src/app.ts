@@ -7,6 +7,7 @@ import symptomLogRouter from './routes/symptom-log.router';
 import moodLogRouter from './routes/mood-log.router';
 import medicationRouter from './routes/medication.router';
 import medicationLogRouter from './routes/medication-log.router';
+import habitRouter from './routes/habit.router';
 
 const app = express();
 
@@ -23,5 +24,6 @@ app.use('/api/symptom-logs', symptomLogRouter);
 app.use('/api/mood-logs', moodLogRouter);
 app.use('/api/medications', medicationRouter);
 app.use('/api/medication-logs', medicationLogRouter);
+app.use('/api/habits', habitRouter);
 
 export default app;

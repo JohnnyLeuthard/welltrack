@@ -89,10 +89,10 @@ Checkbox list of tasks organized by phase. Stack: React + TypeScript + Tailwind 
 
 ### Habits CRUD
 
-- [ ] `GET /api/habits` — return system habits (user_id = null) plus the user's custom habits
-- [ ] `POST /api/habits` — create a custom habit; validate `tracking_type` is one of `boolean`, `numeric`, `duration`
-- [ ] `PATCH /api/habits/:id` — update a habit (user's own only)
-- [ ] `DELETE /api/habits/:id` — delete a custom habit
+- [x] `GET /api/habits` — return system habits (user_id = null) plus the user's custom habits
+- [x] `POST /api/habits` — create a custom habit; validate `tracking_type` is one of `boolean`, `numeric`, `duration`
+- [x] `PATCH /api/habits/:id` — update a habit (user's own only)
+- [x] `DELETE /api/habits/:id` — delete a custom habit
 
 ### Habit Logs CRUD
 
