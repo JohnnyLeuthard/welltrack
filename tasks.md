@@ -31,7 +31,7 @@ Checkbox list of tasks organized by phase. Stack: React + TypeScript + Tailwind 
   - `PasswordResetToken` (id, user_id, token, expires_at, used bool, created_at)
 - [x] Add database indexes on `(user_id, logged_at)` for all log tables in the Prisma schema
 - [ ] Run `prisma migrate dev` to create the initial migration
-- [ ] Write a seed script (`prisma/seed.ts`) that inserts:
+- [x] Write a seed script (`prisma/seed.ts`) that inserts:
   - Default symptoms: Headache, Fatigue, Joint Pain, Muscle Pain, Nausea, Brain Fog, Dizziness, Insomnia, Anxiety, Stomach Pain, Back Pain (user_id = null)
   - Default habits: Sleep Duration (duration), Water Intake (numeric/glasses), Exercise (boolean), Alcohol (boolean), Caffeine (numeric/cups) (user_id = null)
 - [ ] Run the seed script and verify data in the database
