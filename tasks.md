@@ -77,8 +77,8 @@ Checkbox list of tasks organized by phase. Stack: React + TypeScript + Tailwind 
 
 - [x] `GET /api/medications` — return all active medications for the current user
 - [x] `POST /api/medications` — create a new medication
-- [ ] `PATCH /api/medications/:id` — update a medication (name, dosage, frequency, is_active)
-- [ ] `DELETE /api/medications/:id` — soft-delete or hard-delete a medication
+- [x] `PATCH /api/medications/:id` — update a medication (name, dosage, frequency, is_active)
+- [x] `DELETE /api/medications/:id` — soft-delete or hard-delete a medication
 
 ### Medication Logs CRUD
 
