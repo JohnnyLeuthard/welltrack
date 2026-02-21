@@ -35,6 +35,9 @@
     "typescript": "~5.8.3",
     "typescript-eslint": "^8.36.0"
   },
+  "prisma": {
+    "seed": "ts-node prisma/seed.ts"
+  },
   "dependencies": {
     "@prisma/client": "^7.4.1",
     "dotenv": "^17.3.1",
