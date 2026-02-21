@@ -174,6 +174,39 @@ export async function forgotPassword(input: ForgotPasswordInput): Promise<void> 
   sendPasswordResetEmail(user.email, resetUrl);
 }
 
+export interface ResetPasswordInput {
+  /** The raw token from the reset URL query string */
+  token: string;
+  newPassword: string;
+}
+
+export async function resetPassword(input: ResetPasswordInput): Promise<void> {
+  const hashedToken = createHash('sha256').update(input.token).digest('hex');
+
+  const record = await prisma.passwordResetToken.findUnique({ where: { token: hashedToken } });
+
+  if (!record || record.used || record.expiresAt < new Date()) {
+    const err = new Error('Invalid or expired password reset token');
+    (err as Error & { status: number }).status = 400;
+    throw err;
+  }
+
+  const passwordHash = await bcrypt.hash(input.newPassword, BCRYPT_ROUNDS);
+
+  // Update password, mark token used, and revoke all refresh tokens in a transaction
+  await prisma.$transaction([
+    prisma.user.update({
+      where: { id: record.userId },
+      data: { passwordHash },
+    }),
+    prisma.passwordResetToken.update({
+      where: { id: record.id },
+      data: { used: true },
+    }),
+    prisma.refreshToken.deleteMany({ where: { userId: record.userId } }),
+  ]);
+}
+
 export async function register(input: RegisterInput): Promise<AuthResult> {
   const existing = await prisma.user.findUnique({ where: { email: input.email } });
   if (existing) {

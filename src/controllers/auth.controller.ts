@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { forgotPassword, login, logout, refreshTokens, register } from '../services/auth.service';
+import { forgotPassword, login, logout, refreshTokens, register, resetPassword } from '../services/auth.service';
 
 function isValidEmail(email: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -106,6 +106,31 @@ export async function registerHandler(req: Request, res: Response): Promise<void
     const status = (err as Error & { status?: number }).status;
     if (status === 409) {
       res.status(409).json({ error: (err as Error).message });
+      return;
+    }
+    throw err;
+  }
+}
+
+export async function resetPasswordHandler(req: Request, res: Response): Promise<void> {
+  const { token, password } = req.body as Record<string, unknown>;
+
+  if (typeof token !== 'string' || token.trim().length === 0) {
+    res.status(422).json({ error: 'token is required' });
+    return;
+  }
+  if (typeof password !== 'string' || password.length < 8) {
+    res.status(422).json({ error: 'Password must be at least 8 characters' });
+    return;
+  }
+
+  try {
+    await resetPassword({ token: token.trim(), newPassword: password });
+    res.status(200).json({ message: 'Password reset successfully' });
+  } catch (err) {
+    const status = (err as Error & { status?: number }).status;
+    if (status === 400) {
+      res.status(400).json({ error: (err as Error).message });
       return;
     }
     throw err;
