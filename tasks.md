@@ -54,7 +54,7 @@ Checkbox list of tasks organized by phase. Stack: React + TypeScript + Tailwind 
 
 ### Symptoms CRUD
 
-- [ ] `GET /api/symptoms` — return system symptoms (user_id = null) plus the user's own custom symptoms
+- [x] `GET /api/symptoms` — return system symptoms (user_id = null) plus the user's own custom symptoms
 - [ ] `POST /api/symptoms` — create a custom symptom for the authenticated user
 - [ ] `PATCH /api/symptoms/:id` — update a symptom (only if it belongs to the current user; system defaults are read-only)
 - [ ] `DELETE /api/symptoms/:id` — delete a custom symptom (block deletion of system symptoms)
