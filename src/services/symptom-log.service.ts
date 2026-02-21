@@ -106,6 +106,24 @@ export async function createSymptomLog(
   });
 }
 
+export async function deleteSymptomLog(userId: string, logId: string): Promise<void> {
+  const log = await prisma.symptomLog.findUnique({ where: { id: logId } });
+
+  if (!log) {
+    const err = new Error('Symptom log not found');
+    (err as Error & { status: number }).status = 404;
+    throw err;
+  }
+
+  if (log.userId !== userId) {
+    const err = new Error('Forbidden');
+    (err as Error & { status: number }).status = 403;
+    throw err;
+  }
+
+  await prisma.symptomLog.delete({ where: { id: logId } });
+}
+
 export async function listSymptomLogs(
   userId: string,
   opts: ListSymptomLogsOptions = {},
