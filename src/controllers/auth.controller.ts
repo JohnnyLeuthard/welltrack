@@ -1,8 +1,29 @@
 import { Request, Response } from 'express';
-import { login, register } from '../services/auth.service';
+import { login, refreshTokens, register } from '../services/auth.service';
 
 function isValidEmail(email: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+export async function refreshHandler(req: Request, res: Response): Promise<void> {
+  const { refreshToken } = req.body as Record<string, unknown>;
+
+  if (typeof refreshToken !== 'string' || refreshToken.trim().length === 0) {
+    res.status(422).json({ error: 'refreshToken is required' });
+    return;
+  }
+
+  try {
+    const result = await refreshTokens(refreshToken);
+    res.status(200).json(result);
+  } catch (err) {
+    const status = (err as Error & { status?: number }).status;
+    if (status === 401) {
+      res.status(401).json({ error: (err as Error).message });
+      return;
+    }
+    throw err;
+  }
 }
 
 export async function loginHandler(req: Request, res: Response): Promise<void> {

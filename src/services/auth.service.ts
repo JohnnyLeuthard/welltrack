@@ -38,6 +38,63 @@ export interface LoginInput {
   password: string;
 }
 
+export interface RefreshResult {
+  accessToken: string;
+  refreshToken: string;
+}
+
+export async function refreshTokens(incomingToken: string): Promise<RefreshResult> {
+  const secret = process.env['JWT_REFRESH_SECRET'];
+  if (!secret) throw new Error('JWT_REFRESH_SECRET is not set');
+
+  // 1. Verify JWT signature and expiry
+  let payload: { userId: string };
+  try {
+    payload = jwt.verify(incomingToken, secret) as { userId: string };
+  } catch {
+    const err = new Error('Invalid or expired refresh token');
+    (err as Error & { status: number }).status = 401;
+    throw err;
+  }
+
+  // 2. Check the token exists in the DB and hasn't expired
+  const stored = await prisma.refreshToken.findUnique({ where: { token: incomingToken } });
+  if (!stored || stored.expiresAt < new Date()) {
+    if (stored) await prisma.refreshToken.delete({ where: { token: incomingToken } });
+    const err = new Error('Invalid or expired refresh token');
+    (err as Error & { status: number }).status = 401;
+    throw err;
+  }
+
+  // 3. Look up the user to embed email in the new access token
+  const user = await prisma.user.findUnique({
+    where: { id: payload.userId },
+    select: { id: true, email: true },
+  });
+  if (!user) {
+    await prisma.refreshToken.delete({ where: { token: incomingToken } });
+    const err = new Error('Invalid or expired refresh token');
+    (err as Error & { status: number }).status = 401;
+    throw err;
+  }
+
+  // 4. Rotate: delete old token, issue new ones
+  await prisma.refreshToken.delete({ where: { token: incomingToken } });
+
+  const accessToken = signAccessToken(user.id, user.email);
+  const newRefreshToken = signRefreshToken(user.id);
+
+  await prisma.refreshToken.create({
+    data: {
+      userId: user.id,
+      token: newRefreshToken,
+      expiresAt: new Date(Date.now() + REFRESH_TOKEN_TTL_MS),
+    },
+  });
+
+  return { accessToken, refreshToken: newRefreshToken };
+}
+
 export async function login(input: LoginInput): Promise<AuthResult> {
   const user = await prisma.user.findUnique({
     where: { email: input.email },
