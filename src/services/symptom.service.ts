@@ -17,3 +17,22 @@ export async function listSymptoms(userId: string): Promise<SymptomResult[]> {
     orderBy: [{ name: 'asc' }],
   });
 }
+
+export interface CreateSymptomInput {
+  name: string;
+  category?: string;
+}
+
+export async function createSymptom(
+  userId: string,
+  input: CreateSymptomInput,
+): Promise<SymptomResult> {
+  return prisma.symptom.create({
+    data: {
+      userId,
+      name: input.name.trim(),
+      category: input.category?.trim() ?? null,
+    },
+    select: { id: true, userId: true, name: true, category: true, isActive: true },
+  });
+}
