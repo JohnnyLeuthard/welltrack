@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { createMoodLog, listMoodLogs, updateMoodLog } from '../services/mood-log.service';
+import { createMoodLog, deleteMoodLog, listMoodLogs, updateMoodLog } from '../services/mood-log.service';
 
 export async function listMoodLogsHandler(req: Request, res: Response): Promise<void> {
   const { startDate, endDate, limit, offset } = req.query as Record<string, string | undefined>;
@@ -140,6 +140,20 @@ export async function updateMoodLogHandler(req: Request, res: Response): Promise
 
     const log = await updateMoodLog(req.user!.userId, id, input);
     res.status(200).json(log);
+  } catch (err) {
+    const status = (err as Error & { status?: number }).status;
+    if (status === 404) { res.status(404).json({ error: (err as Error).message }); return; }
+    if (status === 403) { res.status(403).json({ error: (err as Error).message }); return; }
+    throw err;
+  }
+}
+
+export async function deleteMoodLogHandler(req: Request, res: Response): Promise<void> {
+  const id = req.params['id'] as string;
+
+  try {
+    await deleteMoodLog(req.user!.userId, id);
+    res.status(204).send();
   } catch (err) {
     const status = (err as Error & { status?: number }).status;
     if (status === 404) { res.status(404).json({ error: (err as Error).message }); return; }

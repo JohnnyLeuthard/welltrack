@@ -21,6 +21,24 @@ export interface ListMoodLogsOptions {
 const DEFAULT_LIMIT = 50;
 const MAX_LIMIT = 200;
 
+export async function deleteMoodLog(userId: string, logId: string): Promise<void> {
+  const log = await prisma.moodLog.findUnique({ where: { id: logId } });
+
+  if (!log) {
+    const err = new Error('Mood log not found');
+    (err as Error & { status: number }).status = 404;
+    throw err;
+  }
+
+  if (log.userId !== userId) {
+    const err = new Error('Forbidden');
+    (err as Error & { status: number }).status = 403;
+    throw err;
+  }
+
+  await prisma.moodLog.delete({ where: { id: logId } });
+}
+
 export interface UpdateMoodLogInput {
   moodScore?: number;
   energyLevel?: number | null;

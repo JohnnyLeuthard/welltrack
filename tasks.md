@@ -71,7 +71,7 @@ Checkbox list of tasks organized by phase. Stack: React + TypeScript + Tailwind 
 - [x] `GET /api/mood-logs` — return mood logs with optional `startDate` / `endDate` filters
 - [x] `POST /api/mood-logs` — create a mood log; validate mood_score (1–5), energy_level (1–5), stress_level (1–5)
 - [x] `PATCH /api/mood-logs/:id` — update a mood log entry
-- [ ] `DELETE /api/mood-logs/:id` — delete a mood log entry
+- [x] `DELETE /api/mood-logs/:id` — delete a mood log entry
 
 ### Medications CRUD
 
