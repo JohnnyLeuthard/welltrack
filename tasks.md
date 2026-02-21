@@ -17,8 +17,8 @@ Checkbox list of tasks organized by phase. Stack: React + TypeScript + Tailwind 
 
 ### Database & Schema
 
-- [ ] Install Prisma and initialize it (`npx prisma init`)
-- [ ] Write the Prisma schema for all models:
+- [x] Install Prisma and initialize it (`npx prisma init`)
+- [x] Write the Prisma schema for all models:
   - `User` (id, email, password_hash, display_name, timezone, created_at)
   - `Symptom` (id, user_id nullable, name, category, is_active)
   - `SymptomLog` (id, user_id, symptom_id, severity 1–10, notes, logged_at, created_at)
@@ -29,7 +29,7 @@ Checkbox list of tasks organized by phase. Stack: React + TypeScript + Tailwind 
   - `HabitLog` (id, user_id, habit_id, value_boolean, value_numeric, value_duration, notes, logged_at, created_at)
   - `RefreshToken` (id, user_id, token, expires_at, created_at)
   - `PasswordResetToken` (id, user_id, token, expires_at, used bool, created_at)
-- [ ] Add database indexes on `(user_id, logged_at)` for all log tables in the Prisma schema
+- [x] Add database indexes on `(user_id, logged_at)` for all log tables in the Prisma schema
 - [ ] Run `prisma migrate dev` to create the initial migration
 - [ ] Write a seed script (`prisma/seed.ts`) that inserts:
   - Default symptoms: Headache, Fatigue, Joint Pain, Muscle Pain, Nausea, Brain Fog, Dizziness, Insomnia, Anxiety, Stomach Pain, Back Pain (user_id = null)
