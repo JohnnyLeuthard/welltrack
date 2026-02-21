@@ -1,7 +1,12 @@
 import { Request, Response } from 'express';
-import { createMoodLog, deleteMoodLog, listMoodLogs, updateMoodLog } from '../services/mood-log.service';
+import {
+  createHabitLog,
+  deleteHabitLog,
+  listHabitLogs,
+  updateHabitLog,
+} from '../services/habit-log.service';
 
-export async function listMoodLogsHandler(req: Request, res: Response): Promise<void> {
+export async function listHabitLogsHandler(req: Request, res: Response): Promise<void> {
   const { startDate, endDate, limit, offset } = req.query as Record<string, string | undefined>;
 
   let parsedStart: Date | undefined;
@@ -40,7 +45,7 @@ export async function listMoodLogsHandler(req: Request, res: Response): Promise<
     }
   }
 
-  const logs = await listMoodLogs(req.user!.userId, {
+  const logs = await listHabitLogs(req.user!.userId, {
     startDate: parsedStart,
     endDate: parsedEnd,
     limit: parsedLimit,
@@ -50,26 +55,24 @@ export async function listMoodLogsHandler(req: Request, res: Response): Promise<
   res.status(200).json(logs);
 }
 
-function isValidScore(v: unknown): v is number {
-  return typeof v === 'number' && Number.isInteger(v) && (v as number) >= 1 && (v as number) <= 5;
-}
+export async function createHabitLogHandler(req: Request, res: Response): Promise<void> {
+  const { habitId, valueBoolean, valueNumeric, valueDuration, notes, loggedAt } =
+    req.body as Record<string, unknown>;
 
-export async function createMoodLogHandler(req: Request, res: Response): Promise<void> {
-  const { moodScore, energyLevel, stressLevel, notes, loggedAt } = req.body as Record<
-    string,
-    unknown
-  >;
-
-  if (!isValidScore(moodScore)) {
-    res.status(422).json({ error: 'moodScore must be an integer between 1 and 5' });
+  if (typeof habitId !== 'string' || habitId.trim().length === 0) {
+    res.status(422).json({ error: 'habitId is required' });
     return;
   }
-  if (energyLevel !== undefined && !isValidScore(energyLevel)) {
-    res.status(422).json({ error: 'energyLevel must be an integer between 1 and 5' });
+  if (valueBoolean !== undefined && typeof valueBoolean !== 'boolean') {
+    res.status(422).json({ error: 'valueBoolean must be a boolean' });
     return;
   }
-  if (stressLevel !== undefined && !isValidScore(stressLevel)) {
-    res.status(422).json({ error: 'stressLevel must be an integer between 1 and 5' });
+  if (valueNumeric !== undefined && typeof valueNumeric !== 'number') {
+    res.status(422).json({ error: 'valueNumeric must be a number' });
+    return;
+  }
+  if (valueDuration !== undefined && (typeof valueDuration !== 'number' || !Number.isInteger(valueDuration) || (valueDuration as number) < 0)) {
+    res.status(422).json({ error: 'valueDuration must be a non-negative integer' });
     return;
   }
   if (notes !== undefined && typeof notes !== 'string') {
@@ -86,34 +89,39 @@ export async function createMoodLogHandler(req: Request, res: Response): Promise
     }
   }
 
-  const log = await createMoodLog(req.user!.userId, {
-    moodScore: moodScore as number,
-    energyLevel: energyLevel as number | undefined,
-    stressLevel: stressLevel as number | undefined,
-    notes: notes as string | undefined,
-    loggedAt: parsedLoggedAt,
-  });
-
-  res.status(201).json(log);
+  try {
+    const log = await createHabitLog(req.user!.userId, {
+      habitId: habitId.trim(),
+      valueBoolean: valueBoolean as boolean | undefined,
+      valueNumeric: valueNumeric as number | undefined,
+      valueDuration: valueDuration as number | undefined,
+      notes: notes as string | undefined,
+      loggedAt: parsedLoggedAt,
+    });
+    res.status(201).json(log);
+  } catch (err) {
+    const status = (err as Error & { status?: number }).status;
+    if (status === 404) { res.status(404).json({ error: (err as Error).message }); return; }
+    if (status === 422) { res.status(422).json({ error: (err as Error).message }); return; }
+    throw err;
+  }
 }
 
-export async function updateMoodLogHandler(req: Request, res: Response): Promise<void> {
+export async function updateHabitLogHandler(req: Request, res: Response): Promise<void> {
   const id = req.params['id'] as string;
-  const { moodScore, energyLevel, stressLevel, notes, loggedAt } = req.body as Record<
-    string,
-    unknown
-  >;
+  const { valueBoolean, valueNumeric, valueDuration, notes, loggedAt } =
+    req.body as Record<string, unknown>;
 
-  if (moodScore !== undefined && !isValidScore(moodScore)) {
-    res.status(422).json({ error: 'moodScore must be an integer between 1 and 5' });
+  if (valueBoolean !== undefined && valueBoolean !== null && typeof valueBoolean !== 'boolean') {
+    res.status(422).json({ error: 'valueBoolean must be a boolean or null' });
     return;
   }
-  if (energyLevel !== undefined && energyLevel !== null && !isValidScore(energyLevel)) {
-    res.status(422).json({ error: 'energyLevel must be an integer between 1 and 5' });
+  if (valueNumeric !== undefined && valueNumeric !== null && typeof valueNumeric !== 'number') {
+    res.status(422).json({ error: 'valueNumeric must be a number or null' });
     return;
   }
-  if (stressLevel !== undefined && stressLevel !== null && !isValidScore(stressLevel)) {
-    res.status(422).json({ error: 'stressLevel must be an integer between 1 and 5' });
+  if (valueDuration !== undefined && valueDuration !== null && (typeof valueDuration !== 'number' || !Number.isInteger(valueDuration as number))) {
+    res.status(422).json({ error: 'valueDuration must be a non-negative integer or null' });
     return;
   }
   if (notes !== undefined && notes !== null && typeof notes !== 'string') {
@@ -131,14 +139,14 @@ export async function updateMoodLogHandler(req: Request, res: Response): Promise
   }
 
   try {
-    const input: Parameters<typeof updateMoodLog>[2] = {};
-    if (moodScore !== undefined) input.moodScore = moodScore as number;
-    if (energyLevel !== undefined) input.energyLevel = energyLevel as number | null;
-    if (stressLevel !== undefined) input.stressLevel = stressLevel as number | null;
+    const input: Parameters<typeof updateHabitLog>[2] = {};
+    if (valueBoolean !== undefined) input.valueBoolean = valueBoolean as boolean | null;
+    if (valueNumeric !== undefined) input.valueNumeric = valueNumeric as number | null;
+    if (valueDuration !== undefined) input.valueDuration = valueDuration as number | null;
     if (notes !== undefined) input.notes = notes as string | null;
     if (parsedLoggedAt !== undefined) input.loggedAt = parsedLoggedAt;
 
-    const log = await updateMoodLog(req.user!.userId, id, input);
+    const log = await updateHabitLog(req.user!.userId, id, input);
     res.status(200).json(log);
   } catch (err) {
     const status = (err as Error & { status?: number }).status;
@@ -148,11 +156,11 @@ export async function updateMoodLogHandler(req: Request, res: Response): Promise
   }
 }
 
-export async function deleteMoodLogHandler(req: Request, res: Response): Promise<void> {
+export async function deleteHabitLogHandler(req: Request, res: Response): Promise<void> {
   const id = req.params['id'] as string;
 
   try {
-    await deleteMoodLog(req.user!.userId, id);
+    await deleteHabitLog(req.user!.userId, id);
     res.status(204).send();
   } catch (err) {
     const status = (err as Error & { status?: number }).status;

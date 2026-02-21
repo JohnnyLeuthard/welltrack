@@ -21,6 +21,107 @@ export interface ListMoodLogsOptions {
 const DEFAULT_LIMIT = 50;
 const MAX_LIMIT = 200;
 
+export async function deleteMoodLog(userId: string, logId: string): Promise<void> {
+  const log = await prisma.moodLog.findUnique({ where: { id: logId } });
+
+  if (!log) {
+    const err = new Error('Mood log not found');
+    (err as Error & { status: number }).status = 404;
+    throw err;
+  }
+
+  if (log.userId !== userId) {
+    const err = new Error('Forbidden');
+    (err as Error & { status: number }).status = 403;
+    throw err;
+  }
+
+  await prisma.moodLog.delete({ where: { id: logId } });
+}
+
+export interface UpdateMoodLogInput {
+  moodScore?: number;
+  energyLevel?: number | null;
+  stressLevel?: number | null;
+  notes?: string | null;
+  loggedAt?: Date;
+}
+
+export async function updateMoodLog(
+  userId: string,
+  logId: string,
+  input: UpdateMoodLogInput,
+): Promise<MoodLogResult> {
+  const log = await prisma.moodLog.findUnique({ where: { id: logId } });
+
+  if (!log) {
+    const err = new Error('Mood log not found');
+    (err as Error & { status: number }).status = 404;
+    throw err;
+  }
+
+  if (log.userId !== userId) {
+    const err = new Error('Forbidden');
+    (err as Error & { status: number }).status = 403;
+    throw err;
+  }
+
+  return prisma.moodLog.update({
+    where: { id: logId },
+    data: {
+      ...(input.moodScore !== undefined && { moodScore: input.moodScore }),
+      ...(input.energyLevel !== undefined && { energyLevel: input.energyLevel }),
+      ...(input.stressLevel !== undefined && { stressLevel: input.stressLevel }),
+      ...(input.notes !== undefined && { notes: input.notes }),
+      ...(input.loggedAt !== undefined && { loggedAt: input.loggedAt }),
+    },
+    select: {
+      id: true,
+      userId: true,
+      moodScore: true,
+      energyLevel: true,
+      stressLevel: true,
+      notes: true,
+      loggedAt: true,
+      createdAt: true,
+    },
+  });
+}
+
+export interface CreateMoodLogInput {
+  moodScore: number;
+  energyLevel?: number;
+  stressLevel?: number;
+  notes?: string;
+  loggedAt?: Date;
+}
+
+export async function createMoodLog(
+  userId: string,
+  input: CreateMoodLogInput,
+): Promise<MoodLogResult> {
+  return prisma.moodLog.create({
+    data: {
+      userId,
+      moodScore: input.moodScore,
+      energyLevel: input.energyLevel ?? null,
+      stressLevel: input.stressLevel ?? null,
+      notes: input.notes ?? null,
+      loggedAt: input.loggedAt ?? new Date(),
+    },
+    select: {
+      id: true,
+      userId: true,
+      moodScore: true,
+      energyLevel: true,
+      stressLevel: true,
+      notes: true,
+      loggedAt: true,
+      createdAt: true,
+    },
+  });
+}
+
 export async function listMoodLogs(
   userId: string,
   opts: ListMoodLogsOptions = {},

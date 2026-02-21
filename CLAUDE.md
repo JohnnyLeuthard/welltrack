@@ -8,18 +8,25 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 npm run dev          # Start dev server with hot reload (ts-node + nodemon)
 npm run build        # Compile TypeScript to dist/
 npm start            # Run compiled output
-npm test             # Run Jest test suite
+npm test             # Run Jest test suite (requires DB running)
 npm run test:watch   # Run tests in watch mode
 npm run lint         # ESLint all src/**/*.ts files
 npm run format       # Prettier format all src/**/*.ts files
 npx prisma validate  # Validate schema without a DB connection
-npx prisma migrate dev   # Apply schema changes to the local DB (requires DATABASE_URL)
-npx prisma db seed   # Run prisma/seed.ts (once written)
+npx prisma migrate dev     # Apply schema changes to the local DB
+npx prisma migrate reset   # Wipe DB and re-run all migrations + seed
+npx prisma db seed         # Re-run seed without resetting
+npx prisma studio          # Prisma Studio GUI at localhost:5555
 ```
 
-To run a single test file:
+Run a single test file:
 ```bash
 npx jest src/__tests__/health.integration.test.ts
+```
+
+Run tests matching a name pattern:
+```bash
+npx jest -t "returns 201"
 ```
 
 ## Docker (local database)
@@ -34,7 +41,7 @@ docker compose ps                 # Check status / health
 docker exec -it welltrack-postgres psql -U welltrack   # Open psql shell
 ```
 
-**Keeping `docker-compose.yml` up to date:** When a new backing service is added to the project (e.g., Redis, a local SMTP server), add it as a new service block in `docker-compose.yml`. Application-level env vars (`JWT_SECRET`, `PORT`, etc.) live in `.env`, not in `docker-compose.yml`.
+When a new backing service is added (e.g., Redis), add it as a new service block in `docker-compose.yml`. Application-level env vars (`JWT_SECRET`, `PORT`, etc.) live in `.env`, not in `docker-compose.yml`.
 
 See `DEVELOPMENT.md` for full first-time setup instructions.
 
@@ -46,68 +53,49 @@ See `DEVELOPMENT.md` for full first-time setup instructions.
 - `src/index.ts` — server entrypoint only; imports `app` and calls `app.listen()`
 - `src/app.ts` — Express app factory; import this in tests to avoid starting the server
 
-### Planned structure (partially implemented)
-```
-src/
-  app.ts              # Express app (middleware, routes)
-  index.ts            # Server start
-  routes/             # Express routers (one file per resource)
-  controllers/        # Request handlers (call services, return responses)
-  middleware/         # Auth middleware, error handler, validation
-  services/           # Business logic (called by controllers)
-  types/              # Shared TypeScript interfaces
-  __tests__/          # Jest test files (*.test.ts)
-```
+### Layer pattern: Service → Controller → Router
 
-### Database
-Prisma 7 with PostgreSQL. Connection URL lives in `.env` as `DATABASE_URL` and is consumed by `prisma.config.ts` (not in `schema.prisma` — this is a Prisma 7 change).
+Every resource follows this three-layer pattern:
 
-Key schema facts:
-- All log tables (`symptom_logs`, `mood_logs`, `medication_logs`, `habit_logs`) have a composite index on `(user_id, logged_at)`
-- `Symptom` and `Habit` rows with `user_id = null` are system defaults shared across all users
-- `TrackingType` enum: `boolean | numeric | duration` — determines which value field on `HabitLog` is populated
-- All foreign keys cascade delete on user removal
+- **`src/services/<resource>.service.ts`** — all business logic, Prisma queries, ownership checks, and domain errors. Services throw `Error` objects with a `.status` property attached:
+  ```ts
+  const err = new Error('Not found');
+  (err as Error & { status: number }).status = 404;
+  throw err;
+  ```
+- **`src/controllers/<resource>.controller.ts`** — parses/validates request input, calls service, maps `.status` on caught errors to HTTP responses. All route params are accessed as `req.params['id'] as string` (not `req.params.id`) to satisfy TypeScript.
+- **`src/routes/<resource>.router.ts`** — wires routes to handlers; all protected routes use `authMiddleware`.
+- **`src/app.ts`** — mounts routers at their base paths (e.g., `app.use('/api/mood-logs', moodLogRouter)`).
+- **`src/lib/prisma.ts`** — Prisma singleton using the `PrismaPg` driver adapter (required by Prisma 7).
 
 ### Auth
-JWT access tokens (15 min, signed with `JWT_SECRET`) + refresh tokens (7 days, signed with `JWT_REFRESH_SECRET`, stored in `refresh_tokens` table). `POST /api/auth/register` is implemented. Auth middleware (verifying JWT and attaching `req.user`) is planned.
+JWT access tokens (15 min, `JWT_SECRET`) + refresh tokens (7 days, `JWT_REFRESH_SECRET`, stored in `refresh_tokens` table with a `jti` claim for uniqueness). `authMiddleware` reads `Authorization: Bearer <token>`, verifies the JWT, and attaches `req.user = { userId, email }` to the request. `req.user` is typed via `src/types/express.d.ts` augmenting `Express.Request`.
 
-### Environment variables
-See `.env.example` for all required vars: `PORT`, `DATABASE_URL`, `JWT_SECRET`, `JWT_REFRESH_SECRET`.
+Password reset tokens are stored as a bcrypt hash in `password_reset_tokens`. The email service (`src/services/email.service.ts`) is a stub that `console.log`s the reset URL rather than sending a real email.
 
+### Database
+Prisma 7 with PostgreSQL. Connection URL lives in `.env` as `DATABASE_URL` and is consumed by `prisma.config.ts` (not `schema.prisma` — this is a Prisma 7 change).
 
-Each task gets its own branch (`task/<n>-<slug>`) cut from `main`, with a PR back to `main`. Branch and PR are created before implementation begins.
+Key schema facts:
+- `Symptom` and `Habit` rows with `userId = null` are system defaults shared across all users; user-created rows have a `userId`. Controllers treat attempts to log against another user's private symptom/habit as 404 (not 403) to avoid leaking existence.
+- All log tables except `medication_logs` index on `(user_id, logged_at)`. `medication_logs` indexes on `(user_id, created_at)` — it has no `loggedAt` field.
+- `HabitLog` has three value fields (`valueBoolean`, `valueNumeric`, `valueDuration`); only the one matching the habit's `trackingType` enum (`boolean | numeric | duration`) should be populated.
+- All foreign keys cascade delete on user removal.
+
+### Testing
+All tests are integration tests using `supertest` against the real database — no mocking. Tests are self-contained: each file seeds its own data in `beforeAll`/`beforeEach` and cleans up in `afterAll`/`afterEach`. Tests never rely on seed data from `prisma db seed`.
+
+**Test isolation:** Each test file uses a unique email domain suffix (e.g., `@mood-logs-get.welltrack`, `@symptoms-post.welltrack`) so Jest's parallel workers don't interfere with each other's test data.
+
+### Git workflow
+Each task from `tasks.md` gets its own branch and PR:
+1. Branch: `task/<n>-<slug>` cut from the previous task's branch (they stack until merged)
+2. PR targets `main`; title matches the task
+3. Conventional commit messages: `feat:`, `fix:`, `docs:`, `test:`, `refactor:`
+4. Update the checkbox in `tasks.md` before committing
 
 ### Dependency notes
 - `typescript` is pinned to `~5.8.3` — `typescript-eslint@8` has a peer dep ceiling of `<5.9.0`
 - ESLint is v9 (flat config via `eslint.config.js`) — not the legacy `.eslintrc` format
 - Prisma is v7 — datasource URL is in `prisma.config.ts`, not `schema.prisma`
-
-
-
-### Git workflow
-When completeing tasks from TASKS.md:
-1. Create a new branch named `feature/<task-number>-<brief-description>` before starting work
-2. Make automatic commits with conventional. commit messages:
-  - feat: for new features
-  - fix: for bug fix
-  - docs: for documentation
-  - test: for tests
-  - refactor: for refactoring
-3. After completing a task, create a pull request with:
-  - A descriptive title matching the task
-  - A summary of changes made
-  - Any testing notes or considerations
-4. Update the task checkbox in TASKS.md to mark it complete
-
-
-## Testing Requirements
-Before marking any tasks complete:
-1. Write a unit test for new functionality
-2. Run the full test suite with `npm test`
-3. If tests fail:
-    - Analyze the failure output
-    - Fix the code (not the tests, unless the tests are incorrect)
-    - re-run the tests until all pass
-4. Run test matching pattern `npm test -- --grep "pattern"`
-
-
+- Express v5 is in use (`"express": "^5.2.1"`) — async errors propagate automatically without `next(err)`

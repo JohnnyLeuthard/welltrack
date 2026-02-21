@@ -69,44 +69,44 @@ Checkbox list of tasks organized by phase. Stack: React + TypeScript + Tailwind 
 ### Mood Logs CRUD
 
 - [x] `GET /api/mood-logs` — return mood logs with optional `startDate` / `endDate` filters
-- [ ] `POST /api/mood-logs` — create a mood log; validate mood_score (1–5), energy_level (1–5), stress_level (1–5)
-- [ ] `PATCH /api/mood-logs/:id` — update a mood log entry
-- [ ] `DELETE /api/mood-logs/:id` — delete a mood log entry
+- [x] `POST /api/mood-logs` — create a mood log; validate mood_score (1–5), energy_level (1–5), stress_level (1–5)
+- [x] `PATCH /api/mood-logs/:id` — update a mood log entry
+- [x] `DELETE /api/mood-logs/:id` — delete a mood log entry
 
 ### Medications CRUD
 
-- [ ] `GET /api/medications` — return all active medications for the current user
-- [ ] `POST /api/medications` — create a new medication
-- [ ] `PATCH /api/medications/:id` — update a medication (name, dosage, frequency, is_active)
-- [ ] `DELETE /api/medications/:id` — soft-delete or hard-delete a medication
+- [x] `GET /api/medications` — return all active medications for the current user
+- [x] `POST /api/medications` — create a new medication
+- [x] `PATCH /api/medications/:id` — update a medication (name, dosage, frequency, is_active)
+- [x] `DELETE /api/medications/:id` — soft-delete or hard-delete a medication
 
 ### Medication Logs CRUD
 
-- [ ] `GET /api/medication-logs` — return logs with optional `startDate` / `endDate` filters
-- [ ] `POST /api/medication-logs` — log a medication as taken or not taken
-- [ ] `PATCH /api/medication-logs/:id` — update a medication log
-- [ ] `DELETE /api/medication-logs/:id` — delete a medication log
+- [x] `GET /api/medication-logs` — return logs with optional `startDate` / `endDate` filters
+- [x] `POST /api/medication-logs` — log a medication as taken or not taken
+- [x] `PATCH /api/medication-logs/:id` — update a medication log
+- [x] `DELETE /api/medication-logs/:id` — delete a medication log
 
 ### Habits CRUD
 
-- [ ] `GET /api/habits` — return system habits (user_id = null) plus the user's custom habits
-- [ ] `POST /api/habits` — create a custom habit; validate `tracking_type` is one of `boolean`, `numeric`, `duration`
-- [ ] `PATCH /api/habits/:id` — update a habit (user's own only)
-- [ ] `DELETE /api/habits/:id` — delete a custom habit
+- [x] `GET /api/habits` — return system habits (user_id = null) plus the user's custom habits
+- [x] `POST /api/habits` — create a custom habit; validate `tracking_type` is one of `boolean`, `numeric`, `duration`
+- [x] `PATCH /api/habits/:id` — update a habit (user's own only)
+- [x] `DELETE /api/habits/:id` — delete a custom habit
 
 ### Habit Logs CRUD
 
-- [ ] `GET /api/habit-logs` — return logs with optional `startDate` / `endDate` filters
-- [ ] `POST /api/habit-logs` — create a habit log; validate that the correct value field is populated based on `tracking_type`
-- [ ] `PATCH /api/habit-logs/:id` — update a habit log
-- [ ] `DELETE /api/habit-logs/:id` — delete a habit log
+- [x] `GET /api/habit-logs` — return logs with optional `startDate` / `endDate` filters
+- [x] `POST /api/habit-logs` — create a habit log; validate that the correct value field is populated based on `tracking_type`
+- [x] `PATCH /api/habit-logs/:id` — update a habit log
+- [x] `DELETE /api/habit-logs/:id` — delete a habit log
 
 ### Validation & Error Handling
 
-- [ ] Add `zod` (or `express-validator`) to validate request bodies on all POST/PATCH endpoints
-- [ ] Create a centralized error-handling middleware that returns consistent `{ error: string }` JSON responses
-- [ ] Return `401` for missing/invalid auth, `403` for ownership violations, `404` for not found, `422` for validation errors
-- [ ] Add a catch-all 404 handler for unknown routes
+- [x] Add `zod` (or `express-validator`) to validate request bodies on all POST/PATCH endpoints
+- [x] Create a centralized error-handling middleware that returns consistent `{ error: string }` JSON responses
+- [x] Return `401` for missing/invalid auth, `403` for ownership violations, `404` for not found, `422` for validation errors
+- [x] Add a catch-all 404 handler for unknown routes
 
 ---
 
