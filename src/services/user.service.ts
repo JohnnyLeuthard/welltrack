@@ -22,3 +22,30 @@ export async function getMe(userId: string): Promise<UserProfile> {
 
   return user;
 }
+
+export interface UpdateMeInput {
+  displayName?: string | null;
+  timezone?: string;
+}
+
+export function isValidIANATimezone(tz: string): boolean {
+  try {
+    Intl.DateTimeFormat(undefined, { timeZone: tz });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export async function updateMe(userId: string, input: UpdateMeInput): Promise<UserProfile> {
+  const user = await prisma.user.update({
+    where: { id: userId },
+    data: {
+      ...(input.displayName !== undefined && { displayName: input.displayName }),
+      ...(input.timezone !== undefined && { timezone: input.timezone }),
+    },
+    select: { id: true, email: true, displayName: true, timezone: true, createdAt: true },
+  });
+
+  return user;
+}
