@@ -18,6 +18,30 @@ export async function listSymptoms(userId: string): Promise<SymptomResult[]> {
   });
 }
 
+export async function deleteSymptom(userId: string, symptomId: string): Promise<void> {
+  const symptom = await prisma.symptom.findUnique({ where: { id: symptomId } });
+
+  if (!symptom) {
+    const err = new Error('Symptom not found');
+    (err as Error & { status: number }).status = 404;
+    throw err;
+  }
+
+  if (symptom.userId === null) {
+    const err = new Error('System symptoms cannot be deleted');
+    (err as Error & { status: number }).status = 403;
+    throw err;
+  }
+
+  if (symptom.userId !== userId) {
+    const err = new Error('Forbidden');
+    (err as Error & { status: number }).status = 403;
+    throw err;
+  }
+
+  await prisma.symptom.delete({ where: { id: symptomId } });
+}
+
 export interface UpdateSymptomInput {
   name?: string;
   category?: string | null;

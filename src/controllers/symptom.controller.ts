@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { createSymptom, listSymptoms, updateSymptom } from '../services/symptom.service';
+import { createSymptom, deleteSymptom, listSymptoms, updateSymptom } from '../services/symptom.service';
 
 export async function listSymptomsHandler(req: Request, res: Response): Promise<void> {
   const symptoms = await listSymptoms(req.user!.userId);
@@ -50,6 +50,26 @@ export async function updateSymptomHandler(req: Request, res: Response): Promise
 
     const symptom = await updateSymptom(req.user!.userId, id, input);
     res.status(200).json(symptom);
+  } catch (err) {
+    const status = (err as Error & { status?: number }).status;
+    if (status === 404) {
+      res.status(404).json({ error: (err as Error).message });
+      return;
+    }
+    if (status === 403) {
+      res.status(403).json({ error: (err as Error).message });
+      return;
+    }
+    throw err;
+  }
+}
+
+export async function deleteSymptomHandler(req: Request, res: Response): Promise<void> {
+  const id = req.params['id'] as string;
+
+  try {
+    await deleteSymptom(req.user!.userId, id);
+    res.status(200).json({ message: 'Symptom deleted successfully' });
   } catch (err) {
     const status = (err as Error & { status?: number }).status;
     if (status === 404) {
