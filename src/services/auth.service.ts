@@ -133,6 +133,11 @@ export async function login(input: LoginInput): Promise<AuthResult> {
   };
 }
 
+export async function logout(refreshToken: string): Promise<void> {
+  // Silently ignore tokens that don't exist — logout is idempotent
+  await prisma.refreshToken.deleteMany({ where: { token: refreshToken } });
+}
+
 const RESET_TOKEN_TTL_MS = 60 * 60 * 1000; // 1 hour
 
 export interface ForgotPasswordInput {

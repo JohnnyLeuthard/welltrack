@@ -1,8 +1,20 @@
 import { Request, Response } from 'express';
-import { forgotPassword, login, refreshTokens, register } from '../services/auth.service';
+import { forgotPassword, login, logout, refreshTokens, register } from '../services/auth.service';
 
 function isValidEmail(email: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+export async function logoutHandler(req: Request, res: Response): Promise<void> {
+  const { refreshToken } = req.body as Record<string, unknown>;
+
+  if (typeof refreshToken !== 'string' || refreshToken.trim().length === 0) {
+    res.status(422).json({ error: 'refreshToken is required' });
+    return;
+  }
+
+  await logout(refreshToken);
+  res.status(200).json({ message: 'Logged out successfully' });
 }
 
 export async function forgotPasswordHandler(req: Request, res: Response): Promise<void> {
