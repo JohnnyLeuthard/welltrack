@@ -96,10 +96,10 @@ Checkbox list of tasks organized by phase. Stack: React + TypeScript + Tailwind 
 
 ### Habit Logs CRUD
 
-- [ ] `GET /api/habit-logs` — return logs with optional `startDate` / `endDate` filters
-- [ ] `POST /api/habit-logs` — create a habit log; validate that the correct value field is populated based on `tracking_type`
-- [ ] `PATCH /api/habit-logs/:id` — update a habit log
-- [ ] `DELETE /api/habit-logs/:id` — delete a habit log
+- [x] `GET /api/habit-logs` — return logs with optional `startDate` / `endDate` filters
+- [x] `POST /api/habit-logs` — create a habit log; validate that the correct value field is populated based on `tracking_type`
+- [x] `PATCH /api/habit-logs/:id` — update a habit log
+- [x] `DELETE /api/habit-logs/:id` — delete a habit log
 
 ### Validation & Error Handling
 
