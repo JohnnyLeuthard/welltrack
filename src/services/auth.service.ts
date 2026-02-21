@@ -1,3 +1,4 @@
+import { randomUUID } from 'crypto';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import prisma from '../lib/prisma';
@@ -16,7 +17,8 @@ function signAccessToken(userId: string, email: string): string {
 function signRefreshToken(userId: string): string {
   const secret = process.env['JWT_REFRESH_SECRET'];
   if (!secret) throw new Error('JWT_REFRESH_SECRET is not set');
-  return jwt.sign({ userId }, secret, { expiresIn: REFRESH_TOKEN_TTL });
+  // jti (JWT ID) ensures uniqueness even when issued in the same second
+  return jwt.sign({ userId, jti: randomUUID() }, secret, { expiresIn: REFRESH_TOKEN_TTL });
 }
 
 export interface RegisterInput {
@@ -29,6 +31,48 @@ export interface AuthResult {
   user: { id: string; email: string; displayName: string | null };
   accessToken: string;
   refreshToken: string;
+}
+
+export interface LoginInput {
+  email: string;
+  password: string;
+}
+
+export async function login(input: LoginInput): Promise<AuthResult> {
+  const user = await prisma.user.findUnique({
+    where: { email: input.email },
+    select: { id: true, email: true, displayName: true, passwordHash: true },
+  });
+
+  if (!user) {
+    const err = new Error('Invalid email or password');
+    (err as Error & { status: number }).status = 401;
+    throw err;
+  }
+
+  const valid = await bcrypt.compare(input.password, user.passwordHash);
+  if (!valid) {
+    const err = new Error('Invalid email or password');
+    (err as Error & { status: number }).status = 401;
+    throw err;
+  }
+
+  const accessToken = signAccessToken(user.id, user.email);
+  const refreshToken = signRefreshToken(user.id);
+
+  await prisma.refreshToken.create({
+    data: {
+      userId: user.id,
+      token: refreshToken,
+      expiresAt: new Date(Date.now() + REFRESH_TOKEN_TTL_MS),
+    },
+  });
+
+  return {
+    user: { id: user.id, email: user.email, displayName: user.displayName },
+    accessToken,
+    refreshToken,
+  };
 }
 
 export async function register(input: RegisterInput): Promise<AuthResult> {

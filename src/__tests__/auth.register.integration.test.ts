@@ -9,14 +9,13 @@ afterAll(async () => {
 });
 
 beforeEach(async () => {
-  // Clean up any users created during tests
-  await prisma.refreshToken.deleteMany({});
-  await prisma.user.deleteMany({ where: { email: { endsWith: '@test.welltrack' } } });
+  // Deleting users cascades to refresh_tokens via FK
+  await prisma.user.deleteMany({ where: { email: { endsWith: '@register.welltrack' } } });
 });
 
 describe('POST /api/auth/register', () => {
   const validBody = {
-    email: 'alice@test.welltrack',
+    email: 'alice@register.welltrack',
     password: 'password123',
     displayName: 'Alice',
   };
@@ -27,7 +26,7 @@ describe('POST /api/auth/register', () => {
     expect(res.status).toBe(201);
     expect(res.headers['content-type']).toMatch(/application\/json/);
     expect(res.body.user).toMatchObject({
-      email: 'alice@test.welltrack',
+      email: 'alice@register.welltrack',
       displayName: 'Alice',
     });
     expect(typeof res.body.accessToken).toBe('string');
@@ -48,16 +47,16 @@ describe('POST /api/auth/register', () => {
   it('normalises email to lowercase', async () => {
     const res = await request(app)
       .post(BASE)
-      .send({ ...validBody, email: 'Alice@Test.WellTrack' });
+      .send({ ...validBody, email: 'Alice@Register.WellTrack' });
 
     expect(res.status).toBe(201);
-    expect(res.body.user.email).toBe('alice@test.welltrack');
+    expect(res.body.user.email).toBe('alice@register.welltrack');
   });
 
   it('works without displayName', async () => {
     const res = await request(app)
       .post(BASE)
-      .send({ email: 'bob@test.welltrack', password: 'password123' });
+      .send({ email: 'bob@register.welltrack', password: 'password123' });
 
     expect(res.status).toBe(201);
     expect(res.body.user.displayName).toBeNull();
@@ -86,14 +85,14 @@ describe('POST /api/auth/register', () => {
   it('returns 422 for password shorter than 8 characters', async () => {
     const res = await request(app)
       .post(BASE)
-      .send({ email: 'carol@test.welltrack', password: 'short' });
+      .send({ email: 'carol@register.welltrack', password: 'short' });
     expect(res.status).toBe(422);
   });
 
   it('returns 422 for non-string displayName', async () => {
     const res = await request(app)
       .post(BASE)
-      .send({ email: 'dave@test.welltrack', password: 'password123', displayName: 42 });
+      .send({ email: 'dave@register.welltrack', password: 'password123', displayName: 42 });
     expect(res.status).toBe(422);
   });
 });
