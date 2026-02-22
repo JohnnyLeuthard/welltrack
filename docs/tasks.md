@@ -228,7 +228,7 @@ Checkbox list of tasks organized by phase. Stack: React + TypeScript + Tailwind 
 - [x] Dark mode toggle — add a light/dark theme switch to the Settings page; persist preference in `localStorage`; apply via Tailwind's `darkMode: 'class'` config
 - [x] Correlation chart — add a second metric overlay to the Trends chart so users can compare two metrics (e.g., mood vs. energy) on the same axis
 - [x] Help page — add a `/help` route with FAQs and how-to guides for logging, viewing trends, and exporting data
-- [ ] Contact page — add a `/contact` route with a support mailto link and links to relevant help resources
+- [x] Contact page — add a `/contact` route with a support mailto link and links to relevant help resources
 
 ### Backend + Frontend
 
