@@ -75,7 +75,7 @@ export default function DashboardPage() {
 
   useEffect(() => {
     const { weekStart, today } = getWeekRange();
-    const params = { startDate: weekStart, endDate: today };
+    const params = { startDate: weekStart, endDate: `${today}T23:59:59.999Z` };
 
     setIsLoading(true);
     // Fetch the full week so we can derive both today's counts and the streak
