@@ -107,10 +107,23 @@ export async function createMedication(
   });
 }
 
+export interface ListMedicationsOptions {
+  includeAll?: boolean;
+  limit?: number;
+  offset?: number;
+}
+
+const DEFAULT_LIMIT = 50;
+const MAX_LIMIT = 200;
+
 export async function listMedications(
   userId: string,
-  includeAll = false,
+  opts: ListMedicationsOptions = {},
 ): Promise<MedicationResult[]> {
+  const includeAll = opts.includeAll ?? false;
+  const limit = Math.min(opts.limit ?? DEFAULT_LIMIT, MAX_LIMIT);
+  const offset = opts.offset ?? 0;
+
   return prisma.medication.findMany({
     where: { userId, ...(includeAll ? {} : { isActive: true }) },
     select: {
@@ -123,5 +136,7 @@ export async function listMedications(
       createdAt: true,
     },
     orderBy: { name: 'asc' },
+    take: limit,
+    skip: offset,
   });
 }

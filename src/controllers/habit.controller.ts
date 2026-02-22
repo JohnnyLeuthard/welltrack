@@ -4,7 +4,27 @@ import { createHabit, deleteHabit, listHabits, updateHabit } from '../services/h
 const VALID_TRACKING_TYPES = ['boolean', 'numeric', 'duration'] as const;
 
 export async function listHabitsHandler(req: Request, res: Response): Promise<void> {
-  const habits = await listHabits(req.user!.userId);
+  const { limit, offset } = req.query as Record<string, string | undefined>;
+
+  let parsedLimit: number | undefined;
+  if (limit !== undefined) {
+    parsedLimit = parseInt(limit, 10);
+    if (isNaN(parsedLimit) || parsedLimit < 1) {
+      res.status(422).json({ error: 'limit must be a positive integer' });
+      return;
+    }
+  }
+
+  let parsedOffset: number | undefined;
+  if (offset !== undefined) {
+    parsedOffset = parseInt(offset, 10);
+    if (isNaN(parsedOffset) || parsedOffset < 0) {
+      res.status(422).json({ error: 'offset must be a non-negative integer' });
+      return;
+    }
+  }
+
+  const habits = await listHabits(req.user!.userId, { limit: parsedLimit, offset: parsedOffset });
   res.status(200).json(habits);
 }
 
