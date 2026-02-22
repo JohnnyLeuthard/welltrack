@@ -105,3 +105,14 @@ export interface HabitLog {
 export interface ApiError {
   error: string;
 }
+
+// Insights
+export interface TrendPoint {
+  date: string;
+  avg: number;
+}
+
+export interface ActivityPoint {
+  date: string;
+  count: number;
+}

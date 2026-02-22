@@ -67,12 +67,12 @@ Every resource follows this three-layer pattern:
 - **`src/routes/<resource>.router.ts`** — wires routes to handlers; all protected routes use `authMiddleware`.
 - **`src/app.ts`** — mounts routers at their base paths (e.g., `app.use('/api/mood-logs', moodLogRouter)`).
 - **`src/lib/prisma.ts`** — Prisma singleton using the `PrismaPg` driver adapter (required by Prisma 7).
-- **`src/schemas/<resource>.schema.ts`** — Zod schemas for request validation, one file per resource.
-- **`src/middleware/validate.middleware.ts`** — `validateBody(schema)` runs `schema.safeParse(req.body)` and returns 422 with the first Zod issue message. Wire it before controller handlers that need input validation.
+- **`src/schemas/<resource>.schema.ts`** — Zod schemas for request validation, one file per resource. Each file exports a `create<Resource>Schema` and an `update<Resource>Schema`. UPDATE schemas use `.nullable().optional()` to allow clearing fields; CREATE schemas use `.optional()` only.
+- **`src/middleware/validate.middleware.ts`** — `validateBody(schema)` runs `schema.safeParse(req.body)` and returns 422 with the **first** Zod issue message (not all). Wire it in routes between `authMiddleware` and the controller handler: `router.post('/', authMiddleware, validateBody(createSchema), handler)`. The middleware short-circuits on invalid input — the controller will never run.
 
 ### Frontend (client/)
 
-React 19 + Vite + TypeScript SPA. Stack: React Router DOM v7, Axios, Tailwind CSS v4 (via `@tailwindcss/vite` plugin).
+React 19 + Vite + TypeScript SPA. Stack: React Router DOM v7, Axios, Tailwind CSS v4 (via `@tailwindcss/vite` plugin), Recharts (charts on TrendsPage).
 
 ```bash
 # Run from the client/ directory
@@ -104,10 +104,12 @@ Vite proxies all `/api` requests to `http://localhost:3000`. The API server's CO
 /forgot-password    → ForgotPasswordPage    (public)
 /reset-password     → ResetPasswordPage     (public; reads ?token= from query string)
 /                   → DashboardPage         (protected, inside AppLayout)
-/history            → HistoryPage           (protected, inside AppLayout) — stub
-/trends             → TrendsPage            (protected, inside AppLayout) — stub
+/history            → HistoryPage           (protected, inside AppLayout)
+/trends             → TrendsPage            (protected, inside AppLayout)
 /settings           → SettingsPage          (protected, inside AppLayout) — stub
 ```
+
+`ProtectedRoute` wraps `AppLayout` which wraps all four protected pages. An unmatched path redirects to `/` with `replace`. `AppLayout` reads `user?.displayName` from `AuthContext` and falls back to `user.email` in the sidebar if `displayName` is null.
 
 #### Auth token handling
 
@@ -118,7 +120,8 @@ Vite proxies all `/api` requests to `http://localhost:3000`. The API server's CO
 #### Frontend patterns
 
 - **API calls** — call `api.get/post/patch/delete()` in `useEffect` or event handlers; no Redux or query library
-- **Error display** — catch Axios errors, read `err.response?.data as ApiError`, set an `error: string` state, render in a `role="alert"` paragraph
+- **Error display** — catch Axios errors, read `err.response?.data as ApiError` (shape: `{ error: string }`), set an `error: string` state, render in a `role="alert"` paragraph
+- **401 retry queue** — the response interceptor in `api.ts` enqueues concurrent 401s while a token refresh is in flight, then replays them all with the new token; a `_retry` flag on each request prevents infinite loops
 - **Loading states** — `isLoading: boolean` state with skeleton or spinner; never leave the UI blank while data is in flight
 - **Form submit** — `isSubmitting: boolean` state; `disabled={isSubmitting}` on the button; change button label to "…" during flight; always reset in `finally`
 - **Modal pattern** — `useState<ModalType | null>(null)` to track which modal is open; modal renders as a fixed overlay inside the page component (no React portal needed at this scale)
@@ -127,6 +130,12 @@ Vite proxies all `/api` requests to `http://localhost:3000`. The API server's CO
 #### Dashboard data fetching
 
 `DashboardPage` fetches the full current week (`weekStart → today`) for all four log types in a single `Promise.all`. Today's counts are derived by filtering on the date prefix; the streak is derived by collecting unique dates into a `Set<string>`. `medication_logs` uses `createdAt` for date comparisons; all other log types use `loggedAt`.
+
+#### Insights & Trends API
+
+`GET /api/insights/trends?type=<metric>&days=<7|30|90>` returns `Array<{ date: string; avg: number }>`. The `type` param is either `mood`, `energy`, `stress` (averages from `mood_logs`), or a symptom UUID (averages severity from `symptom_logs`). Invalid `days` values default to 30.
+
+`GET /api/insights/activity?days=<7|30|90>` returns `Array<{ date: string; count: number }>` — total log entries per day across all four log types (used for the calendar heatmap on TrendsPage).
 
 ### Auth
 JWT access tokens (15 min, `JWT_SECRET`) + refresh tokens (7 days, `JWT_REFRESH_SECRET`, stored in `refresh_tokens` table with a `jti` claim for uniqueness). `authMiddleware` reads `Authorization: Bearer <token>`, verifies the JWT, and attaches `req.user = { userId, email }` to the request. `req.user` is typed via `src/types/express.d.ts` augmenting `Express.Request`.
@@ -183,7 +192,8 @@ Each task from `tasks.md` gets its own branch and PR. This is mandatory — do n
 - Do not create new `.md` files unless explicitly asked; update existing docs instead
 
 ### Dependency notes
-- `typescript` is pinned to `~5.8.3` — `typescript-eslint@8` has a peer dep ceiling of `<5.9.0`
+- Backend `typescript` is pinned to `~5.8.3` — `typescript-eslint@8` has a peer dep ceiling of `<5.9.0`. The client has its own `tsconfig` and uses `~5.9.3` independently.
 - ESLint is v9 (flat config via `eslint.config.js`) — not the legacy `.eslintrc` format
 - Prisma is v7 — datasource URL is in `prisma.config.ts`, not `schema.prisma`
 - Express v5 is in use (`"express": "^5.2.1"`) — async errors propagate automatically without `next(err)`
+- Recharts (`recharts`) is installed in `client/` for line charts on TrendsPage; use `ResponsiveContainer` to make charts fill their parent width
