@@ -41,7 +41,7 @@ docker compose ps                 # Check status / health
 docker exec -it welltrack-postgres psql -U welltrack   # Open psql shell
 ```
 
-When a new backing service is added (e.g., Redis), add it as a new service block in `docker-compose.yml`. Application-level env vars (`JWT_SECRET`, `PORT`, etc.) live in `.env`, not in `docker-compose.yml`.
+**Keeping `docker-compose.yml` up to date:** When a new backing service is added to the project (e.g., Redis, a local SMTP server), add it as a new service block in `docker-compose.yml`. Application-level env vars (`JWT_SECRET`, `PORT`, etc.) live in `.env`, not in `docker-compose.yml`.
 
 See `DEVELOPMENT.md` for full first-time setup instructions.
 
@@ -52,6 +52,19 @@ See `DEVELOPMENT.md` for full first-time setup instructions.
 ### Entry points
 - `src/index.ts` — server entrypoint only; imports `app` and calls `app.listen()`
 - `src/app.ts` — Express app factory; import this in tests to avoid starting the server
+
+### Project structure
+```
+src/
+  app.ts              # Express app (middleware, routes)
+  index.ts            # Server start
+  routes/             # Express routers (one file per resource)
+  controllers/        # Request handlers (call services, return responses)
+  middleware/         # Auth middleware, error handler, validation
+  services/           # Business logic (called by controllers)
+  types/              # Shared TypeScript interfaces
+  __tests__/          # Jest test files (*.test.ts)
+```
 
 ### Layer pattern: Service → Controller → Router
 
@@ -141,6 +154,9 @@ Vite proxies all `/api` requests to `http://localhost:3000`. The API server's CO
 JWT access tokens (15 min, `JWT_SECRET`) + refresh tokens (7 days, `JWT_REFRESH_SECRET`, stored in `refresh_tokens` table with a `jti` claim for uniqueness). `authMiddleware` reads `Authorization: Bearer <token>`, verifies the JWT, and attaches `req.user = { userId, email }` to the request. `req.user` is typed via `src/types/express.d.ts` augmenting `Express.Request`.
 
 Password reset tokens are stored as a bcrypt hash in `password_reset_tokens`. The email service (`src/services/email.service.ts`) is a stub that `console.log`s the reset URL rather than sending a real email.
+
+### Environment variables
+See `.env.example` for all required vars: `PORT`, `DATABASE_URL`, `JWT_SECRET`, `JWT_REFRESH_SECRET`.
 
 ### Database
 Prisma 7 with PostgreSQL. Connection URL lives in `.env` as `DATABASE_URL` and is consumed by `prisma.config.ts` (not `schema.prisma` — this is a Prisma 7 change).
