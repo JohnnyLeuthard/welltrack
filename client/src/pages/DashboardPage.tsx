@@ -2,6 +2,10 @@ import { useEffect, useState } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import api from '../services/api';
 import type { HabitLog, MedicationLog, MoodLog, SymptomLog } from '../types/api';
+import LogSymptomModal from '../components/LogSymptomModal';
+import LogMoodModal from '../components/LogMoodModal';
+import LogMedicationModal from '../components/LogMedicationModal';
+import LogHabitModal from '../components/LogHabitModal';
 
 type QuickAddType = 'symptom' | 'mood' | 'medication' | 'habit';
 
@@ -10,10 +14,6 @@ interface TodayCounts {
   moods: number;
   medications: number;
   habits: number;
-}
-
-function getToday(): string {
-  return new Date().toISOString().split('T')[0]!;
 }
 
 /** Returns { weekStart: 'YYYY-MM-DD', today: 'YYYY-MM-DD', daysFromMonday: 0-6 } */
@@ -67,11 +67,17 @@ export default function DashboardPage() {
   const [loggedDatesThisWeek, setLoggedDatesThisWeek] = useState<Set<string>>(new Set());
   const [isLoading, setIsLoading] = useState(true);
   const [quickAdd, setQuickAdd] = useState<QuickAddType | null>(null);
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  function refreshCounts() {
+    setRefreshKey((k) => k + 1);
+  }
 
   useEffect(() => {
     const { weekStart, today } = getWeekRange();
     const params = { startDate: weekStart, endDate: today };
 
+    setIsLoading(true);
     // Fetch the full week so we can derive both today's counts and the streak
     Promise.all([
       api.get<SymptomLog[]>('/api/symptom-logs', { params }),
@@ -99,7 +105,7 @@ export default function DashboardPage() {
         setCounts({ symptoms: 0, moods: 0, medications: 0, habits: 0 });
       })
       .finally(() => setIsLoading(false));
-  }, []);
+  }, [refreshKey]);
 
   const name = user?.displayName ?? null;
   const { weekStart, today, daysFromMonday } = getWeekRange();
@@ -190,31 +196,27 @@ export default function DashboardPage() {
         )}
       </section>
 
-      {/* Quick-add modal */}
-      {quickAdd && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
-          onClick={() => setQuickAdd(null)}
-        >
-          <div
-            className="w-full max-w-sm rounded-xl bg-white p-6 shadow-lg mx-4"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h2 className="mb-1 text-lg font-semibold text-gray-800 capitalize">
-              Log {quickAdd}
-            </h2>
-            <p className="mb-6 text-sm text-gray-500">
-              Full logging form coming soon. Build it in the Logging Forms section.
-            </p>
-            <button
-              onClick={() => setQuickAdd(null)}
-              className="rounded-md bg-teal-600 px-4 py-2 text-sm font-medium text-white hover:bg-teal-700"
-            >
-              Close
-            </button>
-          </div>
-        </div>
-      )}
+      {/* Quick-add modals */}
+      <LogSymptomModal
+        isOpen={quickAdd === 'symptom'}
+        onClose={() => setQuickAdd(null)}
+        onSuccess={refreshCounts}
+      />
+      <LogMoodModal
+        isOpen={quickAdd === 'mood'}
+        onClose={() => setQuickAdd(null)}
+        onSuccess={refreshCounts}
+      />
+      <LogMedicationModal
+        isOpen={quickAdd === 'medication'}
+        onClose={() => setQuickAdd(null)}
+        onSuccess={refreshCounts}
+      />
+      <LogHabitModal
+        isOpen={quickAdd === 'habit'}
+        onClose={() => setQuickAdd(null)}
+        onSuccess={refreshCounts}
+      />
     </div>
   );
 }
