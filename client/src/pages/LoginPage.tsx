@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import axios from 'axios';
 import type { ApiError } from '../types/api';
@@ -7,6 +7,8 @@ import type { ApiError } from '../types/api';
 export default function LoginPage() {
   const { login } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  const passwordReset = (location.state as { passwordReset?: boolean } | null)?.passwordReset;
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -39,6 +41,12 @@ export default function LoginPage() {
         <h1 className="mb-6 text-center text-2xl font-semibold text-gray-800">
           Sign in to WellTrack
         </h1>
+
+        {passwordReset && (
+          <p role="status" className="mb-4 rounded-md bg-teal-50 px-3 py-2 text-sm text-teal-700">
+            Password updated. Sign in with your new password.
+          </p>
+        )}
 
         <form onSubmit={(e) => void handleSubmit(e)} noValidate className="flex flex-col gap-4">
           <div>

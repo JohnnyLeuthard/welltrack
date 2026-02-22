@@ -110,16 +110,15 @@ Each task from `tasks.md` gets its own branch and PR. This is mandatory — do n
 2. Do the work
 3. Check the checkbox in `tasks.md` for that task
 4. Commit with a conventional commit message: `feat:`, `fix:`, `docs:`, `test:`, `refactor:`
-5. Move to the next task on a new branch cut from the one just committed
-
-**PR rules:**
-- Each branch gets a PR targeting `main`
-- PR title matches the task description from `tasks.md`
+5. Push the branch to GitHub: `git push -u origin <branch>`
+6. Open a PR on GitHub targeting `main`; PR title matches the task description from `tasks.md`
+7. Move to the next task on a new branch cut from the one just committed
 
 **Do not:**
 - Skip creating a branch before starting a task
 - Complete a task without committing before moving to the next one
 - Batch multiple tasks into a single commit or branch
+- Push or open PRs after the fact — do it immediately after the commit
 
 ### Dependency notes
 - `typescript` is pinned to `~5.8.3` — `typescript-eslint@8` has a peer dep ceiling of `<5.9.0`
