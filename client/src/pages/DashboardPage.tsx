@@ -115,17 +115,17 @@ export default function DashboardPage() {
       {/* Header */}
       <div className="mb-8">
         <p className="text-sm text-gray-400">{formatDate(new Date())}</p>
-        <h1 className="mt-1 text-2xl font-semibold text-gray-800">
+        <h1 className="mt-1 text-2xl font-semibold text-gray-800 dark:text-gray-100">
           {getGreeting()}{name ? `, ${name}` : ''}
         </h1>
       </div>
 
       {/* Streak */}
       <section className="mb-8">
-        <h2 className="mb-3 text-sm font-medium uppercase tracking-wide text-gray-400">
+        <h2 className="mb-3 text-sm font-medium uppercase tracking-wide text-gray-400 dark:text-gray-500">
           This week
         </h2>
-        <div className="inline-flex items-end gap-3 rounded-xl bg-white px-5 py-4 shadow-sm">
+        <div className="inline-flex items-end gap-3 rounded-xl bg-white dark:bg-gray-800 px-5 py-4 shadow-sm">
           <div className="flex gap-2">
             {WEEK_DAYS.map((day, i) => {
               const d = new Date(weekStart);
@@ -138,19 +138,19 @@ export default function DashboardPage() {
                   <div
                     className={`h-3 w-3 rounded-full transition-colors ${
                       isFuture
-                        ? 'bg-gray-100'
+                        ? 'bg-gray-100 dark:bg-gray-700'
                         : isLogged
                           ? 'bg-teal-500'
-                          : 'bg-gray-200'
+                          : 'bg-gray-200 dark:bg-gray-600'
                     }`}
                   />
-                  <span className="text-[10px] text-gray-400">{day}</span>
+                  <span className="text-[10px] text-gray-400 dark:text-gray-500">{day}</span>
                 </div>
               );
             })}
           </div>
-          <p className="ml-2 text-sm text-gray-500">
-            <span className="font-semibold text-gray-700">{loggedDatesThisWeek.size}</span>
+          <p className="ml-2 text-sm text-gray-500 dark:text-gray-400">
+            <span className="font-semibold text-gray-700 dark:text-gray-200">{loggedDatesThisWeek.size}</span>
             {' '}of {daysFromMonday + 1} days logged
           </p>
         </div>
@@ -158,14 +158,14 @@ export default function DashboardPage() {
 
       {/* Today's summary */}
       <section>
-        <h2 className="mb-4 text-sm font-medium uppercase tracking-wide text-gray-400">
+        <h2 className="mb-4 text-sm font-medium uppercase tracking-wide text-gray-400 dark:text-gray-500">
           Today's summary
         </h2>
 
         {isLoading ? (
           <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
             {summaryCards.map(({ key }) => (
-              <div key={key} className="h-28 animate-pulse rounded-xl bg-gray-100" />
+              <div key={key} className="h-28 animate-pulse rounded-xl bg-gray-100 dark:bg-gray-700" />
             ))}
           </div>
         ) : (
@@ -173,11 +173,11 @@ export default function DashboardPage() {
             {summaryCards.map(({ key, label, color, quickAdd: type, quickAddLabel }) => {
               const count = counts?.[key] ?? 0;
               return (
-                <div key={key} className="flex flex-col rounded-xl bg-white p-5 shadow-sm">
-                  <p className="text-sm text-gray-500">{label}</p>
-                  <p className="mt-1 text-3xl font-semibold text-gray-800">{count}</p>
+                <div key={key} className="flex flex-col rounded-xl bg-white dark:bg-gray-800 p-5 shadow-sm">
+                  <p className="text-sm text-gray-500 dark:text-gray-400">{label}</p>
+                  <p className="mt-1 text-3xl font-semibold text-gray-800 dark:text-gray-100">{count}</p>
                   {count === 0 ? (
-                    <p className="mt-1 text-xs text-gray-400">None logged yet</p>
+                    <p className="mt-1 text-xs text-gray-400 dark:text-gray-500">None logged yet</p>
                   ) : (
                     <p className={`mt-1 inline-block rounded-full px-2 py-0.5 text-xs font-medium ${color}`}>
                       {count === 1 ? '1 entry' : `${count} entries`}
@@ -185,7 +185,7 @@ export default function DashboardPage() {
                   )}
                   <button
                     onClick={() => setQuickAdd(type)}
-                    className="mt-3 self-start text-xs font-medium text-teal-600 hover:text-teal-700"
+                    className="mt-3 self-start text-xs font-medium text-teal-600 dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300"
                   >
                     {quickAddLabel}
                   </button>

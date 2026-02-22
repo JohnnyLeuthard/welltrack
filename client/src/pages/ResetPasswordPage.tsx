@@ -15,7 +15,7 @@ export default function ResetPasswordPage() {
 
   if (!token) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4">
+      <div className="flex min-h-screen items-center justify-center bg-gray-50 dark:bg-gray-900 px-4">
         <div className="w-full max-w-sm rounded-xl bg-white p-8 shadow-sm text-center">
           <h1 className="mb-2 text-xl font-semibold text-gray-800">Invalid reset link</h1>
           <p className="mb-6 text-sm text-gray-500">
@@ -58,8 +58,8 @@ export default function ResetPasswordPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4">
-      <div className="w-full max-w-sm rounded-xl bg-white p-8 shadow-sm">
+    <div className="flex min-h-screen items-center justify-center bg-gray-50 dark:bg-gray-900 px-4">
+      <div className="w-full max-w-sm rounded-xl bg-white dark:bg-gray-800 p-8 shadow-sm">
         <h1 className="mb-2 text-center text-2xl font-semibold text-gray-800">
           Set a new password
         </h1>
@@ -80,7 +80,7 @@ export default function ResetPasswordPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               autoComplete="new-password"
-              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-teal-500 focus:ring-1 focus:ring-teal-500 focus:outline-none"
+              className="w-full rounded-md border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 px-3 py-2 text-sm focus:border-teal-500 focus:ring-1 focus:ring-teal-500 focus:outline-none"
             />
             <p className="mt-1 text-xs text-gray-400">Minimum 8 characters</p>
           </div>

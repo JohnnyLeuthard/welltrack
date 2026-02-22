@@ -270,7 +270,7 @@ export default function HistoryPage() {
 
   return (
     <div className="p-8">
-      <h1 className="mb-6 text-2xl font-semibold text-gray-800">History</h1>
+      <h1 className="mb-6 text-2xl font-semibold text-gray-800 dark:text-gray-100">History</h1>
 
       {/* Type filter chips */}
       <div className="mb-6 flex flex-wrap gap-2">
@@ -281,7 +281,7 @@ export default function HistoryPage() {
             className={`rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${
               activeTypes.has(type)
                 ? TYPE_COLORS[type]
-                : 'bg-gray-100 text-gray-400 hover:bg-gray-200'
+                : 'bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500 hover:bg-gray-200 dark:hover:bg-gray-600'
             }`}
           >
             {label}
@@ -290,7 +290,7 @@ export default function HistoryPage() {
       </div>
 
       {deleteError && (
-        <p role="alert" className="mb-4 rounded-md bg-rose-50 px-4 py-3 text-sm text-rose-600">
+        <p role="alert" className="mb-4 rounded-md bg-rose-50 dark:bg-rose-900/20 px-4 py-3 text-sm text-rose-600 dark:text-rose-400">
           {deleteError}
         </p>
       )}
@@ -298,13 +298,13 @@ export default function HistoryPage() {
       {isLoading ? (
         <div className="space-y-3">
           {[1, 2, 3].map((n) => (
-            <div key={n} className="h-16 animate-pulse rounded-xl bg-gray-100" />
+            <div key={n} className="h-16 animate-pulse rounded-xl bg-gray-100 dark:bg-gray-700" />
           ))}
         </div>
       ) : fetchError ? (
         <p className="text-sm text-rose-600">{fetchError}</p>
       ) : sortedDates.length === 0 ? (
-        <p className="text-sm text-gray-400">
+        <p className="text-sm text-gray-400 dark:text-gray-500">
           No entries found. Start logging to see your history here.
         </p>
       ) : (
@@ -314,26 +314,26 @@ export default function HistoryPage() {
             const isExpanded = expandedDays.has(dateKey);
 
             return (
-              <div key={dateKey} className="overflow-hidden rounded-xl bg-white shadow-sm">
+              <div key={dateKey} className="overflow-hidden rounded-xl bg-white dark:bg-gray-800 shadow-sm">
                 {/* Day header — click to collapse / expand */}
                 <button
                   onClick={() => toggleDay(dateKey)}
-                  className="flex w-full items-center justify-between px-5 py-4 text-left hover:bg-gray-50"
+                  className="flex w-full items-center justify-between px-5 py-4 text-left hover:bg-gray-50 dark:hover:bg-gray-700"
                 >
                   <div>
-                    <span className="font-medium text-gray-800">
+                    <span className="font-medium text-gray-800 dark:text-gray-100">
                       {formatDayHeading(dateKey)}
                     </span>
-                    <span className="ml-2 text-sm text-gray-400">
+                    <span className="ml-2 text-sm text-gray-400 dark:text-gray-500">
                       {entries.length} {entries.length === 1 ? 'entry' : 'entries'}
                     </span>
                   </div>
-                  <span className="text-xs text-gray-400">{isExpanded ? '▲' : '▼'}</span>
+                  <span className="text-xs text-gray-400 dark:text-gray-500">{isExpanded ? '▲' : '▼'}</span>
                 </button>
 
                 {/* Entry rows */}
                 {isExpanded && (
-                  <div className="border-t border-gray-100">
+                  <div className="border-t border-gray-100 dark:border-gray-700">
                     {entries.map((entry) => {
                       const isConfirming =
                         confirmDelete?.id === entry.id && confirmDelete?.type === entry.type;
@@ -341,7 +341,7 @@ export default function HistoryPage() {
                       return (
                         <div
                           key={`${entry.type}-${entry.id}`}
-                          className="flex items-center gap-3 border-b border-gray-50 px-5 py-3 last:border-b-0"
+                          className="flex items-center gap-3 border-b border-gray-50 dark:border-gray-700 px-5 py-3 last:border-b-0"
                         >
                           {/* Type badge */}
                           <span
@@ -351,19 +351,19 @@ export default function HistoryPage() {
                           </span>
 
                           {/* Entry detail text */}
-                          <span className="flex-1 text-sm text-gray-700">
+                          <span className="flex-1 text-sm text-gray-700 dark:text-gray-300">
                             {renderEntryDetail(entry)}
                           </span>
 
                           {/* Timestamp */}
-                          <span className="shrink-0 text-xs text-gray-400">
+                          <span className="shrink-0 text-xs text-gray-400 dark:text-gray-500">
                             {getEntryTime(entry)}
                           </span>
 
                           {/* Inline delete confirmation or Edit/Delete buttons */}
                           {isConfirming ? (
                             <div className="flex shrink-0 items-center gap-2 text-sm">
-                              <span className="text-gray-500">Delete?</span>
+                              <span className="text-gray-500 dark:text-gray-400">Delete?</span>
                               <button
                                 onClick={() => void handleDelete(entry.type, entry.id)}
                                 className="font-medium text-rose-600 hover:text-rose-700"
@@ -372,7 +372,7 @@ export default function HistoryPage() {
                               </button>
                               <button
                                 onClick={() => setConfirmDelete(null)}
-                                className="text-gray-400 hover:text-gray-600"
+                                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
                               >
                                 Cancel
                               </button>
@@ -381,7 +381,7 @@ export default function HistoryPage() {
                             <div className="flex shrink-0 gap-3 text-xs">
                               <button
                                 onClick={() => openEditModal(entry)}
-                                className="font-medium text-teal-600 hover:text-teal-700"
+                                className="font-medium text-teal-600 dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300"
                               >
                                 Edit
                               </button>
