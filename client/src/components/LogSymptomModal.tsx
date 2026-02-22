@@ -161,18 +161,18 @@ export default function LogSymptomModal({ isOpen, onClose, onSuccess, log }: Pro
           />
         </div>
 
-        <div className="flex justify-end gap-3 pt-1">
+        <div className="flex flex-col gap-2 pt-1 sm:flex-row sm:justify-end sm:gap-3">
           <button
             type="button"
             onClick={onClose}
-            className="rounded-md px-4 py-2 text-sm text-gray-600 hover:text-gray-800"
+            className="w-full rounded-md px-4 py-2 text-sm text-gray-600 hover:text-gray-800 sm:w-auto"
           >
             Cancel
           </button>
           <button
             type="submit"
             disabled={isSubmitting || !symptomId}
-            className="rounded-md bg-teal-600 px-4 py-2 text-sm font-medium text-white hover:bg-teal-700 disabled:opacity-50"
+            className="w-full rounded-md bg-teal-600 px-4 py-2 text-sm font-medium text-white hover:bg-teal-700 disabled:opacity-50 sm:w-auto"
           >
             {isSubmitting ? 'Saving…' : 'Save'}
           </button>

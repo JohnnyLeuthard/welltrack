@@ -13,8 +13,8 @@ export default function AppLayout() {
 
   return (
     <div className="flex min-h-screen bg-gray-50">
-      {/* Sidebar */}
-      <aside className="flex w-56 shrink-0 flex-col border-r border-gray-200 bg-white">
+      {/* Sidebar — desktop only */}
+      <aside className="hidden sm:flex w-56 shrink-0 flex-col border-r border-gray-200 bg-white">
         <div className="px-6 py-5">
           <span className="text-lg font-semibold text-teal-600">WellTrack</span>
         </div>
@@ -55,10 +55,29 @@ export default function AppLayout() {
         </div>
       </aside>
 
-      {/* Main content */}
-      <main className="flex-1 overflow-auto">
+      {/* Main content — extra bottom padding on mobile to clear the bottom nav */}
+      <main className="flex-1 overflow-auto pb-16 sm:pb-0">
         <Outlet />
       </main>
+
+      {/* Bottom navigation — mobile only */}
+      <nav className="fixed inset-x-0 bottom-0 flex border-t border-gray-200 bg-white sm:hidden">
+        {navLinks.map(({ to, label, end }) => (
+          <NavLink
+            key={to}
+            to={to}
+            end={end}
+            className={({ isActive }) =>
+              [
+                'flex flex-1 flex-col items-center justify-center py-2 text-xs transition-colors',
+                isActive ? 'font-medium text-teal-600' : 'text-gray-500',
+              ].join(' ')
+            }
+          >
+            {label}
+          </NavLink>
+        ))}
+      </nav>
     </div>
   );
 }
