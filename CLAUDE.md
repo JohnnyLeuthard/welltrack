@@ -2,6 +2,13 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Auto-loaded context files
+
+The following files are imported automatically into every session so their contents are always in context:
+
+- Task checklist and workflow rules: @docs/tasks.md
+- Product requirements and scope: @docs/Requirements.md
+
 ## Commands
 
 ```bash
