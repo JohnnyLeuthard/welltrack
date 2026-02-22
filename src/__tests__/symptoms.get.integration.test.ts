@@ -90,4 +90,61 @@ describe('GET /api/symptoms', () => {
     const res = await request(app).get(SYMPTOMS);
     expect(res.status).toBe(401);
   });
+
+  it('respects limit query param', async () => {
+    await prisma.symptom.createMany({
+      data: [
+        { userId, name: 'Pagination Test A', category: 'Test' },
+        { userId, name: 'Pagination Test B', category: 'Test' },
+        { userId, name: 'Pagination Test C', category: 'Test' },
+      ],
+    });
+
+    const res = await request(app)
+      .get(`${SYMPTOMS}?limit=1`)
+      .set('Authorization', `Bearer ${accessToken}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.length).toBe(1);
+
+    await prisma.symptom.deleteMany({ where: { userId, name: { startsWith: 'Pagination Test' } } });
+  });
+
+  it('respects offset query param', async () => {
+    await prisma.symptom.deleteMany({ where: { userId } });
+    await prisma.symptom.createMany({
+      data: [
+        { userId, name: 'Offset Alpha', category: 'Test' },
+        { userId, name: 'Offset Beta', category: 'Test' },
+      ],
+    });
+
+    const resAll = await request(app)
+      .get(SYMPTOMS)
+      .set('Authorization', `Bearer ${accessToken}`);
+    const resOffset = await request(app)
+      .get(`${SYMPTOMS}?offset=1`)
+      .set('Authorization', `Bearer ${accessToken}`);
+
+    expect(resOffset.status).toBe(200);
+    expect(resOffset.body.length).toBe(resAll.body.length - 1);
+
+    await prisma.symptom.deleteMany({ where: { userId } });
+  });
+
+  it('returns 422 for invalid limit', async () => {
+    const res = await request(app)
+      .get(`${SYMPTOMS}?limit=0`)
+      .set('Authorization', `Bearer ${accessToken}`);
+    expect(res.status).toBe(422);
+    expect(res.body.error).toMatch(/limit/);
+  });
+
+  it('returns 422 for invalid offset', async () => {
+    const res = await request(app)
+      .get(`${SYMPTOMS}?offset=-1`)
+      .set('Authorization', `Bearer ${accessToken}`);
+    expect(res.status).toBe(422);
+    expect(res.body.error).toMatch(/offset/);
+  });
 });

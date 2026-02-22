@@ -2,8 +2,31 @@ import { Request, Response } from 'express';
 import { createMedication, deleteMedication, listMedications, updateMedication } from '../services/medication.service';
 
 export async function listMedicationsHandler(req: Request, res: Response): Promise<void> {
-  const includeAll = req.query['all'] === 'true';
-  const medications = await listMedications(req.user!.userId, includeAll);
+  const { all, limit, offset } = req.query as Record<string, string | undefined>;
+
+  let parsedLimit: number | undefined;
+  if (limit !== undefined) {
+    parsedLimit = parseInt(limit, 10);
+    if (isNaN(parsedLimit) || parsedLimit < 1) {
+      res.status(422).json({ error: 'limit must be a positive integer' });
+      return;
+    }
+  }
+
+  let parsedOffset: number | undefined;
+  if (offset !== undefined) {
+    parsedOffset = parseInt(offset, 10);
+    if (isNaN(parsedOffset) || parsedOffset < 0) {
+      res.status(422).json({ error: 'offset must be a non-negative integer' });
+      return;
+    }
+  }
+
+  const medications = await listMedications(req.user!.userId, {
+    includeAll: all === 'true',
+    limit: parsedLimit,
+    offset: parsedOffset,
+  });
   res.status(200).json(medications);
 }
 

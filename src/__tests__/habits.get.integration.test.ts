@@ -77,4 +77,51 @@ describe('GET /api/habits', () => {
     const res = await request(app).get(HABITS);
     expect(res.status).toBe(401);
   });
+
+  it('respects limit query param', async () => {
+    await prisma.habit.createMany({
+      data: [
+        { userId, name: 'Pagination Habit D', trackingType: 'boolean' },
+        { userId, name: 'Pagination Habit E', trackingType: 'boolean' },
+        { userId, name: 'Pagination Habit F', trackingType: 'boolean' },
+      ],
+    });
+
+    const res = await request(app)
+      .get(`${HABITS}?limit=1`)
+      .set('Authorization', `Bearer ${accessToken}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.length).toBe(1);
+
+    await prisma.habit.deleteMany({ where: { userId, name: { startsWith: 'Pagination Habit' } } });
+  });
+
+  it('respects offset query param', async () => {
+    const resAll = await request(app)
+      .get(HABITS)
+      .set('Authorization', `Bearer ${accessToken}`);
+    const resOffset = await request(app)
+      .get(`${HABITS}?offset=1`)
+      .set('Authorization', `Bearer ${accessToken}`);
+
+    expect(resOffset.status).toBe(200);
+    expect(resOffset.body.length).toBe(resAll.body.length - 1);
+  });
+
+  it('returns 422 for invalid limit', async () => {
+    const res = await request(app)
+      .get(`${HABITS}?limit=0`)
+      .set('Authorization', `Bearer ${accessToken}`);
+    expect(res.status).toBe(422);
+    expect(res.body.error).toMatch(/limit/);
+  });
+
+  it('returns 422 for invalid offset', async () => {
+    const res = await request(app)
+      .get(`${HABITS}?offset=-1`)
+      .set('Authorization', `Bearer ${accessToken}`);
+    expect(res.status).toBe(422);
+    expect(res.body.error).toMatch(/offset/);
+  });
 });

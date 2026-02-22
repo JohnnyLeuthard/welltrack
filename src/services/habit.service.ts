@@ -11,13 +11,29 @@ export interface HabitResult {
   isActive: boolean;
 }
 
-export async function listHabits(userId: string): Promise<HabitResult[]> {
+export interface ListHabitsOptions {
+  limit?: number;
+  offset?: number;
+}
+
+const DEFAULT_LIMIT = 50;
+const MAX_LIMIT = 200;
+
+export async function listHabits(
+  userId: string,
+  opts: ListHabitsOptions = {},
+): Promise<HabitResult[]> {
+  const limit = Math.min(opts.limit ?? DEFAULT_LIMIT, MAX_LIMIT);
+  const offset = opts.offset ?? 0;
+
   return prisma.habit.findMany({
     where: {
       OR: [{ userId: null }, { userId }],
     },
     select: { id: true, userId: true, name: true, trackingType: true, unit: true, isActive: true },
     orderBy: { name: 'asc' },
+    take: limit,
+    skip: offset,
   }) as Promise<HabitResult[]>;
 }
 

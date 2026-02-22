@@ -8,13 +8,29 @@ export interface SymptomResult {
   isActive: boolean;
 }
 
-export async function listSymptoms(userId: string): Promise<SymptomResult[]> {
+export interface ListSymptomsOptions {
+  limit?: number;
+  offset?: number;
+}
+
+const DEFAULT_LIMIT = 50;
+const MAX_LIMIT = 200;
+
+export async function listSymptoms(
+  userId: string,
+  opts: ListSymptomsOptions = {},
+): Promise<SymptomResult[]> {
+  const limit = Math.min(opts.limit ?? DEFAULT_LIMIT, MAX_LIMIT);
+  const offset = opts.offset ?? 0;
+
   return prisma.symptom.findMany({
     where: {
       OR: [{ userId: null }, { userId }],
     },
     select: { id: true, userId: true, name: true, category: true, isActive: true },
     orderBy: [{ name: 'asc' }],
+    take: limit,
+    skip: offset,
   });
 }
 
