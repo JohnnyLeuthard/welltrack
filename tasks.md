@@ -144,10 +144,10 @@ Checkbox list of tasks organized by phase. Stack: React + TypeScript + Tailwind 
 
 ### Logging Forms / Modals
 
-- [ ] Build a shared `Modal` component that can wrap any content
-- [ ] Build `LogSymptomModal`: dropdown to select symptom, 1–10 severity slider or number input, optional notes, date/time picker (defaults to now)
-- [ ] Build `LogMoodModal`: 1–5 rating for mood, optional energy and stress ratings, optional notes, date/time picker
-- [ ] Build `LogMedicationModal`: select medication from list, toggle taken/not taken, optional taken_at time, notes
+- [x] Build a shared `Modal` component that can wrap any content
+- [x] Build `LogSymptomModal`: dropdown to select symptom, 1–10 severity slider or number input, optional notes, date/time picker (defaults to now)
+- [x] Build `LogMoodModal`: 1–5 rating for mood, optional energy and stress ratings, optional notes, date/time picker
+- [x] Build `LogMedicationModal`: select medication from list, toggle taken/not taken, optional taken_at time, notes
 - [ ] Build `LogHabitModal`: select habit, input adapts based on `tracking_type` (checkbox for boolean, number input for numeric, duration input for duration), notes, date/time picker
 - [ ] All modals should show loading state on submit and display API errors inline
 - [ ] Support backfilling: the date picker in each modal should allow selecting past dates
