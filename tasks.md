@@ -114,25 +114,25 @@ Checkbox list of tasks organized by phase. Stack: React + TypeScript + Tailwind 
 
 ### React Project Setup
 
-- [ ] Scaffold the frontend with Vite: `npm create vite@latest client -- --template react-ts`
-- [ ] Install and configure Tailwind CSS (follow Vite + Tailwind setup guide)
-- [ ] Set up folder structure: `src/pages`, `src/components`, `src/hooks`, `src/services`, `src/types`, `src/context`
-- [ ] Install React Router and configure routes in `src/App.tsx`
-- [ ] Create an Axios instance in `src/services/api.ts` with the base URL from an env variable; add a request interceptor to attach the JWT access token
-- [ ] Add a response interceptor to handle `401` errors by attempting a token refresh, then retrying the original request
-- [ ] Define TypeScript interfaces for all API response shapes in `src/types/`
+- [x] Scaffold the frontend with Vite: `npm create vite@latest client -- --template react-ts`
+- [x] Install and configure Tailwind CSS (follow Vite + Tailwind setup guide)
+- [x] Set up folder structure: `src/pages`, `src/components`, `src/hooks`, `src/services`, `src/types`, `src/context`
+- [x] Install React Router and configure routes in `src/App.tsx`
+- [x] Create an Axios instance in `src/services/api.ts` with the base URL from an env variable; add a request interceptor to attach the JWT access token
+- [x] Add a response interceptor to handle `401` errors by attempting a token refresh, then retrying the original request
+- [x] Define TypeScript interfaces for all API response shapes in `src/types/`
 
 ### Auth Pages & State
 
-- [ ] Build `RegisterPage` with email, password, and display name fields; show inline validation errors
-- [ ] Build `LoginPage` with email and password fields
+- [x] Build `RegisterPage` with email, password, and display name fields; show inline validation errors
+- [x] Build `LoginPage` with email and password fields
 - [ ] Build `ForgotPasswordPage` with email field and success message
 - [ ] Build `ResetPasswordPage` that reads the token from the URL query string
-- [ ] Create `AuthContext` using React Context + `useReducer` to hold `user` state and `isAuthenticated`
-- [ ] Implement `login`, `logout`, and `register` actions in `AuthContext` that call the API and store the access token in memory (not localStorage)
-- [ ] Store the refresh token in an `httpOnly` cookie (or handle refresh via a `/refresh` call on app load)
-- [ ] Create a `ProtectedRoute` component that redirects unauthenticated users to `/login`
-- [ ] Wrap all app routes with `ProtectedRoute` except `/login`, `/register`, `/forgot-password`, `/reset-password`
+- [x] Create `AuthContext` using React Context + `useReducer` to hold `user` state and `isAuthenticated`
+- [x] Implement `login`, `logout`, and `register` actions in `AuthContext` that call the API and store the access token in memory (not localStorage)
+- [x] Store the refresh token in an `httpOnly` cookie (or handle refresh via a `/refresh` call on app load)
+- [x] Create a `ProtectedRoute` component that redirects unauthenticated users to `/login`
+- [x] Wrap all app routes with `ProtectedRoute` except `/login`, `/register`, `/forgot-password`, `/reset-password`
 
 ### Dashboard
 

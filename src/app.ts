@@ -1,4 +1,5 @@
 import 'dotenv/config';
+import cors from 'cors';
 import express, { Request, Response } from 'express';
 import authRouter from './routes/auth.router';
 import userRouter from './routes/user.router';
@@ -13,6 +14,10 @@ import { errorHandler } from './middleware/error.middleware';
 
 const app = express();
 
+app.use(cors({
+  origin: process.env['CLIENT_ORIGIN'] ?? 'http://localhost:5173',
+  credentials: true,
+}));
 app.use(express.json());
 
 app.get('/health', (_req, res) => {
