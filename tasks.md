@@ -167,12 +167,12 @@ Checkbox list of tasks organized by phase. Stack: React + TypeScript + Tailwind 
 
 ### Trends & Charts
 
-- [ ] Install Recharts (`npm install recharts`)
-- [ ] Build `TrendsPage` with a date range selector: 7 / 30 / 90 days
-- [ ] Build a `LineChart` component using Recharts showing symptom severity over time; allow selecting which symptoms to display
-- [ ] Build charts for mood score, energy level, and stress level over time
-- [ ] Build a calendar heatmap (or use a library like `react-calendar-heatmap`) showing which days have log entries
-- [ ] Color-code the calendar by activity level (number of entries logged that day)
+- [x] Install Recharts (`npm install recharts`)
+- [x] Build `TrendsPage` with a date range selector: 7 / 30 / 90 days
+- [x] Build a `LineChart` component using Recharts showing symptom severity over time; allow selecting which symptoms to display
+- [x] Build charts for mood score, energy level, and stress level over time
+- [x] Build a calendar heatmap (or use a library like `react-calendar-heatmap`) showing which days have log entries
+- [x] Color-code the calendar by activity level (number of entries logged that day)
 
 ### Settings & Customization
 
@@ -186,7 +186,7 @@ Checkbox list of tasks organized by phase. Stack: React + TypeScript + Tailwind 
 
 ### Insights & Export API
 
-- [ ] Build `GET /api/insights/trends` — accepts `type` (symptom_id, mood, energy, stress) and `days` (7/30/90); return aggregated daily averages as a JSON array suitable for charting
+- [x] Build `GET /api/insights/trends` — accepts `type` (symptom_id, mood, energy, stress) and `days` (7/30/90); return aggregated daily averages as a JSON array suitable for charting
 - [ ] Build `GET /api/export/csv` — accepts optional `startDate` / `endDate`; query all log types for the user and stream a CSV response with headers per log type (or one file with multiple sections)
 
 ---
