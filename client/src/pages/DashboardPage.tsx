@@ -3,6 +3,8 @@ import { useAuth } from '../hooks/useAuth';
 import api from '../services/api';
 import type { HabitLog, MedicationLog, MoodLog, SymptomLog } from '../types/api';
 
+type QuickAddType = 'symptom' | 'mood' | 'medication' | 'habit';
+
 interface TodayCounts {
   symptoms: number;
   moods: number;
@@ -30,17 +32,24 @@ function formatDate(date: Date): string {
   });
 }
 
-const summaryCards = [
-  { key: 'symptoms' as const, label: 'Symptoms', color: 'bg-rose-50 text-rose-700' },
-  { key: 'moods' as const, label: 'Mood entries', color: 'bg-amber-50 text-amber-700' },
-  { key: 'medications' as const, label: 'Medications', color: 'bg-violet-50 text-violet-700' },
-  { key: 'habits' as const, label: 'Habits', color: 'bg-teal-50 text-teal-700' },
+const summaryCards: {
+  key: keyof TodayCounts;
+  label: string;
+  color: string;
+  quickAdd: QuickAddType;
+  quickAddLabel: string;
+}[] = [
+  { key: 'symptoms', label: 'Symptoms', color: 'bg-rose-50 text-rose-700', quickAdd: 'symptom', quickAddLabel: '+ Log symptom' },
+  { key: 'moods', label: 'Mood entries', color: 'bg-amber-50 text-amber-700', quickAdd: 'mood', quickAddLabel: '+ Log mood' },
+  { key: 'medications', label: 'Medications', color: 'bg-violet-50 text-violet-700', quickAdd: 'medication', quickAddLabel: '+ Log medication' },
+  { key: 'habits', label: 'Habits', color: 'bg-teal-50 text-teal-700', quickAdd: 'habit', quickAddLabel: '+ Log habit' },
 ];
 
 export default function DashboardPage() {
   const { user } = useAuth();
   const [counts, setCounts] = useState<TodayCounts | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [quickAdd, setQuickAdd] = useState<QuickAddType | null>(null);
 
   useEffect(() => {
     const today = getToday();
@@ -87,15 +96,15 @@ export default function DashboardPage() {
         {isLoading ? (
           <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
             {summaryCards.map(({ key }) => (
-              <div key={key} className="h-24 animate-pulse rounded-xl bg-gray-100" />
+              <div key={key} className="h-28 animate-pulse rounded-xl bg-gray-100" />
             ))}
           </div>
         ) : (
           <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-            {summaryCards.map(({ key, label, color }) => {
+            {summaryCards.map(({ key, label, color, quickAdd: type, quickAddLabel }) => {
               const count = counts?.[key] ?? 0;
               return (
-                <div key={key} className="rounded-xl bg-white p-5 shadow-sm">
+                <div key={key} className="flex flex-col rounded-xl bg-white p-5 shadow-sm">
                   <p className="text-sm text-gray-500">{label}</p>
                   <p className="mt-1 text-3xl font-semibold text-gray-800">{count}</p>
                   {count === 0 ? (
@@ -105,12 +114,44 @@ export default function DashboardPage() {
                       {count === 1 ? '1 entry' : `${count} entries`}
                     </p>
                   )}
+                  <button
+                    onClick={() => setQuickAdd(type)}
+                    className="mt-3 self-start text-xs font-medium text-teal-600 hover:text-teal-700"
+                  >
+                    {quickAddLabel}
+                  </button>
                 </div>
               );
             })}
           </div>
         )}
       </section>
+
+      {/* Quick-add modal */}
+      {quickAdd && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
+          onClick={() => setQuickAdd(null)}
+        >
+          <div
+            className="w-full max-w-sm rounded-xl bg-white p-6 shadow-lg mx-4"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2 className="mb-1 text-lg font-semibold text-gray-800 capitalize">
+              Log {quickAdd}
+            </h2>
+            <p className="mb-6 text-sm text-gray-500">
+              Full logging form coming soon. Build it in the Logging Forms section.
+            </p>
+            <button
+              onClick={() => setQuickAdd(null)}
+              className="rounded-md bg-teal-600 px-4 py-2 text-sm font-medium text-white hover:bg-teal-700"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
