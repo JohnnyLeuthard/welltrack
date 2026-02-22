@@ -1,7 +1,7 @@
 import type { Request, Response } from 'express';
 import { getActivity, getMoodTrend, getSymptomTrend } from '../services/insights.service';
 
-const VALID_DAYS = [7, 30, 90];
+const VALID_DAYS = [7, 30, 60, 90, 120, 365];
 const MOOD_METRICS = ['mood', 'energy', 'stress'] as const;
 
 export async function getTrends(req: Request, res: Response): Promise<void> {

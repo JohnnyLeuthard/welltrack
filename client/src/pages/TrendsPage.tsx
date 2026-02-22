@@ -12,9 +12,9 @@ import {
 import api from '../services/api';
 import type { ActivityPoint, Symptom, TrendPoint } from '../types/api';
 
-type Days = 7 | 30 | 90;
+type Days = 7 | 30 | 60 | 90 | 120 | 365;
 
-const DAY_OPTIONS: Days[] = [7, 30, 90];
+const DAY_OPTIONS: Days[] = [7, 30, 60, 90, 120, 365];
 
 // Mood chart line colours
 const MOOD_LINES = [
@@ -52,6 +52,9 @@ function formatAxisDate(date: string, days: Days): string {
   const d = new Date(date + 'T12:00:00');
   if (days === 7) {
     return d.toLocaleDateString('en-US', { weekday: 'short', month: 'numeric', day: 'numeric' });
+  }
+  if (days === 365) {
+    return d.toLocaleDateString('en-US', { month: 'short' });
   }
   return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 }
