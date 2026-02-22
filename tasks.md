@@ -176,18 +176,18 @@ Checkbox list of tasks organized by phase. Stack: React + TypeScript + Tailwind 
 
 ### Settings & Customization
 
-- [ ] Build `SettingsPage` with sections: Profile, Symptoms, Habits, Medications, Export, Account
-- [ ] Profile section: form to edit `display_name` and `timezone` (use a timezone picker library or a `<select>` with IANA timezone list)
-- [ ] Symptoms section: list all symptoms with toggle to show/hide (sets `is_active`); button to add a custom symptom
-- [ ] Habits section: same pattern as symptoms — toggle active/inactive, add custom habit
-- [ ] Medications section: list medications, add new, edit (name/dosage/frequency), toggle active, delete
-- [ ] Export section: date range picker + "Download CSV" button that calls `GET /api/export/csv`
-- [ ] Account section: "Delete Account" button with a confirmation dialog (type your email to confirm); calls `DELETE /api/users/me` and redirects to login
+- [x] Build `SettingsPage` with sections: Profile, Symptoms, Habits, Medications, Export, Account
+- [x] Profile section: form to edit `display_name` and `timezone` (use a timezone picker library or a `<select>` with IANA timezone list)
+- [x] Symptoms section: list all symptoms with toggle to show/hide (sets `is_active`); button to add a custom symptom
+- [x] Habits section: same pattern as symptoms — toggle active/inactive, add custom habit
+- [x] Medications section: list medications, add new, edit (name/dosage/frequency), toggle active, delete
+- [x] Export section: date range picker + "Download CSV" button that calls `GET /api/export/csv`
+- [x] Account section: "Delete Account" button with a confirmation dialog (type your email to confirm); calls `DELETE /api/users/me` and redirects to login
 
 ### Insights & Export API
 
 - [x] Build `GET /api/insights/trends` — accepts `type` (symptom_id, mood, energy, stress) and `days` (7/30/90); return aggregated daily averages as a JSON array suitable for charting
-- [ ] Build `GET /api/export/csv` — accepts optional `startDate` / `endDate`; query all log types for the user and stream a CSV response with headers per log type (or one file with multiple sections)
+- [x] Build `GET /api/export/csv` — accepts optional `startDate` / `endDate`; query all log types for the user and stream a CSV response with headers per log type (or one file with multiple sections)
 
 ---
 

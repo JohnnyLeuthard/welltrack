@@ -106,7 +106,7 @@ Vite proxies all `/api` requests to `http://localhost:3000`. The API server's CO
 /                   → DashboardPage         (protected, inside AppLayout)
 /history            → HistoryPage           (protected, inside AppLayout)
 /trends             → TrendsPage            (protected, inside AppLayout)
-/settings           → SettingsPage          (protected, inside AppLayout) — stub
+/settings           → SettingsPage          (protected, inside AppLayout)
 ```
 
 `ProtectedRoute` wraps `AppLayout` which wraps all four protected pages. An unmatched path redirects to `/` with `replace`. `AppLayout` reads `user?.displayName` from `AuthContext` and falls back to `user.email` in the sidebar if `displayName` is null.
