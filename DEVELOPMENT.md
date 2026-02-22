@@ -56,6 +56,39 @@ npm start         # Run compiled output (production mode)
 
 ---
 
+## Running the Frontend
+
+The frontend lives in `client/` and is a **separate npm project** with its own `package.json`.
+
+```bash
+# First time
+cd client && npm install
+
+# Start the Vite dev server
+cd client && npm run dev
+# → http://localhost:5173
+```
+
+Vite proxies all `/api` requests to `http://localhost:3000`, so the API server must be running at the same time.
+
+**Run both together (two terminals):**
+
+```bash
+# Terminal 1 — API
+npm run dev
+
+# Terminal 2 — Frontend
+cd client && npm run dev
+```
+
+**Build for production:**
+
+```bash
+cd client && npm run build   # Outputs to client/dist/
+```
+
+---
+
 ## Tests
 
 The test suite requires the database to be running.
@@ -112,5 +145,6 @@ npx prisma studio            # Open Prisma Studio GUI at localhost:5555
 | `DATABASE_URL` | PostgreSQL connection string | `postgresql://welltrack:welltrack@localhost:5432/welltrack` |
 | `JWT_SECRET` | Signs access tokens (15-min) | *(set in .env)* |
 | `JWT_REFRESH_SECRET` | Signs refresh tokens (7-day) | *(set in .env)* |
+| `CLIENT_ORIGIN` | CORS allowed origin for the frontend | `http://localhost:5173` |
 
 Never commit `.env`. It is git-ignored.

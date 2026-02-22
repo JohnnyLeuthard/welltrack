@@ -83,6 +83,51 @@ npm run lint     # ESLint (flat config)
 
 Vite proxies all `/api` requests to `http://localhost:3000`. The API server's CORS config reads `CLIENT_ORIGIN` from `.env` and defaults to `http://localhost:5173`.
 
+#### Folder structure
+
+| Path | Purpose |
+|---|---|
+| `client/src/App.tsx` | Root router — public routes + `ProtectedRoute > AppLayout > page routes` |
+| `client/src/components/AppLayout.tsx` | Fixed sidebar with NavLink active states; all authenticated pages render inside this |
+| `client/src/components/ProtectedRoute.tsx` | Redirects to `/login` if unauthenticated; shows spinner while session restores |
+| `client/src/context/AuthContext.tsx` | `useReducer`-backed auth state; exposes `register`, `login`, `logout`; restores session from `localStorage` refresh token on mount |
+| `client/src/hooks/useAuth.ts` | Thin hook to consume `AuthContext` (throws if used outside `AuthProvider`) |
+| `client/src/services/api.ts` | Axios instance; request interceptor attaches `Authorization: Bearer`; response interceptor retries on 401 after token refresh, queuing concurrent requests during refresh |
+| `client/src/types/api.ts` | TypeScript interfaces for all API response shapes |
+| `client/src/pages/` | One file per route; page components own their own API fetches and local state |
+
+#### Route map
+
+```
+/register           → RegisterPage          (public)
+/login              → LoginPage             (public; shows success banner when ?passwordReset state is set)
+/forgot-password    → ForgotPasswordPage    (public)
+/reset-password     → ResetPasswordPage     (public; reads ?token= from query string)
+/                   → DashboardPage         (protected, inside AppLayout)
+/history            → HistoryPage           (protected, inside AppLayout) — stub
+/trends             → TrendsPage            (protected, inside AppLayout) — stub
+/settings           → SettingsPage          (protected, inside AppLayout) — stub
+```
+
+#### Auth token handling
+
+- **Access token** — stored in-memory only (module-level variable in `api.ts`); lost on page refresh; restored on mount by replaying the stored refresh token
+- **Refresh token** — stored in `localStorage` under key `refreshToken`; used on mount and on 401 responses
+- On refresh failure: `localStorage` is cleared and the user is redirected to `/login`
+
+#### Frontend patterns
+
+- **API calls** — call `api.get/post/patch/delete()` in `useEffect` or event handlers; no Redux or query library
+- **Error display** — catch Axios errors, read `err.response?.data as ApiError`, set an `error: string` state, render in a `role="alert"` paragraph
+- **Loading states** — `isLoading: boolean` state with skeleton or spinner; never leave the UI blank while data is in flight
+- **Form submit** — `isSubmitting: boolean` state; `disabled={isSubmitting}` on the button; change button label to "…" during flight; always reset in `finally`
+- **Modal pattern** — `useState<ModalType | null>(null)` to track which modal is open; modal renders as a fixed overlay inside the page component (no React portal needed at this scale)
+- **Color palette** — teal (`teal-500/600/700`) as the primary accent; `rose`, `amber`, `violet`, `teal` for the four log-type categories; `gray-50` page background; white cards with `shadow-sm`
+
+#### Dashboard data fetching
+
+`DashboardPage` fetches the full current week (`weekStart → today`) for all four log types in a single `Promise.all`. Today's counts are derived by filtering on the date prefix; the streak is derived by collecting unique dates into a `Set<string>`. `medication_logs` uses `createdAt` for date comparisons; all other log types use `loggedAt`.
+
 ### Auth
 JWT access tokens (15 min, `JWT_SECRET`) + refresh tokens (7 days, `JWT_REFRESH_SECRET`, stored in `refresh_tokens` table with a `jti` claim for uniqueness). `authMiddleware` reads `Authorization: Bearer <token>`, verifies the JWT, and attaches `req.user = { userId, email }` to the request. `req.user` is typed via `src/types/express.d.ts` augmenting `Express.Request`.
 
@@ -119,6 +164,23 @@ Each task from `tasks.md` gets its own branch and PR. This is mandatory — do n
 - Complete a task without committing before moving to the next one
 - Batch multiple tasks into a single commit or branch
 - Push or open PRs after the fact — do it immediately after the commit
+
+### Documentation
+
+**What lives where and when to update it:**
+
+| File | Purpose | Update when… |
+|---|---|---|
+| `CLAUDE.md` | AI agent guidance — architecture, patterns, commands, workflow rules | You add a new layer, establish a new pattern, or change an architectural convention |
+| `DEVELOPMENT.md` | Human onboarding — first-time setup, env vars, day-to-day commands | Setup steps change, a new service is added, or a new env var is required |
+| `Requirements.md` | Original product requirements | Scope changes (treat as read-only otherwise) |
+| `tasks.md` | Living task checklist | A task is completed — check the box in the **same commit** as the code |
+
+**Rules:**
+- Keep `CLAUDE.md` accurate — stale architecture notes lead to incorrect suggestions
+- Every new env var must be added to the table in `DEVELOPMENT.md` in the same commit that introduces it
+- When a new cross-cutting pattern is established (new hook convention, new middleware, new component pattern), document it in `CLAUDE.md` before the PR is opened
+- Do not create new `.md` files unless explicitly asked; update existing docs instead
 
 ### Dependency notes
 - `typescript` is pinned to `~5.8.3` — `typescript-eslint@8` has a peer dep ceiling of `<5.9.0`
