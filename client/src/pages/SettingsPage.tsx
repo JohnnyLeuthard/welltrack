@@ -82,9 +82,19 @@ function ProfileSection() {
     <SectionCard>
       <SectionTitle>Profile</SectionTitle>
       {profile && (
-        <p className="mb-4 text-sm text-gray-500 dark:text-gray-400">
-          Account email: <span className="font-medium text-gray-700 dark:text-gray-200">{profile.email}</span>
-        </p>
+        <div className="mb-4 space-y-1">
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            Account email: <span className="font-medium text-gray-700 dark:text-gray-200">{profile.email}</span>
+          </p>
+          {profile.lastLoginAt && (
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              Last login:{' '}
+              <span className="font-medium text-gray-700 dark:text-gray-200">
+                {new Date(profile.lastLoginAt).toLocaleString()}
+              </span>
+            </p>
+          )}
+        </div>
       )}
       <form onSubmit={(e) => void handleSave(e)} className="space-y-4">
         <div>

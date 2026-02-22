@@ -6,12 +6,13 @@ export interface UserProfile {
   displayName: string | null;
   timezone: string;
   createdAt: Date;
+  lastLoginAt: Date | null;
 }
 
 export async function getMe(userId: string): Promise<UserProfile> {
   const user = await prisma.user.findUnique({
     where: { id: userId },
-    select: { id: true, email: true, displayName: true, timezone: true, createdAt: true },
+    select: { id: true, email: true, displayName: true, timezone: true, createdAt: true, lastLoginAt: true },
   });
 
   if (!user) {
@@ -49,7 +50,7 @@ export async function updateMe(userId: string, input: UpdateMeInput): Promise<Us
       ...(input.displayName !== undefined && { displayName: input.displayName }),
       ...(input.timezone !== undefined && { timezone: input.timezone }),
     },
-    select: { id: true, email: true, displayName: true, timezone: true, createdAt: true },
+    select: { id: true, email: true, displayName: true, timezone: true, createdAt: true, lastLoginAt: true },
   });
 
   return user;

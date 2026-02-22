@@ -118,13 +118,19 @@ export async function login(input: LoginInput): Promise<AuthResult> {
   const accessToken = signAccessToken(user.id, user.email);
   const refreshToken = signRefreshToken(user.id);
 
-  await prisma.refreshToken.create({
-    data: {
-      userId: user.id,
-      token: refreshToken,
-      expiresAt: new Date(Date.now() + REFRESH_TOKEN_TTL_MS),
-    },
-  });
+  await Promise.all([
+    prisma.refreshToken.create({
+      data: {
+        userId: user.id,
+        token: refreshToken,
+        expiresAt: new Date(Date.now() + REFRESH_TOKEN_TTL_MS),
+      },
+    }),
+    prisma.user.update({
+      where: { id: user.id },
+      data: { lastLoginAt: new Date() },
+    }),
+  ]);
 
   return {
     user: { id: user.id, email: user.email, displayName: user.displayName },

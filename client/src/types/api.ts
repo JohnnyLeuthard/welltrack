@@ -23,6 +23,7 @@ export interface UserProfile {
   displayName: string | null;
   timezone: string;
   createdAt: string;
+  lastLoginAt: string | null;
 }
 
 // Symptoms
