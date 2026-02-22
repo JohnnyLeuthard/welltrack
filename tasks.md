@@ -136,9 +136,9 @@ Checkbox list of tasks organized by phase. Stack: React + TypeScript + Tailwind 
 
 ### Dashboard
 
-- [ ] Build the main app layout: side nav (or top nav) with links to Dashboard, History, Trends, Settings; show user display name
-- [ ] Build `DashboardPage` that shows today's date and a summary of what has been logged today
-- [ ] Add a "quick-add" button for each log type (Symptom, Mood, Medication, Habit) that opens the relevant modal
+- [x] Build the main app layout: side nav (or top nav) with links to Dashboard, History, Trends, Settings; show user display name
+- [x] Build `DashboardPage` that shows today's date and a summary of what has been logged today
+- [x] Add a "quick-add" button for each log type (Symptom, Mood, Medication, Habit) that opens the relevant modal
 - [ ] Add a "days logged this week" streak indicator using data from the API
 - [ ] Use teal/sage color palette throughout (avoid harsh blues; keep the UI calm and accessible)
 
