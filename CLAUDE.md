@@ -212,6 +212,7 @@ Each checkbox in `tasks.md` gets its own branch and PR. This means if a section 
 | `DEVELOPMENT.md` | Human onboarding — first-time setup, env vars, day-to-day commands | Setup steps change, a new service is added, or a new env var is required |
 | `Requirements.md` | Original product requirements | Scope changes (treat as read-only otherwise) |
 | `tasks.md` | Living task checklist | A task is completed — check the box in the **same commit** as the code |
+| `BACKLOG.md` | Future feature ideas — unscheduled, unchecked | An idea is added, promoted to `tasks.md`, or removed |
 
 **Rules:**
 - Keep `CLAUDE.md` accurate — stale architecture notes lead to incorrect suggestions
