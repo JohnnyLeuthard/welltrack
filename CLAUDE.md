@@ -43,7 +43,7 @@ docker exec -it welltrack-postgres psql -U welltrack   # Open psql shell
 
 **Keeping `docker-compose.yml` up to date:** When a new backing service is added to the project (e.g., Redis, a local SMTP server), add it as a new service block in `docker-compose.yml`. Application-level env vars (`JWT_SECRET`, `PORT`, etc.) live in `.env`, not in `docker-compose.yml`.
 
-See `DEVELOPMENT.md` for full first-time setup instructions.
+See `docs/DEVELOPMENT.md` for full first-time setup instructions.
 
 ## Architecture
 
@@ -176,20 +176,20 @@ All tests are integration tests using `supertest` against the real database — 
 
 > **THIS RULE IS MANDATORY AND MUST NEVER BE REMOVED OR WEAKENED.**
 >
-> **Every single checkbox in `tasks.md` is its own branch, commit, and PR — no exceptions.**
+> **Every single checkbox in `docs/tasks.md` is its own branch, commit, and PR — no exceptions.**
 > Grouping multiple checkboxes (even from the same section) into one PR is forbidden.
 > One checkbox = one branch = one commit = one PR. Always.
 
-Each checkbox in `tasks.md` gets its own branch and PR. This means if a section has 7 checkboxes, there are 7 branches and 7 PRs — not 1. The purpose is to allow any individual feature to be rolled back without affecting the others.
+Each checkbox in `docs/tasks.md` gets its own branch and PR. This means if a section has 7 checkboxes, there are 7 branches and 7 PRs — not 1. The purpose is to allow any individual feature to be rolled back without affecting the others.
 
 **For every task, in order:**
 1. Create a branch: `task/<n>-<slug>` cut from the previous task's branch (they stack until merged)
 2. Do the work for **that one checkbox only**
-3. Check **only that one checkbox** in `tasks.md`
+3. Check **only that one checkbox** in `docs/tasks.md`
 4. Commit with a conventional commit message: `feat:`, `fix:`, `docs:`, `test:`, `refactor:`
 5. Push the branch to GitHub: `git push -u origin <branch>`
 6. Open a PR on GitHub targeting `main` with:
-   - Title matching the task description from `tasks.md`
+   - Title matching the task description from `docs/tasks.md`
    - A **Type** label in the body: `Task` | `Bug Fix` | `Enhancement` | `Documentation` | `Refactor` | `Test`
    - A short summary of what changed and why
    - A testing checklist (what to verify manually or via `npm test`)
@@ -209,16 +209,20 @@ Each checkbox in `tasks.md` gets its own branch and PR. This means if a section 
 | File | Purpose | Update when… |
 |---|---|---|
 | `CLAUDE.md` | AI agent guidance — architecture, patterns, commands, workflow rules | You add a new layer, establish a new pattern, or change an architectural convention |
-| `DEVELOPMENT.md` | Human onboarding — first-time setup, env vars, day-to-day commands | Setup steps change, a new service is added, or a new env var is required |
-| `Requirements.md` | Original product requirements | Scope changes (treat as read-only otherwise) |
-| `tasks.md` | Living task checklist | A task is completed — check the box in the **same commit** as the code |
-| `BACKLOG.md` | Future feature ideas — unscheduled, unchecked | An idea is added, promoted to `tasks.md`, or removed |
+| `docs/DEVELOPMENT.md` | Human onboarding — first-time setup, env vars, day-to-day commands | Setup steps change, a new service is added, or a new env var is required |
+| `docs/Requirements.md` | Original product requirements | Scope changes (treat as read-only otherwise) |
+| `docs/tasks.md` | Living task checklist | A task is completed — check the box in the **same commit** as the code |
+| `docs/BACKLOG.md` | Future feature ideas — unscheduled, unchecked | An idea is added, promoted to `docs/tasks.md`, or removed |
+| `docs/OVERVIEW.md` | Public-facing product summary — what WellTrack is, who it's for, key features | Product scope or positioning changes |
+| `docs/TECHNICAL.md` | Engineering/support reference — stack, costs, deployment, ops, known limitations | Stack changes, new env vars, infra changes, new known limitations |
+| `docs/progress.md` | Living project progress tracker — completed phases, open PRs, next steps | A phase completes, a significant batch of PRs merges, or the next-steps list changes |
 
 **Rules:**
 - Keep `CLAUDE.md` accurate — stale architecture notes lead to incorrect suggestions
-- Every new env var must be added to the table in `DEVELOPMENT.md` in the same commit that introduces it
+- Every new env var must be added to the table in `docs/DEVELOPMENT.md` in the same commit that introduces it
 - When a new cross-cutting pattern is established (new hook convention, new middleware, new component pattern), document it in `CLAUDE.md` before the PR is opened
 - Do not create new `.md` files unless explicitly asked; update existing docs instead
+- All documentation files except `CLAUDE.md` live in `docs/` — do not create new `.md` files at the repo root
 
 ## Testing Requirements
 
