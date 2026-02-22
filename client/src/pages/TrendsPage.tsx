@@ -16,6 +16,13 @@ type Days = 7 | 30 | 60 | 90 | 120 | 365;
 
 const DAY_OPTIONS: Days[] = [7, 30, 60, 90, 120, 365];
 
+// Metrics that use a 1–5 scale; all others (symptom UUIDs) use 1–10
+const FIXED_METRIC_IDS = new Set(['mood', 'energy', 'stress']);
+
+function metricDomain(id: string): [number, number] {
+  return FIXED_METRIC_IDS.has(id) ? [1, 5] : [1, 10];
+}
+
 // Mood chart line colours
 const MOOD_LINES = [
   { key: 'mood', label: 'Mood', color: '#f59e0b' },
@@ -107,6 +114,12 @@ export default function TrendsPage() {
   const [symptomTrends, setSymptomTrends] = useState<Record<string, TrendPoint[]>>({});
   const [activity, setActivity] = useState<ActivityPoint[]>([]);
 
+  // Correlation chart state
+  const [corrMetricA, setCorrMetricA] = useState('mood');
+  const [corrMetricB, setCorrMetricB] = useState('energy');
+  const [corrTrends, setCorrTrends] = useState<Record<string, TrendPoint[]>>({});
+  const [corrLoading, setCorrLoading] = useState(false);
+
   // Loading / error state
   const [symptomsLoading, setSymptomsLoading] = useState(true);
   const [moodLoading, setMoodLoading] = useState(true);
@@ -174,6 +187,21 @@ export default function TrendsPage() {
       .finally(() => setSymptomTrendLoading(false));
   }, [selectedSymptomIds, days]);
 
+  // Load correlation trend data whenever selections or days change
+  useEffect(() => {
+    setCorrLoading(true);
+    setCorrTrends({});
+    Promise.all([
+      api.get<TrendPoint[]>(`/api/insights/trends?type=${corrMetricA}&days=${days}`),
+      api.get<TrendPoint[]>(`/api/insights/trends?type=${corrMetricB}&days=${days}`),
+    ])
+      .then(([a, b]) => {
+        setCorrTrends({ [corrMetricA]: a.data, [corrMetricB]: b.data });
+      })
+      .catch(() => setFetchError('Failed to load correlation data.'))
+      .finally(() => setCorrLoading(false));
+  }, [corrMetricA, corrMetricB, days]);
+
   function toggleSymptom(id: string) {
     setSelectedSymptomIds((prev) => {
       const next = new Set(prev);
@@ -200,6 +228,22 @@ export default function TrendsPage() {
     }));
     return mergeByDate(datasets);
   }, [selectedSymptomIds, symptomTrends]);
+
+  // Derived: merged correlation chart data
+  const corrChartData = useMemo(
+    () =>
+      mergeByDate([
+        { key: corrMetricA, points: corrTrends[corrMetricA] ?? [] },
+        { key: corrMetricB, points: corrTrends[corrMetricB] ?? [] },
+      ]),
+    [corrMetricA, corrMetricB, corrTrends],
+  );
+
+  // Helper: human-readable metric label
+  function getMetricLabel(id: string): string {
+    const fixed: Record<string, string> = { mood: 'Mood', energy: 'Energy', stress: 'Stress' };
+    return fixed[id] ?? symptoms.find((s) => s.id === id)?.name ?? id;
+  }
 
   // Derived: activity lookup by date
   const activityByDate = useMemo(() => {
@@ -372,6 +416,130 @@ export default function TrendsPage() {
                   />
                 );
               })}
+            </LineChart>
+          </ResponsiveContainer>
+        )}
+      </section>
+
+      {/* ── Correlation chart ── */}
+      <section className="rounded-xl bg-white dark:bg-gray-800 p-6 shadow-sm">
+        <h2 className="mb-1 text-base font-semibold text-gray-700 dark:text-gray-200">
+          Correlation
+        </h2>
+        <p className="mb-4 text-xs text-gray-400 dark:text-gray-500">
+          Compare any two metrics on the same chart to spot patterns.
+        </p>
+
+        {/* Metric selectors */}
+        <div className="mb-5 flex flex-wrap items-center gap-3">
+          <div className="flex items-center gap-2">
+            <label className="text-xs font-medium text-gray-500 dark:text-gray-400">Metric A</label>
+            <select
+              value={corrMetricA}
+              onChange={(e) => setCorrMetricA(e.target.value)}
+              className="rounded-lg border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 px-3 py-1.5 text-sm outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
+            >
+              <optgroup label="Mood & Wellbeing">
+                <option value="mood">Mood</option>
+                <option value="energy">Energy</option>
+                <option value="stress">Stress</option>
+              </optgroup>
+              {symptoms.length > 0 && (
+                <optgroup label="Symptoms">
+                  {symptoms.map((s) => (
+                    <option key={s.id} value={s.id}>{s.name}</option>
+                  ))}
+                </optgroup>
+              )}
+            </select>
+          </div>
+
+          <span className="text-sm text-gray-400 dark:text-gray-500">vs</span>
+
+          <div className="flex items-center gap-2">
+            <label className="text-xs font-medium text-gray-500 dark:text-gray-400">Metric B</label>
+            <select
+              value={corrMetricB}
+              onChange={(e) => setCorrMetricB(e.target.value)}
+              className="rounded-lg border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 px-3 py-1.5 text-sm outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
+            >
+              <optgroup label="Mood & Wellbeing">
+                <option value="mood">Mood</option>
+                <option value="energy">Energy</option>
+                <option value="stress">Stress</option>
+              </optgroup>
+              {symptoms.length > 0 && (
+                <optgroup label="Symptoms">
+                  {symptoms.map((s) => (
+                    <option key={s.id} value={s.id}>{s.name}</option>
+                  ))}
+                </optgroup>
+              )}
+            </select>
+          </div>
+        </div>
+
+        {corrLoading ? (
+          <div className="h-48 animate-pulse rounded-lg bg-gray-100 dark:bg-gray-700" />
+        ) : corrChartData.length === 0 ? (
+          <p className="text-sm text-gray-400 dark:text-gray-500">
+            No data logged for the selected metrics in this period.
+          </p>
+        ) : (
+          <ResponsiveContainer width="100%" height={240}>
+            <LineChart data={corrChartData} margin={{ top: 4, right: 40, left: 0, bottom: 4 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+              <XAxis
+                dataKey="date"
+                tickFormatter={(v: string) => formatAxisDate(v, days)}
+                tick={{ fontSize: 11, fill: '#9ca3af' }}
+                tickLine={false}
+                axisLine={false}
+              />
+              <YAxis
+                yAxisId="left"
+                domain={metricDomain(corrMetricA)}
+                tick={{ fontSize: 11, fill: '#9ca3af' }}
+                tickLine={false}
+                axisLine={false}
+                width={24}
+              />
+              <YAxis
+                yAxisId="right"
+                orientation="right"
+                domain={metricDomain(corrMetricB)}
+                tick={{ fontSize: 11, fill: '#9ca3af' }}
+                tickLine={false}
+                axisLine={false}
+                width={24}
+              />
+              <Tooltip
+                labelFormatter={(v) => formatTooltipDate(String(v))}
+                contentStyle={{ borderRadius: '8px', border: '1px solid #374151', background: '#1f2937', color: '#f3f4f6', fontSize: 12 }}
+              />
+              <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: 12 }} />
+              <Line
+                yAxisId="left"
+                type="monotone"
+                dataKey={corrMetricA}
+                name={getMetricLabel(corrMetricA)}
+                stroke="#14b8a6"
+                strokeWidth={2}
+                dot={days === 7}
+                activeDot={{ r: 4 }}
+                connectNulls
+              />
+              <Line
+                yAxisId="right"
+                type="monotone"
+                dataKey={corrMetricB}
+                name={getMetricLabel(corrMetricB)}
+                stroke="#f59e0b"
+                strokeWidth={2}
+                dot={days === 7}
+                activeDot={{ r: 4 }}
+                connectNulls
+              />
             </LineChart>
           </ResponsiveContainer>
         )}
