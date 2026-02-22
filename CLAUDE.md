@@ -172,7 +172,11 @@ Each checkbox in `tasks.md` gets its own branch and PR. This means if a section 
 3. Check **only that one checkbox** in `tasks.md`
 4. Commit with a conventional commit message: `feat:`, `fix:`, `docs:`, `test:`, `refactor:`
 5. Push the branch to GitHub: `git push -u origin <branch>`
-6. Open a PR on GitHub targeting `main`; PR title matches the task description from `tasks.md`
+6. Open a PR on GitHub targeting `main` with:
+   - Title matching the task description from `tasks.md`
+   - A **Type** label in the body: `Task` | `Bug Fix` | `Enhancement` | `Documentation` | `Refactor` | `Test`
+   - A short summary of what changed and why
+   - A testing checklist (what to verify manually or via `npm test`)
 7. Move to the next task on a new branch cut from the one just committed
 
 **Do not:**
@@ -198,6 +202,18 @@ Each checkbox in `tasks.md` gets its own branch and PR. This means if a section 
 - Every new env var must be added to the table in `DEVELOPMENT.md` in the same commit that introduces it
 - When a new cross-cutting pattern is established (new hook convention, new middleware, new component pattern), document it in `CLAUDE.md` before the PR is opened
 - Do not create new `.md` files unless explicitly asked; update existing docs instead
+
+## Testing Requirements
+
+Before marking any task complete:
+1. Write a test for new functionality (integration test using `supertest` — see the Testing section above)
+2. Run the full test suite: `npm test`
+3. If tests fail:
+   - Analyze the failure output
+   - Fix the code (not the tests, unless the tests themselves are wrong)
+   - Re-run until all pass
+4. Run a single file: `npx jest src/__tests__/<file>.test.ts`
+5. Run tests matching a name: `npx jest -t "pattern"`
 
 ### Dependency notes
 - Backend `typescript` is pinned to `~5.8.3` — `typescript-eslint@8` has a peer dep ceiling of `<5.9.0`. The client has its own `tsconfig` and uses `~5.9.3` independently.
