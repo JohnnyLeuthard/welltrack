@@ -42,10 +42,10 @@ function activityLevel(count: number): 0 | 1 | 2 | 3 {
 }
 
 const HEAT_COLORS: Record<0 | 1 | 2 | 3, string> = {
-  0: 'bg-gray-100',
-  1: 'bg-teal-200',
-  2: 'bg-teal-400',
-  3: 'bg-teal-600',
+  0: 'bg-gray-100 dark:bg-gray-700',
+  1: 'bg-teal-200 dark:bg-teal-800',
+  2: 'bg-teal-400 dark:bg-teal-600',
+  3: 'bg-teal-600 dark:bg-teal-400',
 };
 
 function formatAxisDate(date: string, days: Days): string {
@@ -215,18 +215,18 @@ export default function TrendsPage() {
   return (
     <div className="space-y-8 p-8">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold text-gray-800">Trends</h1>
+        <h1 className="text-2xl font-semibold text-gray-800 dark:text-gray-100">Trends</h1>
 
         {/* Date range selector */}
-        <div className="flex gap-1 rounded-lg bg-gray-100 p-1">
+        <div className="flex gap-1 rounded-lg bg-gray-100 dark:bg-gray-700 p-1">
           {DAY_OPTIONS.map((d) => (
             <button
               key={d}
               onClick={() => setDays(d)}
               className={`rounded-md px-4 py-1.5 text-sm font-medium transition-colors ${
                 days === d
-                  ? 'bg-white text-gray-800 shadow-sm'
-                  : 'text-gray-500 hover:text-gray-700'
+                  ? 'bg-white dark:bg-gray-600 text-gray-800 dark:text-gray-100 shadow-sm'
+                  : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
               }`}
             >
               {d}d
@@ -236,22 +236,22 @@ export default function TrendsPage() {
       </div>
 
       {fetchError && (
-        <p role="alert" className="rounded-md bg-rose-50 px-4 py-3 text-sm text-rose-600">
+        <p role="alert" className="rounded-md bg-rose-50 dark:bg-rose-900/20 px-4 py-3 text-sm text-rose-600 dark:text-rose-400">
           {fetchError}
         </p>
       )}
 
       {/* ── Mood / Energy / Stress chart ── */}
-      <section className="rounded-xl bg-white p-6 shadow-sm">
-        <h2 className="mb-4 text-base font-semibold text-gray-700">Mood, Energy & Stress</h2>
+      <section className="rounded-xl bg-white dark:bg-gray-800 p-6 shadow-sm">
+        <h2 className="mb-4 text-base font-semibold text-gray-700 dark:text-gray-200">Mood, Energy & Stress</h2>
         {moodLoading ? (
-          <div className="h-48 animate-pulse rounded-lg bg-gray-100" />
+          <div className="h-48 animate-pulse rounded-lg bg-gray-100 dark:bg-gray-700" />
         ) : moodChartData.length === 0 ? (
-          <p className="text-sm text-gray-400">No mood data logged in this period.</p>
+          <p className="text-sm text-gray-400 dark:text-gray-500">No mood data logged in this period.</p>
         ) : (
           <ResponsiveContainer width="100%" height={240}>
             <LineChart data={moodChartData} margin={{ top: 4, right: 16, left: 0, bottom: 4 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
+              <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
               <XAxis
                 dataKey="date"
                 tickFormatter={(v: string) => formatAxisDate(v, days)}
@@ -269,7 +269,7 @@ export default function TrendsPage() {
               />
               <Tooltip
                 labelFormatter={(v) => formatTooltipDate(String(v))}
-                contentStyle={{ borderRadius: '8px', border: '1px solid #e5e7eb', fontSize: 12 }}
+                contentStyle={{ borderRadius: '8px', border: '1px solid #374151', background: '#1f2937', color: '#f3f4f6', fontSize: 12 }}
               />
               <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: 12 }} />
               {MOOD_LINES.map((l) => (
@@ -291,14 +291,14 @@ export default function TrendsPage() {
       </section>
 
       {/* ── Symptom severity chart ── */}
-      <section className="rounded-xl bg-white p-6 shadow-sm">
-        <h2 className="mb-4 text-base font-semibold text-gray-700">Symptom Severity</h2>
+      <section className="rounded-xl bg-white dark:bg-gray-800 p-6 shadow-sm">
+        <h2 className="mb-4 text-base font-semibold text-gray-700 dark:text-gray-200">Symptom Severity</h2>
 
         {/* Symptom selector */}
         {symptomsLoading ? (
           <div className="mb-4 flex gap-2">
             {[1, 2, 3].map((n) => (
-              <div key={n} className="h-7 w-24 animate-pulse rounded-full bg-gray-100" />
+              <div key={n} className="h-7 w-24 animate-pulse rounded-full bg-gray-100 dark:bg-gray-700" />
             ))}
           </div>
         ) : (
@@ -309,8 +309,8 @@ export default function TrendsPage() {
                 onClick={() => toggleSymptom(s.id)}
                 className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${
                   selectedSymptomIds.has(s.id)
-                    ? 'bg-violet-100 text-violet-700'
-                    : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+                    ? 'bg-violet-100 dark:bg-violet-900/40 text-violet-700 dark:text-violet-300'
+                    : 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600'
                 }`}
               >
                 {s.name}
@@ -320,13 +320,13 @@ export default function TrendsPage() {
         )}
 
         {selectedSymptomIds.size === 0 ? (
-          <p className="text-sm text-gray-400">
+          <p className="text-sm text-gray-400 dark:text-gray-500">
             Select one or more symptoms above to chart their severity over time.
           </p>
         ) : symptomTrendLoading ? (
-          <div className="h-48 animate-pulse rounded-lg bg-gray-100" />
+          <div className="h-48 animate-pulse rounded-lg bg-gray-100 dark:bg-gray-700" />
         ) : symptomChartData.length === 0 ? (
-          <p className="text-sm text-gray-400">
+          <p className="text-sm text-gray-400 dark:text-gray-500">
             No data logged for the selected symptoms in this period.
           </p>
         ) : (
@@ -335,7 +335,7 @@ export default function TrendsPage() {
               data={symptomChartData}
               margin={{ top: 4, right: 16, left: 0, bottom: 4 }}
             >
-              <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
+              <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
               <XAxis
                 dataKey="date"
                 tickFormatter={(v: string) => formatAxisDate(v, days)}
@@ -353,7 +353,7 @@ export default function TrendsPage() {
               />
               <Tooltip
                 labelFormatter={(v) => formatTooltipDate(String(v))}
-                contentStyle={{ borderRadius: '8px', border: '1px solid #e5e7eb', fontSize: 12 }}
+                contentStyle={{ borderRadius: '8px', border: '1px solid #374151', background: '#1f2937', color: '#f3f4f6', fontSize: 12 }}
               />
               <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: 12 }} />
               {[...selectedSymptomIds].map((id, i) => {
@@ -378,14 +378,14 @@ export default function TrendsPage() {
       </section>
 
       {/* ── Activity calendar heatmap ── */}
-      <section className="rounded-xl bg-white p-6 shadow-sm">
-        <h2 className="mb-1 text-base font-semibold text-gray-700">Logging Activity</h2>
-        <p className="mb-4 text-xs text-gray-400">
+      <section className="rounded-xl bg-white dark:bg-gray-800 p-6 shadow-sm">
+        <h2 className="mb-1 text-base font-semibold text-gray-700 dark:text-gray-200">Logging Activity</h2>
+        <p className="mb-4 text-xs text-gray-400 dark:text-gray-500">
           Total entries logged per day across all categories
         </p>
 
         {activityLoading ? (
-          <div className="h-20 animate-pulse rounded-lg bg-gray-100" />
+          <div className="h-20 animate-pulse rounded-lg bg-gray-100 dark:bg-gray-700" />
         ) : (
           <>
             {/* Heatmap grid — one square per day */}
@@ -409,7 +409,7 @@ export default function TrendsPage() {
             </div>
 
             {/* Legend */}
-            <div className="mt-3 flex items-center gap-2 text-xs text-gray-400">
+            <div className="mt-3 flex items-center gap-2 text-xs text-gray-400 dark:text-gray-500">
               <span>Less</span>
               {([0, 1, 2, 3] as const).map((l) => (
                 <div key={l} className={`h-4 w-4 rounded-sm ${HEAT_COLORS[l]}`} />

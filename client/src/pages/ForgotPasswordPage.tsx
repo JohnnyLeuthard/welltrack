@@ -32,7 +32,7 @@ export default function ForgotPasswordPage() {
 
   if (submitted) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4">
+      <div className="flex min-h-screen items-center justify-center bg-gray-50 dark:bg-gray-900 px-4">
         <div className="w-full max-w-sm rounded-xl bg-white p-8 shadow-sm text-center">
           <div className="mb-4 flex justify-center">
             <span className="flex h-12 w-12 items-center justify-center rounded-full bg-teal-100 text-teal-600 text-2xl">
@@ -56,8 +56,8 @@ export default function ForgotPasswordPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4">
-      <div className="w-full max-w-sm rounded-xl bg-white p-8 shadow-sm">
+    <div className="flex min-h-screen items-center justify-center bg-gray-50 dark:bg-gray-900 px-4">
+      <div className="w-full max-w-sm rounded-xl bg-white dark:bg-gray-800 p-8 shadow-sm">
         <h1 className="mb-2 text-center text-2xl font-semibold text-gray-800">
           Forgot your password?
         </h1>
@@ -77,7 +77,7 @@ export default function ForgotPasswordPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               autoComplete="email"
-              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-teal-500 focus:ring-1 focus:ring-teal-500 focus:outline-none"
+              className="w-full rounded-md border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 px-3 py-2 text-sm focus:border-teal-500 focus:ring-1 focus:ring-teal-500 focus:outline-none"
             />
           </div>
 

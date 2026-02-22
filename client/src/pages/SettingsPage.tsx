@@ -3,8 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import type { ApiError, Habit, Medication, Symptom, UserProfile } from '../types/api';
 import { useAuth } from '../hooks/useAuth';
+import { useTheme } from '../context/ThemeContext';
 
-type Section = 'profile' | 'symptoms' | 'habits' | 'medications' | 'export' | 'account';
+type Section = 'profile' | 'symptoms' | 'habits' | 'medications' | 'export' | 'appearance' | 'account';
 
 const NAV: { key: Section; label: string }[] = [
   { key: 'profile', label: 'Profile' },
@@ -12,6 +13,7 @@ const NAV: { key: Section; label: string }[] = [
   { key: 'habits', label: 'Habits' },
   { key: 'medications', label: 'Medications' },
   { key: 'export', label: 'Export' },
+  { key: 'appearance', label: 'Appearance' },
   { key: 'account', label: 'Account' },
 ];
 
@@ -22,11 +24,11 @@ function apiError(err: unknown): string {
 }
 
 function SectionCard({ children }: { children: React.ReactNode }) {
-  return <div className="rounded-xl bg-white p-6 shadow-sm">{children}</div>;
+  return <div className="rounded-xl bg-white dark:bg-gray-800 p-6 shadow-sm">{children}</div>;
 }
 
 function SectionTitle({ children }: { children: React.ReactNode }) {
-  return <h2 className="mb-5 text-base font-semibold text-gray-800">{children}</h2>;
+  return <h2 className="mb-5 text-base font-semibold text-gray-800 dark:text-gray-100">{children}</h2>;
 }
 
 // ─── Profile ──────────────────────────────────────────────────────────────────
@@ -80,13 +82,13 @@ function ProfileSection() {
     <SectionCard>
       <SectionTitle>Profile</SectionTitle>
       {profile && (
-        <p className="mb-4 text-sm text-gray-500">
-          Account email: <span className="font-medium text-gray-700">{profile.email}</span>
+        <p className="mb-4 text-sm text-gray-500 dark:text-gray-400">
+          Account email: <span className="font-medium text-gray-700 dark:text-gray-200">{profile.email}</span>
         </p>
       )}
       <form onSubmit={(e) => void handleSave(e)} className="space-y-4">
         <div>
-          <label className="mb-1 block text-sm font-medium text-gray-700" htmlFor="displayName">
+          <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300" htmlFor="displayName">
             Display name
           </label>
           <input
@@ -95,18 +97,18 @@ function ProfileSection() {
             value={displayName}
             onChange={(e) => setDisplayName(e.target.value)}
             placeholder="Your name"
-            className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
+            className="w-full rounded-lg border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 px-3 py-2 text-sm outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
           />
         </div>
         <div>
-          <label className="mb-1 block text-sm font-medium text-gray-700" htmlFor="timezone">
+          <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300" htmlFor="timezone">
             Timezone
           </label>
           <select
             id="timezone"
             value={timezone}
             onChange={(e) => setTimezone(e.target.value)}
-            className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
+            className="w-full rounded-lg border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 px-3 py-2 text-sm outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
           >
             {TIMEZONES.map((tz) => (
               <option key={tz} value={tz}>
@@ -196,10 +198,10 @@ function SymptomsSection() {
       {error && <p role="alert" className="mb-3 text-sm text-rose-600">{error}</p>}
       {isLoading ? (
         <div className="space-y-2">
-          {[1, 2, 3].map((n) => <div key={n} className="h-10 animate-pulse rounded-lg bg-gray-100" />)}
+          {[1, 2, 3].map((n) => <div key={n} className="h-10 animate-pulse rounded-lg bg-gray-100 dark:bg-gray-700" />)}
         </div>
       ) : (
-        <ul className="mb-6 divide-y divide-gray-100">
+        <ul className="mb-6 divide-y divide-gray-100 dark:divide-gray-700">
           {symptoms.map((s) => {
             const isSystem = s.userId === null;
             return (
@@ -218,7 +220,7 @@ function SymptomsSection() {
                     }`}
                   />
                 </button>
-                <span className="flex-1 text-sm text-gray-700">{s.name}</span>
+                <span className="flex-1 text-sm text-gray-700 dark:text-gray-300">{s.name}</span>
                 {s.category && (
                   <span className="rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-500">
                     {s.category}
@@ -240,8 +242,8 @@ function SymptomsSection() {
         </ul>
       )}
 
-      <form onSubmit={(e) => void handleAdd(e)} className="border-t border-gray-100 pt-4">
-        <p className="mb-2 text-xs font-medium uppercase tracking-wide text-gray-500">
+      <form onSubmit={(e) => void handleAdd(e)} className="border-t border-gray-100 dark:border-gray-700 pt-4">
+        <p className="mb-2 text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">
           Add custom symptom
         </p>
         <div className="flex gap-2">
@@ -250,7 +252,7 @@ function SymptomsSection() {
             value={newName}
             onChange={(e) => setNewName(e.target.value)}
             placeholder="Symptom name"
-            className="flex-1 rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
+            className="flex-1 rounded-lg border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 px-3 py-2 text-sm outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
           />
           <input
             type="text"
@@ -345,10 +347,10 @@ function HabitsSection() {
       {error && <p role="alert" className="mb-3 text-sm text-rose-600">{error}</p>}
       {isLoading ? (
         <div className="space-y-2">
-          {[1, 2, 3].map((n) => <div key={n} className="h-10 animate-pulse rounded-lg bg-gray-100" />)}
+          {[1, 2, 3].map((n) => <div key={n} className="h-10 animate-pulse rounded-lg bg-gray-100 dark:bg-gray-700" />)}
         </div>
       ) : (
-        <ul className="mb-6 divide-y divide-gray-100">
+        <ul className="mb-6 divide-y divide-gray-100 dark:divide-gray-700">
           {habits.map((h) => {
             const isSystem = h.userId === null;
             return (
@@ -367,7 +369,7 @@ function HabitsSection() {
                     }`}
                   />
                 </button>
-                <span className="flex-1 text-sm text-gray-700">{h.name}</span>
+                <span className="flex-1 text-sm text-gray-700 dark:text-gray-300">{h.name}</span>
                 <span className="rounded-full bg-teal-50 px-2 py-0.5 text-xs text-teal-700">
                   {TYPE_LABELS[h.trackingType]}
                 </span>
@@ -388,8 +390,8 @@ function HabitsSection() {
         </ul>
       )}
 
-      <form onSubmit={(e) => void handleAdd(e)} className="border-t border-gray-100 pt-4">
-        <p className="mb-2 text-xs font-medium uppercase tracking-wide text-gray-500">
+      <form onSubmit={(e) => void handleAdd(e)} className="border-t border-gray-100 dark:border-gray-700 pt-4">
+        <p className="mb-2 text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">
           Add custom habit
         </p>
         <div className="flex flex-wrap gap-2">
@@ -398,12 +400,12 @@ function HabitsSection() {
             value={newName}
             onChange={(e) => setNewName(e.target.value)}
             placeholder="Habit name"
-            className="min-w-32 flex-1 rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
+            className="min-w-32 flex-1 rounded-lg border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 px-3 py-2 text-sm outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
           />
           <select
             value={newType}
             onChange={(e) => setNewType(e.target.value as typeof newType)}
-            className="rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
+            className="rounded-lg border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 px-3 py-2 text-sm outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
           >
             <option value="boolean">Yes/No</option>
             <option value="numeric">Number</option>
@@ -538,13 +540,13 @@ function MedicationsSection() {
       {isLoading ? (
         <div className="space-y-2">
           {[1, 2, 3].map((n) => (
-            <div key={n} className="h-12 animate-pulse rounded-lg bg-gray-100" />
+            <div key={n} className="h-12 animate-pulse rounded-lg bg-gray-100 dark:bg-gray-700" />
           ))}
         </div>
       ) : medications.length === 0 ? (
         <p className="mb-4 text-sm text-gray-400">No medications added yet.</p>
       ) : (
-        <ul className="mb-6 divide-y divide-gray-100">
+        <ul className="mb-6 divide-y divide-gray-100 dark:divide-gray-700">
           {medications.map((m) => (
             <li key={m.id} className="py-3">
               {editId === m.id ? (
@@ -555,21 +557,21 @@ function MedicationsSection() {
                       value={editName}
                       onChange={(e) => setEditName(e.target.value)}
                       placeholder="Name"
-                      className="flex-1 rounded-lg border border-gray-200 px-3 py-1.5 text-sm outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
+                      className="flex-1 rounded-lg border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 px-3 py-1.5 text-sm outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
                     />
                     <input
                       type="text"
                       value={editDosage}
                       onChange={(e) => setEditDosage(e.target.value)}
                       placeholder="Dosage"
-                      className="w-28 rounded-lg border border-gray-200 px-3 py-1.5 text-sm outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
+                      className="w-28 rounded-lg border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 px-3 py-1.5 text-sm outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
                     />
                     <input
                       type="text"
                       value={editFrequency}
                       onChange={(e) => setEditFrequency(e.target.value)}
                       placeholder="Frequency"
-                      className="w-28 rounded-lg border border-gray-200 px-3 py-1.5 text-sm outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
+                      className="w-28 rounded-lg border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 px-3 py-1.5 text-sm outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
                     />
                   </div>
                   {editError && <p className="text-xs text-rose-600">{editError}</p>}
@@ -583,7 +585,7 @@ function MedicationsSection() {
                     </button>
                     <button
                       onClick={() => setEditId(null)}
-                      className="rounded-lg border border-gray-200 px-3 py-1.5 text-xs text-gray-500 hover:bg-gray-50"
+                      className="rounded-lg border border-gray-200 dark:border-gray-600 dark:text-gray-400 dark:hover:bg-gray-700 px-3 py-1.5 text-xs text-gray-500 hover:bg-gray-50"
                     >
                       Cancel
                     </button>
@@ -604,7 +606,7 @@ function MedicationsSection() {
                     />
                   </button>
                   <div className="flex-1">
-                    <span className="text-sm text-gray-700">{m.name}</span>
+                    <span className="text-sm text-gray-700 dark:text-gray-300">{m.name}</span>
                     {(m.dosage || m.frequency) && (
                       <span className="ml-2 text-xs text-gray-400">
                         {[m.dosage, m.frequency].filter(Boolean).join(' · ')}
@@ -655,8 +657,8 @@ function MedicationsSection() {
         </ul>
       )}
 
-      <form onSubmit={(e) => void handleAdd(e)} className="border-t border-gray-100 pt-4">
-        <p className="mb-2 text-xs font-medium uppercase tracking-wide text-gray-500">
+      <form onSubmit={(e) => void handleAdd(e)} className="border-t border-gray-100 dark:border-gray-700 pt-4">
+        <p className="mb-2 text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">
           Add medication
         </p>
         <div className="flex flex-wrap gap-2">
@@ -665,7 +667,7 @@ function MedicationsSection() {
             value={newName}
             onChange={(e) => setNewName(e.target.value)}
             placeholder="Medication name"
-            className="min-w-32 flex-1 rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
+            className="min-w-32 flex-1 rounded-lg border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 px-3 py-2 text-sm outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
           />
           <input
             type="text"
@@ -733,13 +735,13 @@ function ExportSection() {
   return (
     <SectionCard>
       <SectionTitle>Export Data</SectionTitle>
-      <p className="mb-5 text-sm text-gray-500">
+      <p className="mb-5 text-sm text-gray-500 dark:text-gray-400">
         Download all your logs as a CSV file. Leave the date fields blank to export everything.
       </p>
       <form onSubmit={(e) => void handleDownload(e)} className="space-y-4">
         <div className="flex gap-4">
           <div className="flex-1">
-            <label className="mb-1 block text-sm font-medium text-gray-700" htmlFor="exportStart">
+            <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300" htmlFor="exportStart">
               From
             </label>
             <input
@@ -747,11 +749,11 @@ function ExportSection() {
               type="date"
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
-              className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
+              className="w-full rounded-lg border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 px-3 py-2 text-sm outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
             />
           </div>
           <div className="flex-1">
-            <label className="mb-1 block text-sm font-medium text-gray-700" htmlFor="exportEnd">
+            <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300" htmlFor="exportEnd">
               To
             </label>
             <input
@@ -759,7 +761,7 @@ function ExportSection() {
               type="date"
               value={endDate}
               onChange={(e) => setEndDate(e.target.value)}
-              className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
+              className="w-full rounded-lg border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 px-3 py-2 text-sm outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
             />
           </div>
         </div>
@@ -772,6 +774,41 @@ function ExportSection() {
           {isDownloading ? 'Preparing…' : 'Download CSV'}
         </button>
       </form>
+    </SectionCard>
+  );
+}
+
+// ─── Appearance ───────────────────────────────────────────────────────────────
+
+function AppearanceSection() {
+  const { theme, toggleTheme } = useTheme();
+  const isDark = theme === 'dark';
+
+  return (
+    <SectionCard>
+      <SectionTitle>Appearance</SectionTitle>
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Dark mode</p>
+          <p className="text-xs text-gray-400 dark:text-gray-500">
+            Switch between light and dark themes. Your preference is saved automatically.
+          </p>
+        </div>
+        <button
+          role="switch"
+          aria-checked={isDark}
+          onClick={toggleTheme}
+          className={`relative h-6 w-11 flex-shrink-0 rounded-full transition-colors ${
+            isDark ? 'bg-teal-500' : 'bg-gray-200'
+          }`}
+        >
+          <span
+            className={`absolute top-1 h-4 w-4 rounded-full bg-white shadow transition-transform ${
+              isDark ? 'translate-x-6' : 'translate-x-1'
+            }`}
+          />
+        </button>
+      </div>
     </SectionCard>
   );
 }
@@ -848,18 +885,18 @@ export default function SettingsPage() {
 
   return (
     <div className="p-8">
-      <h1 className="mb-6 text-2xl font-semibold text-gray-800">Settings</h1>
+      <h1 className="mb-6 text-2xl font-semibold text-gray-800 dark:text-gray-100">Settings</h1>
 
       {/* Tab nav */}
-      <nav className="mb-6 flex flex-wrap gap-1 border-b border-gray-200">
+      <nav className="mb-6 flex flex-wrap gap-1 border-b border-gray-200 dark:border-gray-700">
         {NAV.map(({ key, label }) => (
           <button
             key={key}
             onClick={() => setActive(key)}
             className={`rounded-t-lg px-4 py-2 text-sm font-medium transition-colors ${
               active === key
-                ? 'border-b-2 border-teal-600 text-teal-700'
-                : 'text-gray-500 hover:text-gray-700'
+                ? 'border-b-2 border-teal-600 text-teal-700 dark:text-teal-400'
+                : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'
             }`}
           >
             {label}
@@ -872,6 +909,7 @@ export default function SettingsPage() {
       {active === 'habits' && <HabitsSection />}
       {active === 'medications' && <MedicationsSection />}
       {active === 'export' && <ExportSection />}
+      {active === 'appearance' && <AppearanceSection />}
       {active === 'account' && <AccountSection />}
     </div>
   );

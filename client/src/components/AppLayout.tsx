@@ -12,9 +12,9 @@ export default function AppLayout() {
   const { user, logout } = useAuth();
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
+    <div className="flex min-h-screen bg-gray-50 dark:bg-gray-900">
       {/* Sidebar — desktop only */}
-      <aside className="hidden sm:flex w-56 shrink-0 flex-col border-r border-gray-200 bg-white">
+      <aside className="hidden sm:flex w-56 shrink-0 flex-col border-r border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
         <div className="px-6 py-5">
           <span className="text-lg font-semibold text-teal-600">WellTrack</span>
         </div>
@@ -29,8 +29,8 @@ export default function AppLayout() {
                 [
                   'flex items-center rounded-md px-3 py-2 text-sm transition-colors',
                   isActive
-                    ? 'bg-teal-50 font-medium text-teal-700'
-                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900',
+                    ? 'bg-teal-50 dark:bg-teal-900/30 font-medium text-teal-700 dark:text-teal-300'
+                    : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-100',
                 ].join(' ')
               }
             >
@@ -39,16 +39,16 @@ export default function AppLayout() {
           ))}
         </nav>
 
-        <div className="border-t border-gray-100 px-4 py-4">
-          <p className="mb-0.5 truncate text-sm font-medium text-gray-700">
+        <div className="border-t border-gray-100 dark:border-gray-700 px-4 py-4">
+          <p className="mb-0.5 truncate text-sm font-medium text-gray-700 dark:text-gray-200">
             {user?.displayName ?? user?.email}
           </p>
           {user?.displayName && (
-            <p className="mb-3 truncate text-xs text-gray-400">{user.email}</p>
+            <p className="mb-3 truncate text-xs text-gray-400 dark:text-gray-500">{user.email}</p>
           )}
           <button
             onClick={() => void logout()}
-            className="text-xs text-gray-500 hover:text-gray-700"
+            className="text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
           >
             Sign out
           </button>
@@ -61,7 +61,7 @@ export default function AppLayout() {
       </main>
 
       {/* Bottom navigation — mobile only */}
-      <nav className="fixed inset-x-0 bottom-0 flex border-t border-gray-200 bg-white sm:hidden">
+      <nav className="fixed inset-x-0 bottom-0 flex border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 sm:hidden">
         {navLinks.map(({ to, label, end }) => (
           <NavLink
             key={to}
@@ -70,7 +70,7 @@ export default function AppLayout() {
             className={({ isActive }) =>
               [
                 'flex flex-1 flex-col items-center justify-center py-2 text-xs transition-colors',
-                isActive ? 'font-medium text-teal-600' : 'text-gray-500',
+                isActive ? 'font-medium text-teal-600 dark:text-teal-400' : 'text-gray-500 dark:text-gray-400',
               ].join(' ')
             }
           >
