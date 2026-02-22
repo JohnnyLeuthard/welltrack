@@ -125,7 +125,7 @@ Checkbox list of tasks organized by phase. Stack: React + TypeScript + Tailwind 
 ### Auth Pages & State
 
 - [x] Build `RegisterPage` with email, password, and display name fields; show inline validation errors
-- [ ] Build `LoginPage` with email and password fields
+- [x] Build `LoginPage` with email and password fields
 - [ ] Build `ForgotPasswordPage` with email field and success message
 - [ ] Build `ResetPasswordPage` that reads the token from the URL query string
 - [x] Create `AuthContext` using React Context + `useReducer` to hold `user` state and `isAuthenticated`
