@@ -56,3 +56,7 @@ This file is a parking lot for features and improvements that aren't yet schedul
 - [ ] Admin dashboard — aggregate usage stats (no PII) for monitoring platform health
 - [ ] Per-user rate limiting hardening (beyond global express-rate-limit)
 - [ ] Audit log — record sensitive account events (password change, email change, new-device login)
+
+## Documentation
+
+- [ ] Rename API-related docs to follow the `<name>-API.md` convention (e.g., `authentication-API.md`, `symptoms-API.md`) so API reference files are immediately distinguishable from guides and overviews
