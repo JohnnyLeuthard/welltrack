@@ -34,7 +34,7 @@ afterAll(async () => {
 });
 
 describe('DELETE /api/symptoms/:id', () => {
-  it('returns 200 and deletes the symptom', async () => {
+  it('returns 204 and deletes the symptom', async () => {
     const symptom = await prisma.symptom.create({
       data: { userId, name: 'To Be Deleted' },
     });
@@ -43,8 +43,7 @@ describe('DELETE /api/symptoms/:id', () => {
       .delete(`${SYMPTOMS}/${symptom.id}`)
       .set('Authorization', `Bearer ${accessToken}`);
 
-    expect(res.status).toBe(200);
-    expect(res.body).toHaveProperty('message');
+    expect(res.status).toBe(204);
 
     const gone = await prisma.symptom.findUnique({ where: { id: symptom.id } });
     expect(gone).toBeNull();

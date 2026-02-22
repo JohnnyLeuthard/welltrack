@@ -89,7 +89,7 @@ export async function deleteSymptomHandler(req: Request, res: Response): Promise
 
   try {
     await deleteSymptom(req.user!.userId, id);
-    res.status(200).json({ message: 'Symptom deleted successfully' });
+    res.status(204).send();
   } catch (err) {
     const status = (err as Error & { status?: number }).status;
     if (status === 404) {

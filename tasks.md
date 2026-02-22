@@ -206,7 +206,7 @@ Checkbox list of tasks organized by phase. Stack: React + TypeScript + Tailwind 
 - [x] Review all Prisma queries — ensure `where` clauses on `user_id` and `logged_at` are using the indexed fields
 - [x] Add pagination to all `GET` list endpoints that could return large data sets (confirm `limit` + `offset` work correctly)
 - [x] Audit the React bundle size with `vite build --report`; code-split the Trends page if the charting library is large
-- [ ] Confirm all API responses include `Content-Type: application/json` and proper status codes
+- [x] Confirm all API responses include `Content-Type: application/json` and proper status codes
 
 ### Deployment
 
