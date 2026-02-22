@@ -3,6 +3,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import prisma from '../lib/prisma';
 import { sendPasswordResetEmail } from './email.service';
+import { AuditAction, recordAuditEvent } from './audit.service';
 
 const BCRYPT_ROUNDS = 12;
 const ACCESS_TOKEN_TTL = '15m';
@@ -118,13 +119,20 @@ export async function login(input: LoginInput): Promise<AuthResult> {
   const accessToken = signAccessToken(user.id, user.email);
   const refreshToken = signRefreshToken(user.id);
 
-  await prisma.refreshToken.create({
-    data: {
-      userId: user.id,
-      token: refreshToken,
-      expiresAt: new Date(Date.now() + REFRESH_TOKEN_TTL_MS),
-    },
-  });
+  await Promise.all([
+    prisma.refreshToken.create({
+      data: {
+        userId: user.id,
+        token: refreshToken,
+        expiresAt: new Date(Date.now() + REFRESH_TOKEN_TTL_MS),
+      },
+    }),
+    prisma.user.update({
+      where: { id: user.id },
+      data: { lastLoginAt: new Date() },
+    }),
+    recordAuditEvent(user.id, AuditAction.login),
+  ]);
 
   return {
     user: { id: user.id, email: user.email, displayName: user.displayName },
@@ -205,6 +213,8 @@ export async function resetPassword(input: ResetPasswordInput): Promise<void> {
     }),
     prisma.refreshToken.deleteMany({ where: { userId: record.userId } }),
   ]);
+
+  await recordAuditEvent(record.userId, AuditAction.password_change);
 }
 
 export async function register(input: RegisterInput): Promise<AuthResult> {

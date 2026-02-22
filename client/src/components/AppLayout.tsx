@@ -6,6 +6,8 @@ const navLinks = [
   { to: '/history', label: 'History' },
   { to: '/trends', label: 'Trends' },
   { to: '/settings', label: 'Settings' },
+  { to: '/help', label: 'Help' },
+  { to: '/contact', label: 'Contact' },
 ];
 
 export default function AppLayout() {

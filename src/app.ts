@@ -13,6 +13,7 @@ import habitLogRouter from './routes/habit-log.router';
 import insightsRouter from './routes/insights.router';
 import exportRouter from './routes/export.router';
 import { errorHandler } from './middleware/error.middleware';
+import { writeRateLimit } from './middleware/rate-limit.middleware';
 
 const app = express();
 
@@ -27,14 +28,14 @@ app.get('/health', (_req, res) => {
 });
 
 app.use('/api/auth', authRouter);
-app.use('/api/users', userRouter);
-app.use('/api/symptoms', symptomRouter);
-app.use('/api/symptom-logs', symptomLogRouter);
-app.use('/api/mood-logs', moodLogRouter);
-app.use('/api/medications', medicationRouter);
-app.use('/api/medication-logs', medicationLogRouter);
-app.use('/api/habits', habitRouter);
-app.use('/api/habit-logs', habitLogRouter);
+app.use('/api/users', writeRateLimit, userRouter);
+app.use('/api/symptoms', writeRateLimit, symptomRouter);
+app.use('/api/symptom-logs', writeRateLimit, symptomLogRouter);
+app.use('/api/mood-logs', writeRateLimit, moodLogRouter);
+app.use('/api/medications', writeRateLimit, medicationRouter);
+app.use('/api/medication-logs', writeRateLimit, medicationLogRouter);
+app.use('/api/habits', writeRateLimit, habitRouter);
+app.use('/api/habit-logs', writeRateLimit, habitLogRouter);
 app.use('/api/insights', insightsRouter);
 app.use('/api/export', exportRouter);
 

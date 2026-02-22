@@ -1,4 +1,5 @@
 import prisma from '../lib/prisma';
+import { AuditAction, recordAuditEvent } from './audit.service';
 
 export interface UserProfile {
   id: string;
@@ -6,12 +7,13 @@ export interface UserProfile {
   displayName: string | null;
   timezone: string;
   createdAt: Date;
+  lastLoginAt: Date | null;
 }
 
 export async function getMe(userId: string): Promise<UserProfile> {
   const user = await prisma.user.findUnique({
     where: { id: userId },
-    select: { id: true, email: true, displayName: true, timezone: true, createdAt: true },
+    select: { id: true, email: true, displayName: true, timezone: true, createdAt: true, lastLoginAt: true },
   });
 
   if (!user) {
@@ -26,6 +28,7 @@ export async function getMe(userId: string): Promise<UserProfile> {
 export interface UpdateMeInput {
   displayName?: string | null;
   timezone?: string;
+  email?: string;
 }
 
 export function isValidIANATimezone(tz: string): boolean {
@@ -43,14 +46,28 @@ export async function deleteMe(userId: string): Promise<void> {
 }
 
 export async function updateMe(userId: string, input: UpdateMeInput): Promise<UserProfile> {
+  if (input.email !== undefined) {
+    const existing = await prisma.user.findUnique({ where: { email: input.email } });
+    if (existing && existing.id !== userId) {
+      const err = new Error('Email already in use');
+      (err as Error & { status: number }).status = 409;
+      throw err;
+    }
+  }
+
   const user = await prisma.user.update({
     where: { id: userId },
     data: {
       ...(input.displayName !== undefined && { displayName: input.displayName }),
       ...(input.timezone !== undefined && { timezone: input.timezone }),
+      ...(input.email !== undefined && { email: input.email }),
     },
-    select: { id: true, email: true, displayName: true, timezone: true, createdAt: true },
+    select: { id: true, email: true, displayName: true, timezone: true, createdAt: true, lastLoginAt: true },
   });
+
+  if (input.email !== undefined) {
+    await recordAuditEvent(userId, AuditAction.email_change);
+  }
 
   return user;
 }

@@ -226,17 +226,17 @@ Checkbox list of tasks organized by phase. Stack: React + TypeScript + Tailwind 
 
 - [x] Add 60-day, 120-day, and 365-day options to the trends date range selector (update frontend selector and confirm backend accepts new `days` values)
 - [x] Dark mode toggle — add a light/dark theme switch to the Settings page; persist preference in `localStorage`; apply via Tailwind's `darkMode: 'class'` config
-- [ ] Correlation chart — add a second metric overlay to the Trends chart so users can compare two metrics (e.g., mood vs. energy) on the same axis
-- [ ] Help page — add a `/help` route with FAQs and how-to guides for logging, viewing trends, and exporting data
-- [ ] Contact page — add a `/contact` route with a support mailto link and links to relevant help resources
+- [x] Correlation chart — add a second metric overlay to the Trends chart so users can compare two metrics (e.g., mood vs. energy) on the same axis
+- [x] Help page — add a `/help` route with FAQs and how-to guides for logging, viewing trends, and exporting data
+- [x] Contact page — add a `/contact` route with a support mailto link and links to relevant help resources
 
 ### Backend + Frontend
 
-- [ ] Track last login — store `last_login_at` on the `User` model; update it on successful login; expose it in `GET /api/users/me`; display it on the Settings profile section
-- [ ] Allow email change — extend `PATCH /api/users/me` to accept a new `email` field with uniqueness validation; add an email field to the profile form in Settings
-- [ ] Per-user rate limiting — add per-user rate limiting middleware (e.g., `express-rate-limit` keyed by `req.user.userId`) to protect write endpoints from abuse
-- [ ] Audit log — record sensitive account events (password change, email change, login) to a new `AuditLog` model; expose `GET /api/users/me/audit-log` for the authenticated user to view their own history
+- [x] Track last login — store `last_login_at` on the `User` model; update it on successful login; expose it in `GET /api/users/me`; display it on the Settings profile section
+- [x] Allow email change — extend `PATCH /api/users/me` to accept a new `email` field with uniqueness validation; add an email field to the profile form in Settings
+- [x] Per-user rate limiting — add per-user rate limiting middleware (e.g., `express-rate-limit` keyed by `req.user.userId`) to protect write endpoints from abuse
+- [x] Audit log — record sensitive account events (password change, email change, login) to a new `AuditLog` model; expose `GET /api/users/me/audit-log` for the authenticated user to view their own history
 
 ### Export
 
-- [ ] PDF export — add `GET /api/export/pdf` endpoint using `pdfkit`; include log summaries and trend data; add a "Download PDF" button to the Settings > Export section
+- [x] PDF export — add `GET /api/export/pdf` endpoint using `pdfkit`; include log summaries and trend data; add a "Download PDF" button to the Settings > Export section

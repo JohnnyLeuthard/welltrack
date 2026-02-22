@@ -23,6 +23,7 @@ export interface UserProfile {
   displayName: string | null;
   timezone: string;
   createdAt: string;
+  lastLoginAt: string | null;
 }
 
 // Symptoms
@@ -115,4 +116,14 @@ export interface TrendPoint {
 export interface ActivityPoint {
   date: string;
   count: number;
+}
+
+// Audit log
+export type AuditAction = 'login' | 'password_change' | 'email_change';
+
+export interface AuditLogEntry {
+  id: string;
+  action: AuditAction;
+  metadata: Record<string, unknown> | null;
+  createdAt: string;
 }

@@ -1,11 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
-import type { ApiError, Habit, Medication, Symptom, UserProfile } from '../types/api';
+import type { ApiError, AuditLogEntry, Habit, Medication, Symptom, UserProfile } from '../types/api';
 import { useAuth } from '../hooks/useAuth';
 import { useTheme } from '../context/ThemeContext';
 
-type Section = 'profile' | 'symptoms' | 'habits' | 'medications' | 'export' | 'appearance' | 'account';
+type Section = 'profile' | 'symptoms' | 'habits' | 'medications' | 'export' | 'appearance' | 'audit-log' | 'account';
 
 const NAV: { key: Section; label: string }[] = [
   { key: 'profile', label: 'Profile' },
@@ -14,6 +14,7 @@ const NAV: { key: Section; label: string }[] = [
   { key: 'medications', label: 'Medications' },
   { key: 'export', label: 'Export' },
   { key: 'appearance', label: 'Appearance' },
+  { key: 'audit-log', label: 'Activity Log' },
   { key: 'account', label: 'Account' },
 ];
 
@@ -44,6 +45,7 @@ function ProfileSection() {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [displayName, setDisplayName] = useState('');
   const [timezone, setTimezone] = useState('');
+  const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -56,6 +58,7 @@ function ProfileSection() {
         setProfile(r.data);
         setDisplayName(r.data.displayName ?? '');
         setTimezone(r.data.timezone);
+        setEmail(r.data.email);
       })
       .catch(() => setError('Failed to load profile.'))
       .finally(() => setIsLoading(false));
@@ -67,7 +70,10 @@ function ProfileSection() {
     setSuccess(false);
     setIsSaving(true);
     try {
-      await api.patch('/api/users/me', { displayName: displayName || null, timezone });
+      const body: Record<string, unknown> = { displayName: displayName || null, timezone };
+      if (email && profile && email !== profile.email) body.email = email;
+      const res = await api.patch<UserProfile>('/api/users/me', body);
+      setProfile(res.data);
       setSuccess(true);
     } catch (err) {
       setError(apiError(err));
@@ -81,12 +87,28 @@ function ProfileSection() {
   return (
     <SectionCard>
       <SectionTitle>Profile</SectionTitle>
-      {profile && (
+      {profile?.lastLoginAt && (
         <p className="mb-4 text-sm text-gray-500 dark:text-gray-400">
-          Account email: <span className="font-medium text-gray-700 dark:text-gray-200">{profile.email}</span>
+          Last login:{' '}
+          <span className="font-medium text-gray-700 dark:text-gray-200">
+            {new Date(profile.lastLoginAt).toLocaleString()}
+          </span>
         </p>
       )}
       <form onSubmit={(e) => void handleSave(e)} className="space-y-4">
+        <div>
+          <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300" htmlFor="email">
+            Email
+          </label>
+          <input
+            id="email"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            className="w-full rounded-lg border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 px-3 py-2 text-sm outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
+          />
+        </div>
         <div>
           <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300" htmlFor="displayName">
             Display name
@@ -703,19 +725,22 @@ function ExportSection() {
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [isDownloading, setIsDownloading] = useState(false);
+  const [isDownloadingPdf, setIsDownloadingPdf] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  function buildQuery() {
+    const params = new URLSearchParams();
+    if (startDate) params.set('startDate', startDate);
+    if (endDate) params.set('endDate', endDate);
+    return params.toString() ? `?${params.toString()}` : '';
+  }
 
   async function handleDownload(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
     setIsDownloading(true);
     try {
-      const params = new URLSearchParams();
-      if (startDate) params.set('startDate', startDate);
-      if (endDate) params.set('endDate', endDate);
-      const query = params.toString() ? `?${params.toString()}` : '';
-
-      const response = await api.get(`/api/export/csv${query}`, { responseType: 'blob' });
+      const response = await api.get(`/api/export/csv${buildQuery()}`, { responseType: 'blob' });
       const url = window.URL.createObjectURL(new Blob([response.data as BlobPart]));
       const link = document.createElement('a');
       link.href = url;
@@ -732,11 +757,32 @@ function ExportSection() {
     }
   }
 
+  async function handleDownloadPdf() {
+    setError(null);
+    setIsDownloadingPdf(true);
+    try {
+      const response = await api.get(`/api/export/pdf${buildQuery()}`, { responseType: 'blob' });
+      const url = window.URL.createObjectURL(new Blob([response.data as BlobPart], { type: 'application/pdf' }));
+      const link = document.createElement('a');
+      link.href = url;
+      const today = new Date().toISOString().split('T')[0]!;
+      link.setAttribute('download', `welltrack-export-${today}.pdf`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch {
+      setError('PDF export failed. Please try again.');
+    } finally {
+      setIsDownloadingPdf(false);
+    }
+  }
+
   return (
     <SectionCard>
       <SectionTitle>Export Data</SectionTitle>
       <p className="mb-5 text-sm text-gray-500 dark:text-gray-400">
-        Download all your logs as a CSV file. Leave the date fields blank to export everything.
+        Download all your logs as CSV or PDF. Leave the date fields blank to export everything.
       </p>
       <form onSubmit={(e) => void handleDownload(e)} className="space-y-4">
         <div className="flex gap-4">
@@ -766,13 +812,23 @@ function ExportSection() {
           </div>
         </div>
         {error && <p role="alert" className="text-sm text-rose-600">{error}</p>}
-        <button
-          type="submit"
-          disabled={isDownloading}
-          className="rounded-lg bg-teal-600 px-4 py-2 text-sm font-medium text-white hover:bg-teal-700 disabled:opacity-50"
-        >
-          {isDownloading ? 'Preparing…' : 'Download CSV'}
-        </button>
+        <div className="flex gap-3">
+          <button
+            type="submit"
+            disabled={isDownloading || isDownloadingPdf}
+            className="rounded-lg bg-teal-600 px-4 py-2 text-sm font-medium text-white hover:bg-teal-700 disabled:opacity-50"
+          >
+            {isDownloading ? 'Preparing…' : 'Download CSV'}
+          </button>
+          <button
+            type="button"
+            onClick={() => void handleDownloadPdf()}
+            disabled={isDownloading || isDownloadingPdf}
+            className="rounded-lg border border-teal-600 px-4 py-2 text-sm font-medium text-teal-700 dark:text-teal-400 hover:bg-teal-50 dark:hover:bg-teal-900/30 disabled:opacity-50"
+          >
+            {isDownloadingPdf ? 'Preparing…' : 'Download PDF'}
+          </button>
+        </div>
       </form>
     </SectionCard>
   );
@@ -809,6 +865,54 @@ function AppearanceSection() {
           />
         </button>
       </div>
+    </SectionCard>
+  );
+}
+
+// ─── Audit Log ────────────────────────────────────────────────────────────────
+
+const AUDIT_ACTION_LABELS: Record<string, string> = {
+  login: 'Signed in',
+  password_change: 'Password changed',
+  email_change: 'Email changed',
+};
+
+function AuditLogSection() {
+  const [entries, setEntries] = useState<AuditLogEntry[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    api
+      .get<AuditLogEntry[]>('/api/users/me/audit-log')
+      .then((r) => setEntries(r.data))
+      .catch(() => setError('Failed to load activity log.'))
+      .finally(() => setIsLoading(false));
+  }, []);
+
+  if (isLoading) return <div className="h-40 animate-pulse rounded-lg bg-gray-100 dark:bg-gray-700" />;
+
+  return (
+    <SectionCard>
+      <SectionTitle>Activity Log</SectionTitle>
+      {error && <p role="alert" className="text-sm text-rose-600">{error}</p>}
+      {entries.length === 0 && !error && (
+        <p className="text-sm text-gray-500 dark:text-gray-400">No activity recorded yet.</p>
+      )}
+      {entries.length > 0 && (
+        <ul className="divide-y divide-gray-100 dark:divide-gray-700">
+          {entries.map((entry) => (
+            <li key={entry.id} className="flex items-center justify-between py-3">
+              <span className="text-sm font-medium text-gray-700 dark:text-gray-200">
+                {AUDIT_ACTION_LABELS[entry.action] ?? entry.action}
+              </span>
+              <span className="text-xs text-gray-400 dark:text-gray-500">
+                {new Date(entry.createdAt).toLocaleString()}
+              </span>
+            </li>
+          ))}
+        </ul>
+      )}
     </SectionCard>
   );
 }
@@ -910,6 +1014,7 @@ export default function SettingsPage() {
       {active === 'medications' && <MedicationsSection />}
       {active === 'export' && <ExportSection />}
       {active === 'appearance' && <AppearanceSection />}
+      {active === 'audit-log' && <AuditLogSection />}
       {active === 'account' && <AccountSection />}
     </div>
   );
