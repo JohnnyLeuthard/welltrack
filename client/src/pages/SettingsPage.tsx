@@ -31,7 +31,12 @@ function SectionTitle({ children }: { children: React.ReactNode }) {
 
 // ─── Profile ──────────────────────────────────────────────────────────────────
 
-const TIMEZONES: string[] = Intl.supportedValuesOf('timeZone');
+// Build timezone list and guarantee "UTC" is always present at the top.
+// Intl.supportedValuesOf may omit the plain "UTC" identifier on some Chrome builds.
+const TIMEZONES: string[] = (() => {
+  const tzs = Intl.supportedValuesOf('timeZone');
+  return tzs.includes('UTC') ? tzs : ['UTC', ...tzs];
+})();
 
 function ProfileSection() {
   const [profile, setProfile] = useState<UserProfile | null>(null);
