@@ -11,6 +11,7 @@ import ResetPasswordPage from './pages/ResetPasswordPage';
 import DashboardPage from './pages/DashboardPage';
 import HistoryPage from './pages/HistoryPage';
 import SettingsPage from './pages/SettingsPage';
+import HelpPage from './pages/HelpPage';
 
 // Lazy-load TrendsPage so Recharts is split into a separate chunk and excluded
 // from the initial bundle. The page is rarely the entry point, so the small
@@ -43,6 +44,7 @@ export default function App() {
                 }
               />
               <Route path="/settings" element={<SettingsPage />} />
+              <Route path="/help" element={<HelpPage />} />
             </Route>
           </Route>
 
