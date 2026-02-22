@@ -265,7 +265,7 @@ export default function TrendsPage() {
                 width={24}
               />
               <Tooltip
-                labelFormatter={(v: string) => formatTooltipDate(v)}
+                labelFormatter={(v) => formatTooltipDate(String(v))}
                 contentStyle={{ borderRadius: '8px', border: '1px solid #e5e7eb', fontSize: 12 }}
               />
               <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: 12 }} />
@@ -349,7 +349,7 @@ export default function TrendsPage() {
                 width={24}
               />
               <Tooltip
-                labelFormatter={(v: string) => formatTooltipDate(v)}
+                labelFormatter={(v) => formatTooltipDate(String(v))}
                 contentStyle={{ borderRadius: '8px', border: '1px solid #e5e7eb', fontSize: 12 }}
               />
               <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: 12 }} />
