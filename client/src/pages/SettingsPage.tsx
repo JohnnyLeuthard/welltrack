@@ -44,6 +44,7 @@ function ProfileSection() {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [displayName, setDisplayName] = useState('');
   const [timezone, setTimezone] = useState('');
+  const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -56,6 +57,7 @@ function ProfileSection() {
         setProfile(r.data);
         setDisplayName(r.data.displayName ?? '');
         setTimezone(r.data.timezone);
+        setEmail(r.data.email);
       })
       .catch(() => setError('Failed to load profile.'))
       .finally(() => setIsLoading(false));
@@ -67,7 +69,10 @@ function ProfileSection() {
     setSuccess(false);
     setIsSaving(true);
     try {
-      await api.patch('/api/users/me', { displayName: displayName || null, timezone });
+      const body: Record<string, unknown> = { displayName: displayName || null, timezone };
+      if (email && profile && email !== profile.email) body.email = email;
+      const res = await api.patch<UserProfile>('/api/users/me', body);
+      setProfile(res.data);
       setSuccess(true);
     } catch (err) {
       setError(apiError(err));
@@ -81,22 +86,28 @@ function ProfileSection() {
   return (
     <SectionCard>
       <SectionTitle>Profile</SectionTitle>
-      {profile && (
-        <div className="mb-4 space-y-1">
-          <p className="text-sm text-gray-500 dark:text-gray-400">
-            Account email: <span className="font-medium text-gray-700 dark:text-gray-200">{profile.email}</span>
-          </p>
-          {profile.lastLoginAt && (
-            <p className="text-sm text-gray-500 dark:text-gray-400">
-              Last login:{' '}
-              <span className="font-medium text-gray-700 dark:text-gray-200">
-                {new Date(profile.lastLoginAt).toLocaleString()}
-              </span>
-            </p>
-          )}
-        </div>
+      {profile?.lastLoginAt && (
+        <p className="mb-4 text-sm text-gray-500 dark:text-gray-400">
+          Last login:{' '}
+          <span className="font-medium text-gray-700 dark:text-gray-200">
+            {new Date(profile.lastLoginAt).toLocaleString()}
+          </span>
+        </p>
       )}
       <form onSubmit={(e) => void handleSave(e)} className="space-y-4">
+        <div>
+          <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300" htmlFor="email">
+            Email
+          </label>
+          <input
+            id="email"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            className="w-full rounded-lg border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 px-3 py-2 text-sm outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
+          />
+        </div>
         <div>
           <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300" htmlFor="displayName">
             Display name

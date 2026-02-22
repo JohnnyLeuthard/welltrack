@@ -7,7 +7,7 @@ export async function getMeHandler(req: Request, res: Response): Promise<void> {
 }
 
 export async function updateMeHandler(req: Request, res: Response): Promise<void> {
-  const { displayName, timezone } = req.body as Record<string, unknown>;
+  const { displayName, timezone, email } = req.body as Record<string, unknown>;
 
   if (displayName !== undefined && displayName !== null && typeof displayName !== 'string') {
     res.status(422).json({ error: 'displayName must be a string or null' });
@@ -24,9 +24,10 @@ export async function updateMeHandler(req: Request, res: Response): Promise<void
     }
   }
 
-  const input: { displayName?: string | null; timezone?: string } = {};
+  const input: { displayName?: string | null; timezone?: string; email?: string } = {};
   if (displayName !== undefined) input.displayName = (displayName as string | null);
   if (timezone !== undefined) input.timezone = timezone as string;
+  if (email !== undefined) input.email = email as string;
 
   const user = await updateMe(req.user!.userId, input);
   res.status(200).json(user);
