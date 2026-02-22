@@ -1,13 +1,14 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import axios from 'axios';
 import Modal from './Modal';
 import api from '../services/api';
-import type { ApiError } from '../types/api';
+import type { ApiError, MoodLog } from '../types/api';
 
 interface Props {
   isOpen: boolean;
   onClose: () => void;
   onSuccess: () => void;
+  log?: MoodLog; // when provided: edit mode (pre-fill + PATCH)
 }
 
 function toLocalDateTimeString(date: Date): string {
@@ -52,7 +53,7 @@ function ScoreSelector({
   );
 }
 
-export default function LogMoodModal({ isOpen, onClose, onSuccess }: Props) {
+export default function LogMoodModal({ isOpen, onClose, onSuccess, log }: Props) {
   const [moodScore, setMoodScore] = useState<number | null>(null);
   const [energyLevel, setEnergyLevel] = useState<number | null>(null);
   const [stressLevel, setStressLevel] = useState<number | null>(null);
@@ -61,31 +62,45 @@ export default function LogMoodModal({ isOpen, onClose, onSuccess }: Props) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  function resetForm() {
-    setMoodScore(null);
-    setEnergyLevel(null);
-    setStressLevel(null);
-    setNotes('');
-    setLoggedAt(toLocalDateTimeString(new Date()));
+  // Pre-fill form fields when opening
+  useEffect(() => {
+    if (!isOpen) return;
     setError(null);
-  }
+    if (log) {
+      setMoodScore(log.moodScore);
+      setEnergyLevel(log.energyLevel);
+      setStressLevel(log.stressLevel);
+      setNotes(log.notes ?? '');
+      setLoggedAt(toLocalDateTimeString(new Date(log.loggedAt)));
+    } else {
+      setMoodScore(null);
+      setEnergyLevel(null);
+      setStressLevel(null);
+      setNotes('');
+      setLoggedAt(toLocalDateTimeString(new Date()));
+    }
+  }, [isOpen, log]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (moodScore === null) return;
     setIsSubmitting(true);
     setError(null);
+    const body = {
+      moodScore,
+      energyLevel: energyLevel ?? undefined,
+      stressLevel: stressLevel ?? undefined,
+      notes: notes || undefined,
+      loggedAt: new Date(loggedAt).toISOString(),
+    };
     try {
-      await api.post('/api/mood-logs', {
-        moodScore,
-        energyLevel: energyLevel ?? undefined,
-        stressLevel: stressLevel ?? undefined,
-        notes: notes || undefined,
-        loggedAt: new Date(loggedAt).toISOString(),
-      });
+      if (log) {
+        await api.patch(`/api/mood-logs/${log.id}`, body);
+      } else {
+        await api.post('/api/mood-logs', body);
+      }
       onSuccess();
       onClose();
-      resetForm();
     } catch (err) {
       if (axios.isAxiosError(err)) {
         setError((err.response?.data as ApiError)?.error ?? 'Failed to save. Please try again.');
@@ -98,7 +113,7 @@ export default function LogMoodModal({ isOpen, onClose, onSuccess }: Props) {
   }
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Log Mood">
+    <Modal isOpen={isOpen} onClose={onClose} title={log ? 'Edit Mood Log' : 'Log Mood'}>
       <form onSubmit={handleSubmit} className="space-y-4">
         {error && (
           <p role="alert" className="rounded-md bg-rose-50 px-4 py-3 text-sm text-rose-600">

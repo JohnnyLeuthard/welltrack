@@ -2,12 +2,13 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 import Modal from './Modal';
 import api from '../services/api';
-import type { ApiError, Symptom } from '../types/api';
+import type { ApiError, Symptom, SymptomLog } from '../types/api';
 
 interface Props {
   isOpen: boolean;
   onClose: () => void;
   onSuccess: () => void;
+  log?: SymptomLog; // when provided: edit mode (pre-fill + PATCH)
 }
 
 function toLocalDateTimeString(date: Date): string {
@@ -15,7 +16,7 @@ function toLocalDateTimeString(date: Date): string {
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
 }
 
-export default function LogSymptomModal({ isOpen, onClose, onSuccess }: Props) {
+export default function LogSymptomModal({ isOpen, onClose, onSuccess, log }: Props) {
   const [symptoms, setSymptoms] = useState<Symptom[]>([]);
   const [symptomId, setSymptomId] = useState('');
   const [severity, setSeverity] = useState(5);
@@ -25,37 +26,57 @@ export default function LogSymptomModal({ isOpen, onClose, onSuccess }: Props) {
   const [error, setError] = useState<string | null>(null);
   const [loadingSymptoms, setLoadingSymptoms] = useState(false);
 
+  // Fetch symptom list when modal opens
   useEffect(() => {
     if (!isOpen) return;
-    setError(null);
     setLoadingSymptoms(true);
     api
       .get<Symptom[]>('/api/symptoms')
       .then((res) => {
         setSymptoms(res.data);
-        if (res.data.length > 0 && !symptomId) {
-          setSymptomId(res.data[0]!.id);
+        // In create mode, default to the first symptom if nothing selected
+        if (!log && res.data.length > 0) {
+          setSymptomId((prev) => prev || res.data[0]!.id);
         }
       })
       .finally(() => setLoadingSymptoms(false));
-  }, [isOpen]);
+  }, [isOpen, log]);
+
+  // Pre-fill form fields when opening
+  useEffect(() => {
+    if (!isOpen) return;
+    setError(null);
+    if (log) {
+      setSymptomId(log.symptomId);
+      setSeverity(log.severity);
+      setNotes(log.notes ?? '');
+      setLoggedAt(toLocalDateTimeString(new Date(log.loggedAt)));
+    } else {
+      setSymptomId('');
+      setSeverity(5);
+      setNotes('');
+      setLoggedAt(toLocalDateTimeString(new Date()));
+    }
+  }, [isOpen, log]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setIsSubmitting(true);
     setError(null);
+    const body = {
+      symptomId,
+      severity,
+      notes: notes || undefined,
+      loggedAt: new Date(loggedAt).toISOString(),
+    };
     try {
-      await api.post('/api/symptom-logs', {
-        symptomId,
-        severity,
-        notes: notes || undefined,
-        loggedAt: new Date(loggedAt).toISOString(),
-      });
+      if (log) {
+        await api.patch(`/api/symptom-logs/${log.id}`, body);
+      } else {
+        await api.post('/api/symptom-logs', body);
+      }
       onSuccess();
       onClose();
-      setSeverity(5);
-      setNotes('');
-      setLoggedAt(toLocalDateTimeString(new Date()));
     } catch (err) {
       if (axios.isAxiosError(err)) {
         setError((err.response?.data as ApiError)?.error ?? 'Failed to save. Please try again.');
@@ -68,7 +89,7 @@ export default function LogSymptomModal({ isOpen, onClose, onSuccess }: Props) {
   }
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Log Symptom">
+    <Modal isOpen={isOpen} onClose={onClose} title={log ? 'Edit Symptom Log' : 'Log Symptom'}>
       <form onSubmit={handleSubmit} className="space-y-4">
         {error && (
           <p role="alert" className="rounded-md bg-rose-50 px-4 py-3 text-sm text-rose-600">

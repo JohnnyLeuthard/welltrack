@@ -158,12 +158,12 @@ Checkbox list of tasks organized by phase. Stack: React + TypeScript + Tailwind 
 
 ### History View
 
-- [ ] Build `HistoryPage` that fetches all log types and groups entries by calendar day
-- [ ] Show each day as a collapsible section with a summary count of entries
-- [ ] Render individual entries within each day (symptom name + severity, mood score, med taken/not, habit value)
-- [ ] Add a filter bar to show/hide by type: Symptoms, Mood, Medications, Habits
-- [ ] Clicking an entry opens the relevant edit modal pre-filled with existing data
-- [ ] Add a delete button on each entry with a confirmation prompt
+- [x] Build `HistoryPage` that fetches all log types and groups entries by calendar day
+- [x] Show each day as a collapsible section with a summary count of entries
+- [x] Render individual entries within each day (symptom name + severity, mood score, med taken/not, habit value)
+- [x] Add a filter bar to show/hide by type: Symptoms, Mood, Medications, Habits
+- [x] Clicking an entry opens the relevant edit modal pre-filled with existing data
+- [x] Add a delete button on each entry with a confirmation prompt
 
 ### Trends & Charts
 

@@ -2,12 +2,13 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 import Modal from './Modal';
 import api from '../services/api';
-import type { ApiError, Habit } from '../types/api';
+import type { ApiError, Habit, HabitLog } from '../types/api';
 
 interface Props {
   isOpen: boolean;
   onClose: () => void;
   onSuccess: () => void;
+  log?: HabitLog; // when provided: edit mode (pre-fill + PATCH)
 }
 
 function toLocalDateTimeString(date: Date): string {
@@ -15,7 +16,7 @@ function toLocalDateTimeString(date: Date): string {
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
 }
 
-export default function LogHabitModal({ isOpen, onClose, onSuccess }: Props) {
+export default function LogHabitModal({ isOpen, onClose, onSuccess, log }: Props) {
   const [habits, setHabits] = useState<Habit[]>([]);
   const [habitId, setHabitId] = useState('');
   const [valueBoolean, setValueBoolean] = useState(true);
@@ -29,54 +30,68 @@ export default function LogHabitModal({ isOpen, onClose, onSuccess }: Props) {
 
   const selectedHabit = habits.find((h) => h.id === habitId);
 
+  // Fetch habit list when modal opens
   useEffect(() => {
     if (!isOpen) return;
-    setError(null);
     setLoadingHabits(true);
     api
       .get<Habit[]>('/api/habits')
       .then((res) => {
         const active = res.data.filter((h) => h.isActive);
         setHabits(active);
-        if (active.length > 0 && !habitId) {
-          setHabitId(active[0]!.id);
+        // In create mode, default to the first active habit
+        if (!log && active.length > 0) {
+          setHabitId((prev) => prev || active[0]!.id);
         }
       })
       .finally(() => setLoadingHabits(false));
-  }, [isOpen]);
+  }, [isOpen, log]);
 
-  // Reset value fields when the selected habit changes
+  // Pre-fill form fields when opening
   useEffect(() => {
-    setValueBoolean(true);
-    setValueNumeric('');
-    setValueDuration('');
-  }, [habitId]);
-
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setIsSubmitting(true);
+    if (!isOpen) return;
     setError(null);
-    try {
-      const payload: Record<string, unknown> = {
-        habitId,
-        notes: notes || undefined,
-        loggedAt: new Date(loggedAt).toISOString(),
-      };
-      if (selectedHabit?.trackingType === 'boolean') {
-        payload.valueBoolean = valueBoolean;
-      } else if (selectedHabit?.trackingType === 'numeric') {
-        payload.valueNumeric = Number(valueNumeric);
-      } else if (selectedHabit?.trackingType === 'duration') {
-        payload.valueDuration = Number(valueDuration);
-      }
-      await api.post('/api/habit-logs', payload);
-      onSuccess();
-      onClose();
+    if (log) {
+      setHabitId(log.habitId);
+      setValueBoolean(log.valueBoolean ?? true);
+      setValueNumeric(log.valueNumeric ?? '');
+      setValueDuration(log.valueDuration ?? '');
+      setNotes(log.notes ?? '');
+      setLoggedAt(toLocalDateTimeString(new Date(log.loggedAt)));
+    } else {
+      setHabitId('');
       setValueBoolean(true);
       setValueNumeric('');
       setValueDuration('');
       setNotes('');
       setLoggedAt(toLocalDateTimeString(new Date()));
+    }
+  }, [isOpen, log]);
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setError(null);
+    const body: Record<string, unknown> = {
+      habitId,
+      notes: notes || undefined,
+      loggedAt: new Date(loggedAt).toISOString(),
+    };
+    if (selectedHabit?.trackingType === 'boolean') {
+      body.valueBoolean = valueBoolean;
+    } else if (selectedHabit?.trackingType === 'numeric') {
+      body.valueNumeric = Number(valueNumeric);
+    } else if (selectedHabit?.trackingType === 'duration') {
+      body.valueDuration = Number(valueDuration);
+    }
+    try {
+      if (log) {
+        await api.patch(`/api/habit-logs/${log.id}`, body);
+      } else {
+        await api.post('/api/habit-logs', body);
+      }
+      onSuccess();
+      onClose();
     } catch (err) {
       if (axios.isAxiosError(err)) {
         setError((err.response?.data as ApiError)?.error ?? 'Failed to save. Please try again.');
@@ -96,7 +111,7 @@ export default function LogHabitModal({ isOpen, onClose, onSuccess }: Props) {
     (selectedHabit?.trackingType === 'duration' && valueDuration !== '');
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Log Habit">
+    <Modal isOpen={isOpen} onClose={onClose} title={log ? 'Edit Habit Log' : 'Log Habit'}>
       <form onSubmit={handleSubmit} className="space-y-4">
         {error && (
           <p role="alert" className="rounded-md bg-rose-50 px-4 py-3 text-sm text-rose-600">
@@ -117,7 +132,13 @@ export default function LogHabitModal({ isOpen, onClose, onSuccess }: Props) {
           ) : (
             <select
               value={habitId}
-              onChange={(e) => setHabitId(e.target.value)}
+              onChange={(e) => {
+                setHabitId(e.target.value);
+                // Reset value fields when the user changes the habit selection
+                setValueBoolean(true);
+                setValueNumeric('');
+                setValueDuration('');
+              }}
               required
               disabled={noHabits}
               className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500 disabled:bg-gray-50"
