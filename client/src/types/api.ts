@@ -117,3 +117,13 @@ export interface ActivityPoint {
   date: string;
   count: number;
 }
+
+// Audit log
+export type AuditAction = 'login' | 'password_change' | 'email_change';
+
+export interface AuditLogEntry {
+  id: string;
+  action: AuditAction;
+  metadata: Record<string, unknown> | null;
+  createdAt: string;
+}

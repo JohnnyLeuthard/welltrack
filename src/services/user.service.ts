@@ -1,4 +1,5 @@
 import prisma from '../lib/prisma';
+import { AuditAction, recordAuditEvent } from './audit.service';
 
 export interface UserProfile {
   id: string;
@@ -63,6 +64,10 @@ export async function updateMe(userId: string, input: UpdateMeInput): Promise<Us
     },
     select: { id: true, email: true, displayName: true, timezone: true, createdAt: true, lastLoginAt: true },
   });
+
+  if (input.email !== undefined) {
+    await recordAuditEvent(userId, AuditAction.email_change);
+  }
 
   return user;
 }

@@ -235,7 +235,7 @@ Checkbox list of tasks organized by phase. Stack: React + TypeScript + Tailwind 
 - [x] Track last login — store `last_login_at` on the `User` model; update it on successful login; expose it in `GET /api/users/me`; display it on the Settings profile section
 - [x] Allow email change — extend `PATCH /api/users/me` to accept a new `email` field with uniqueness validation; add an email field to the profile form in Settings
 - [x] Per-user rate limiting — add per-user rate limiting middleware (e.g., `express-rate-limit` keyed by `req.user.userId`) to protect write endpoints from abuse
-- [ ] Audit log — record sensitive account events (password change, email change, login) to a new `AuditLog` model; expose `GET /api/users/me/audit-log` for the authenticated user to view their own history
+- [x] Audit log — record sensitive account events (password change, email change, login) to a new `AuditLog` model; expose `GET /api/users/me/audit-log` for the authenticated user to view their own history
 
 ### Export
 

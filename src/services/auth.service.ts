@@ -3,6 +3,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import prisma from '../lib/prisma';
 import { sendPasswordResetEmail } from './email.service';
+import { AuditAction, recordAuditEvent } from './audit.service';
 
 const BCRYPT_ROUNDS = 12;
 const ACCESS_TOKEN_TTL = '15m';
@@ -130,6 +131,7 @@ export async function login(input: LoginInput): Promise<AuthResult> {
       where: { id: user.id },
       data: { lastLoginAt: new Date() },
     }),
+    recordAuditEvent(user.id, AuditAction.login),
   ]);
 
   return {
@@ -211,6 +213,8 @@ export async function resetPassword(input: ResetPasswordInput): Promise<void> {
     }),
     prisma.refreshToken.deleteMany({ where: { userId: record.userId } }),
   ]);
+
+  await recordAuditEvent(record.userId, AuditAction.password_change);
 }
 
 export async function register(input: RegisterInput): Promise<AuthResult> {

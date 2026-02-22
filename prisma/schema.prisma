@@ -25,6 +25,7 @@ model User {
   habitLogs     HabitLog[]
   refreshTokens RefreshToken[]
   passwordResetTokens PasswordResetToken[]
+  auditLogs     AuditLog[]
 
   @@map("users")
 }
@@ -169,4 +170,23 @@ model PasswordResetToken {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("password_reset_tokens")
+}
+
+enum AuditAction {
+  login
+  password_change
+  email_change
+}
+
+model AuditLog {
+  id        String      @id @default(cuid())
+  userId    String      @map("user_id")
+  action    AuditAction
+  metadata  Json?
+  createdAt DateTime    @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@map("audit_logs")
 }

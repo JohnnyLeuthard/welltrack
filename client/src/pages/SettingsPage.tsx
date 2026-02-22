@@ -1,11 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
-import type { ApiError, Habit, Medication, Symptom, UserProfile } from '../types/api';
+import type { ApiError, AuditLogEntry, Habit, Medication, Symptom, UserProfile } from '../types/api';
 import { useAuth } from '../hooks/useAuth';
 import { useTheme } from '../context/ThemeContext';
 
-type Section = 'profile' | 'symptoms' | 'habits' | 'medications' | 'export' | 'appearance' | 'account';
+type Section = 'profile' | 'symptoms' | 'habits' | 'medications' | 'export' | 'appearance' | 'audit-log' | 'account';
 
 const NAV: { key: Section; label: string }[] = [
   { key: 'profile', label: 'Profile' },
@@ -14,6 +14,7 @@ const NAV: { key: Section; label: string }[] = [
   { key: 'medications', label: 'Medications' },
   { key: 'export', label: 'Export' },
   { key: 'appearance', label: 'Appearance' },
+  { key: 'audit-log', label: 'Activity Log' },
   { key: 'account', label: 'Account' },
 ];
 
@@ -834,6 +835,54 @@ function AppearanceSection() {
   );
 }
 
+// ─── Audit Log ────────────────────────────────────────────────────────────────
+
+const AUDIT_ACTION_LABELS: Record<string, string> = {
+  login: 'Signed in',
+  password_change: 'Password changed',
+  email_change: 'Email changed',
+};
+
+function AuditLogSection() {
+  const [entries, setEntries] = useState<AuditLogEntry[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    api
+      .get<AuditLogEntry[]>('/api/users/me/audit-log')
+      .then((r) => setEntries(r.data))
+      .catch(() => setError('Failed to load activity log.'))
+      .finally(() => setIsLoading(false));
+  }, []);
+
+  if (isLoading) return <div className="h-40 animate-pulse rounded-lg bg-gray-100 dark:bg-gray-700" />;
+
+  return (
+    <SectionCard>
+      <SectionTitle>Activity Log</SectionTitle>
+      {error && <p role="alert" className="text-sm text-rose-600">{error}</p>}
+      {entries.length === 0 && !error && (
+        <p className="text-sm text-gray-500 dark:text-gray-400">No activity recorded yet.</p>
+      )}
+      {entries.length > 0 && (
+        <ul className="divide-y divide-gray-100 dark:divide-gray-700">
+          {entries.map((entry) => (
+            <li key={entry.id} className="flex items-center justify-between py-3">
+              <span className="text-sm font-medium text-gray-700 dark:text-gray-200">
+                {AUDIT_ACTION_LABELS[entry.action] ?? entry.action}
+              </span>
+              <span className="text-xs text-gray-400 dark:text-gray-500">
+                {new Date(entry.createdAt).toLocaleString()}
+              </span>
+            </li>
+          ))}
+        </ul>
+      )}
+    </SectionCard>
+  );
+}
+
 // ─── Account ──────────────────────────────────────────────────────────────────
 
 function AccountSection() {
@@ -931,6 +980,7 @@ export default function SettingsPage() {
       {active === 'medications' && <MedicationsSection />}
       {active === 'export' && <ExportSection />}
       {active === 'appearance' && <AppearanceSection />}
+      {active === 'audit-log' && <AuditLogSection />}
       {active === 'account' && <AccountSection />}
     </div>
   );
