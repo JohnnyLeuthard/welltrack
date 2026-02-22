@@ -240,3 +240,16 @@ Checkbox list of tasks organized by phase. Stack: React + TypeScript + Tailwind 
 ### Export
 
 - [x] PDF export — add `GET /api/export/pdf` endpoint using `pdfkit`; include log summaries and trend data; add a "Download PDF" button to the Settings > Export section
+
+### Notifications & Reminders
+
+- [ ] Daily logging reminder — send a daily email (or push notification) prompting the user to log if they haven't yet that day
+- [ ] Medication reminder alerts — send reminders for scheduled medications based on frequency
+- [ ] Streak milestone celebrations / badges — detect 7-day, 30-day streak milestones and surface a congratulatory message or badge in the UI
+- [ ] Weekly wellness summary email digest — send a weekly email with a summary of the user's logged activity and trends
+
+### Data & Integrations
+
+- [ ] Bulk CSV import — accept a CSV upload to backfill historical log data for any log type
+- [ ] Apple Health / Google Fit integration — read activity and sleep data from Apple Health or Google Fit and surface it alongside user logs
+- [ ] Wearable device sync — sync data from Fitbit or Garmin devices into the relevant log types
