@@ -148,3 +148,49 @@ npx prisma studio            # Open Prisma Studio GUI at localhost:5555
 | `CLIENT_ORIGIN` | CORS allowed origin for the frontend | `http://localhost:5173` |
 
 Never commit `.env`. It is git-ignored.
+
+---
+
+## Troubleshooting
+
+### `npm run dev` starts then immediately exits (clean exit)
+
+If you see "WellTrack API running on port 3000" followed by nodemon going idle, a stale Node process is holding port 3000 from a previous run.
+
+```bash
+# Find the process occupying port 3000
+lsof -i :3000
+
+# Kill it (use the PID from the output above)
+kill <PID>
+
+# Then restart
+npm run dev
+```
+
+Express v5 handles `EADDRINUSE` asynchronously — the listen callback fires before the error surfaces, which is why it looks like a clean start rather than a crash.
+
+---
+
+### Frontend shows unstyled HTML (no Tailwind CSS)
+
+The Vite dev server for the frontend is a **separate process** from the API. If you only ran `npm run dev` from the project root, the client isn't running.
+
+```bash
+# Terminal 2 — from the client/ directory
+cd client && npm run dev
+```
+
+After a large file change, Vite's HMR can also get stale. If styles are still missing after starting the client, clear the cache and restart:
+
+```bash
+cd client
+rm -rf node_modules/.vite
+npm run dev
+```
+
+---
+
+### Don't run `/init` more than once
+
+The Claude Code `/init` command regenerates `CLAUDE.md` from scratch every time it runs, overwriting accumulated instructions. **Only run it once** at project creation. To reset a Claude Code conversation without touching `CLAUDE.md`, use `/clear` instead.
