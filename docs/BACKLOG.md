@@ -23,8 +23,6 @@ This file is a parking lot for features and improvements that aren't yet schedul
 
 ## Trends & Analytics
 
-- [ ] Add 60-day, 120-day, and 365-day options to the date range selector (currently 7/30/90)
-- [ ] Correlation view — overlay two metrics (e.g., mood vs. energy) on the same chart
 - [ ] Printable / shareable summary report for sharing with a healthcare provider
 - [ ] Customizable dashboard — let users pin/unpin widgets and reorder cards
 
@@ -60,3 +58,4 @@ This file is a parking lot for features and improvements that aren't yet schedul
 ## Documentation
 
 - [ ] Rename API-related docs to follow the `<name>-API.md` convention (e.g., `authentication-API.md`, `symptoms-API.md`) so API reference files are immediately distinguishable from guides and overviews
+- [ ] Cleanup the fac t there are tow document folders docs and documentation. Add something to name to indicate why or merge them. Move files arounbd as needed
