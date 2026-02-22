@@ -16,6 +16,22 @@ function getToday(): string {
   return new Date().toISOString().split('T')[0]!;
 }
 
+/** Returns { weekStart: 'YYYY-MM-DD', today: 'YYYY-MM-DD', daysFromMonday: 0-6 } */
+function getWeekRange(): { weekStart: string; today: string; daysFromMonday: number } {
+  const now = new Date();
+  const dayOfWeek = now.getDay(); // 0=Sun … 6=Sat
+  const daysFromMonday = (dayOfWeek + 6) % 7; // Mon=0, Tue=1, … Sun=6
+  const weekStart = new Date(now);
+  weekStart.setDate(now.getDate() - daysFromMonday);
+  return {
+    weekStart: weekStart.toISOString().split('T')[0]!,
+    today: now.toISOString().split('T')[0]!,
+    daysFromMonday,
+  };
+}
+
+const WEEK_DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'] as const;
+
 function getGreeting(): string {
   const hour = new Date().getHours();
   if (hour < 12) return 'Good morning';
@@ -48,13 +64,15 @@ const summaryCards: {
 export default function DashboardPage() {
   const { user } = useAuth();
   const [counts, setCounts] = useState<TodayCounts | null>(null);
+  const [loggedDatesThisWeek, setLoggedDatesThisWeek] = useState<Set<string>>(new Set());
   const [isLoading, setIsLoading] = useState(true);
   const [quickAdd, setQuickAdd] = useState<QuickAddType | null>(null);
 
   useEffect(() => {
-    const today = getToday();
-    const params = { startDate: today, endDate: today };
+    const { weekStart, today } = getWeekRange();
+    const params = { startDate: weekStart, endDate: today };
 
+    // Fetch the full week so we can derive both today's counts and the streak
     Promise.all([
       api.get<SymptomLog[]>('/api/symptom-logs', { params }),
       api.get<MoodLog[]>('/api/mood-logs', { params }),
@@ -63,11 +81,19 @@ export default function DashboardPage() {
     ])
       .then(([sym, mood, med, habit]) => {
         setCounts({
-          symptoms: sym.data.length,
-          moods: mood.data.length,
-          medications: med.data.length,
-          habits: habit.data.length,
+          symptoms: sym.data.filter((l) => l.loggedAt.startsWith(today)).length,
+          moods: mood.data.filter((l) => l.loggedAt.startsWith(today)).length,
+          medications: med.data.filter((l) => l.createdAt.startsWith(today)).length,
+          habits: habit.data.filter((l) => l.loggedAt.startsWith(today)).length,
         });
+        setLoggedDatesThisWeek(
+          new Set([
+            ...sym.data.map((l) => l.loggedAt.split('T')[0]!),
+            ...mood.data.map((l) => l.loggedAt.split('T')[0]!),
+            ...med.data.map((l) => l.createdAt.split('T')[0]!),
+            ...habit.data.map((l) => l.loggedAt.split('T')[0]!),
+          ]),
+        );
       })
       .catch(() => {
         setCounts({ symptoms: 0, moods: 0, medications: 0, habits: 0 });
@@ -76,6 +102,7 @@ export default function DashboardPage() {
   }, []);
 
   const name = user?.displayName ?? null;
+  const { weekStart, today, daysFromMonday } = getWeekRange();
 
   return (
     <div className="p-8">
@@ -86,6 +113,42 @@ export default function DashboardPage() {
           {getGreeting()}{name ? `, ${name}` : ''}
         </h1>
       </div>
+
+      {/* Streak */}
+      <section className="mb-8">
+        <h2 className="mb-3 text-sm font-medium uppercase tracking-wide text-gray-400">
+          This week
+        </h2>
+        <div className="inline-flex items-end gap-3 rounded-xl bg-white px-5 py-4 shadow-sm">
+          <div className="flex gap-2">
+            {WEEK_DAYS.map((day, i) => {
+              const d = new Date(weekStart);
+              d.setDate(d.getDate() + i);
+              const dateStr = d.toISOString().split('T')[0]!;
+              const isFuture = dateStr > today;
+              const isLogged = loggedDatesThisWeek.has(dateStr);
+              return (
+                <div key={day} className="flex flex-col items-center gap-1.5">
+                  <div
+                    className={`h-3 w-3 rounded-full transition-colors ${
+                      isFuture
+                        ? 'bg-gray-100'
+                        : isLogged
+                          ? 'bg-teal-500'
+                          : 'bg-gray-200'
+                    }`}
+                  />
+                  <span className="text-[10px] text-gray-400">{day}</span>
+                </div>
+              );
+            })}
+          </div>
+          <p className="ml-2 text-sm text-gray-500">
+            <span className="font-semibold text-gray-700">{loggedDatesThisWeek.size}</span>
+            {' '}of {daysFromMonday + 1} days logged
+          </p>
+        </div>
+      </section>
 
       {/* Today's summary */}
       <section>
