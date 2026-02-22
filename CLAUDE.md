@@ -103,11 +103,23 @@ All tests are integration tests using `supertest` against the real database — 
 **Test isolation:** Each test file uses a unique email domain suffix (e.g., `@mood-logs-get.welltrack`, `@symptoms-post.welltrack`) so Jest's parallel workers don't interfere with each other's test data.
 
 ### Git workflow
-Each task from `tasks.md` gets its own branch and PR:
-1. Branch: `task/<n>-<slug>` cut from the previous task's branch (they stack until merged)
-2. PR targets `main`; title matches the task
-3. Conventional commit messages: `feat:`, `fix:`, `docs:`, `test:`, `refactor:`
-4. Update the checkbox in `tasks.md` before committing
+Each task from `tasks.md` gets its own branch and PR. This is mandatory — do not batch multiple tasks into one branch or defer commits.
+
+**For every task, in order:**
+1. Create a branch: `task/<n>-<slug>` cut from the previous task's branch (they stack until merged)
+2. Do the work
+3. Check the checkbox in `tasks.md` for that task
+4. Commit with a conventional commit message: `feat:`, `fix:`, `docs:`, `test:`, `refactor:`
+5. Move to the next task on a new branch cut from the one just committed
+
+**PR rules:**
+- Each branch gets a PR targeting `main`
+- PR title matches the task description from `tasks.md`
+
+**Do not:**
+- Skip creating a branch before starting a task
+- Complete a task without committing before moving to the next one
+- Batch multiple tasks into a single commit or branch
 
 ### Dependency notes
 - `typescript` is pinned to `~5.8.3` — `typescript-eslint@8` has a peer dep ceiling of `<5.9.0`
