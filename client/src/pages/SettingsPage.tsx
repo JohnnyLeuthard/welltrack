@@ -725,19 +725,22 @@ function ExportSection() {
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [isDownloading, setIsDownloading] = useState(false);
+  const [isDownloadingPdf, setIsDownloadingPdf] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  function buildQuery() {
+    const params = new URLSearchParams();
+    if (startDate) params.set('startDate', startDate);
+    if (endDate) params.set('endDate', endDate);
+    return params.toString() ? `?${params.toString()}` : '';
+  }
 
   async function handleDownload(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
     setIsDownloading(true);
     try {
-      const params = new URLSearchParams();
-      if (startDate) params.set('startDate', startDate);
-      if (endDate) params.set('endDate', endDate);
-      const query = params.toString() ? `?${params.toString()}` : '';
-
-      const response = await api.get(`/api/export/csv${query}`, { responseType: 'blob' });
+      const response = await api.get(`/api/export/csv${buildQuery()}`, { responseType: 'blob' });
       const url = window.URL.createObjectURL(new Blob([response.data as BlobPart]));
       const link = document.createElement('a');
       link.href = url;
@@ -754,11 +757,32 @@ function ExportSection() {
     }
   }
 
+  async function handleDownloadPdf() {
+    setError(null);
+    setIsDownloadingPdf(true);
+    try {
+      const response = await api.get(`/api/export/pdf${buildQuery()}`, { responseType: 'blob' });
+      const url = window.URL.createObjectURL(new Blob([response.data as BlobPart], { type: 'application/pdf' }));
+      const link = document.createElement('a');
+      link.href = url;
+      const today = new Date().toISOString().split('T')[0]!;
+      link.setAttribute('download', `welltrack-export-${today}.pdf`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch {
+      setError('PDF export failed. Please try again.');
+    } finally {
+      setIsDownloadingPdf(false);
+    }
+  }
+
   return (
     <SectionCard>
       <SectionTitle>Export Data</SectionTitle>
       <p className="mb-5 text-sm text-gray-500 dark:text-gray-400">
-        Download all your logs as a CSV file. Leave the date fields blank to export everything.
+        Download all your logs as CSV or PDF. Leave the date fields blank to export everything.
       </p>
       <form onSubmit={(e) => void handleDownload(e)} className="space-y-4">
         <div className="flex gap-4">
@@ -788,13 +812,23 @@ function ExportSection() {
           </div>
         </div>
         {error && <p role="alert" className="text-sm text-rose-600">{error}</p>}
-        <button
-          type="submit"
-          disabled={isDownloading}
-          className="rounded-lg bg-teal-600 px-4 py-2 text-sm font-medium text-white hover:bg-teal-700 disabled:opacity-50"
-        >
-          {isDownloading ? 'Preparing…' : 'Download CSV'}
-        </button>
+        <div className="flex gap-3">
+          <button
+            type="submit"
+            disabled={isDownloading || isDownloadingPdf}
+            className="rounded-lg bg-teal-600 px-4 py-2 text-sm font-medium text-white hover:bg-teal-700 disabled:opacity-50"
+          >
+            {isDownloading ? 'Preparing…' : 'Download CSV'}
+          </button>
+          <button
+            type="button"
+            onClick={() => void handleDownloadPdf()}
+            disabled={isDownloading || isDownloadingPdf}
+            className="rounded-lg border border-teal-600 px-4 py-2 text-sm font-medium text-teal-700 dark:text-teal-400 hover:bg-teal-50 dark:hover:bg-teal-900/30 disabled:opacity-50"
+          >
+            {isDownloadingPdf ? 'Preparing…' : 'Download PDF'}
+          </button>
+        </div>
       </form>
     </SectionCard>
   );

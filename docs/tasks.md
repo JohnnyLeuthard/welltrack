@@ -239,4 +239,4 @@ Checkbox list of tasks organized by phase. Stack: React + TypeScript + Tailwind 
 
 ### Export
 
-- [ ] PDF export — add `GET /api/export/pdf` endpoint using `pdfkit`; include log summaries and trend data; add a "Download PDF" button to the Settings > Export section
+- [x] PDF export — add `GET /api/export/pdf` endpoint using `pdfkit`; include log summaries and trend data; add a "Download PDF" button to the Settings > Export section
