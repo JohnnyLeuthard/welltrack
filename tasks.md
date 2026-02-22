@@ -199,7 +199,7 @@ Checkbox list of tasks organized by phase. Stack: React + TypeScript + Tailwind 
 - [x] Write integration tests for the auth endpoints (register, login, refresh, logout)
 - [x] Write integration tests for at least one CRUD resource end-to-end (e.g., symptom logs)
 - [x] Test all log modals on mobile screen sizes (375px width) in browser devtools; fix any layout issues
-- [ ] Test the full user flow: register → log symptom → view in history → view in trends → export CSV → delete account
+- [x] Test the full user flow: register → log symptom → view in history → view in trends → export CSV → delete account
 
 ### Performance
 
