@@ -2,7 +2,8 @@ import { Request, Response } from 'express';
 import { createMedication, deleteMedication, listMedications, updateMedication } from '../services/medication.service';
 
 export async function listMedicationsHandler(req: Request, res: Response): Promise<void> {
-  const medications = await listMedications(req.user!.userId);
+  const includeAll = req.query['all'] === 'true';
+  const medications = await listMedications(req.user!.userId, includeAll);
   res.status(200).json(medications);
 }
 

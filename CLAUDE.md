@@ -106,7 +106,7 @@ Vite proxies all `/api` requests to `http://localhost:3000`. The API server's CO
 /                   → DashboardPage         (protected, inside AppLayout)
 /history            → HistoryPage           (protected, inside AppLayout)
 /trends             → TrendsPage            (protected, inside AppLayout)
-/settings           → SettingsPage          (protected, inside AppLayout) — stub
+/settings           → SettingsPage          (protected, inside AppLayout)
 ```
 
 `ProtectedRoute` wraps `AppLayout` which wraps all four protected pages. An unmatched path redirects to `/` with `replace`. `AppLayout` reads `user?.displayName` from `AuthContext` and falls back to `user.email` in the sidebar if `displayName` is null.
@@ -157,12 +157,19 @@ All tests are integration tests using `supertest` against the real database — 
 **Test isolation:** Each test file uses a unique email domain suffix (e.g., `@mood-logs-get.welltrack`, `@symptoms-post.welltrack`) so Jest's parallel workers don't interfere with each other's test data.
 
 ### Git workflow
-Each task from `tasks.md` gets its own branch and PR. This is mandatory — do not batch multiple tasks into one branch or defer commits.
+
+> **THIS RULE IS MANDATORY AND MUST NEVER BE REMOVED OR WEAKENED.**
+>
+> **Every single checkbox in `tasks.md` is its own branch, commit, and PR — no exceptions.**
+> Grouping multiple checkboxes (even from the same section) into one PR is forbidden.
+> One checkbox = one branch = one commit = one PR. Always.
+
+Each checkbox in `tasks.md` gets its own branch and PR. This means if a section has 7 checkboxes, there are 7 branches and 7 PRs — not 1. The purpose is to allow any individual feature to be rolled back without affecting the others.
 
 **For every task, in order:**
 1. Create a branch: `task/<n>-<slug>` cut from the previous task's branch (they stack until merged)
-2. Do the work
-3. Check the checkbox in `tasks.md` for that task
+2. Do the work for **that one checkbox only**
+3. Check **only that one checkbox** in `tasks.md`
 4. Commit with a conventional commit message: `feat:`, `fix:`, `docs:`, `test:`, `refactor:`
 5. Push the branch to GitHub: `git push -u origin <branch>`
 6. Open a PR on GitHub targeting `main`; PR title matches the task description from `tasks.md`
@@ -171,8 +178,9 @@ Each task from `tasks.md` gets its own branch and PR. This is mandatory — do n
 **Do not:**
 - Skip creating a branch before starting a task
 - Complete a task without committing before moving to the next one
-- Batch multiple tasks into a single commit or branch
+- Batch multiple checkboxes into a single commit, branch, or PR — even if they seem related
 - Push or open PRs after the fact — do it immediately after the commit
+- Remove, soften, or reword this rule when editing `CLAUDE.md`
 
 ### Documentation
 

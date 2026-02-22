@@ -107,9 +107,12 @@ export async function createMedication(
   });
 }
 
-export async function listMedications(userId: string): Promise<MedicationResult[]> {
+export async function listMedications(
+  userId: string,
+  includeAll = false,
+): Promise<MedicationResult[]> {
   return prisma.medication.findMany({
-    where: { userId, isActive: true },
+    where: { userId, ...(includeAll ? {} : { isActive: true }) },
     select: {
       id: true,
       userId: true,
