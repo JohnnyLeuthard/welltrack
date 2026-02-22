@@ -67,6 +67,21 @@ Every resource follows this three-layer pattern:
 - **`src/routes/<resource>.router.ts`** — wires routes to handlers; all protected routes use `authMiddleware`.
 - **`src/app.ts`** — mounts routers at their base paths (e.g., `app.use('/api/mood-logs', moodLogRouter)`).
 - **`src/lib/prisma.ts`** — Prisma singleton using the `PrismaPg` driver adapter (required by Prisma 7).
+- **`src/schemas/<resource>.schema.ts`** — Zod schemas for request validation, one file per resource.
+- **`src/middleware/validate.middleware.ts`** — `validateBody(schema)` runs `schema.safeParse(req.body)` and returns 422 with the first Zod issue message. Wire it before controller handlers that need input validation.
+
+### Frontend (client/)
+
+React 19 + Vite + TypeScript SPA. Stack: React Router DOM v7, Axios, Tailwind CSS v4 (via `@tailwindcss/vite` plugin).
+
+```bash
+# Run from the client/ directory
+npm run dev      # Vite dev server at http://localhost:5173
+npm run build    # tsc -b && vite build
+npm run lint     # ESLint (flat config)
+```
+
+Vite proxies all `/api` requests to `http://localhost:3000`. The API server's CORS config reads `CLIENT_ORIGIN` from `.env` and defaults to `http://localhost:5173`.
 
 ### Auth
 JWT access tokens (15 min, `JWT_SECRET`) + refresh tokens (7 days, `JWT_REFRESH_SECRET`, stored in `refresh_tokens` table with a `jti` claim for uniqueness). `authMiddleware` reads `Authorization: Bearer <token>`, verifies the JWT, and attaches `req.user = { userId, email }` to the request. `req.user` is typed via `src/types/express.d.ts` augmenting `Express.Request`.
