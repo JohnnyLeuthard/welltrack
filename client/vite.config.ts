@@ -8,6 +8,17 @@ export default defineConfig({
     react(),
     tailwindcss(),
   ],
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          // Keep Recharts (and its transitive deps) in a separate vendor chunk so
+          // it is only downloaded when the user first navigates to the Trends page.
+          recharts: ['recharts'],
+        },
+      },
+    },
+  },
   server: {
     proxy: {
       '/api': {

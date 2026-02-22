@@ -1,3 +1,4 @@
+import { lazy, Suspense } from 'react';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -8,8 +9,12 @@ import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import ResetPasswordPage from './pages/ResetPasswordPage';
 import DashboardPage from './pages/DashboardPage';
 import HistoryPage from './pages/HistoryPage';
-import TrendsPage from './pages/TrendsPage';
 import SettingsPage from './pages/SettingsPage';
+
+// Lazy-load TrendsPage so Recharts is split into a separate chunk and excluded
+// from the initial bundle. The page is rarely the entry point, so the small
+// waterfall on first visit is an acceptable trade-off.
+const TrendsPage = lazy(() => import('./pages/TrendsPage'));
 
 export default function App() {
   return (
@@ -27,7 +32,14 @@ export default function App() {
             <Route element={<AppLayout />}>
               <Route path="/" element={<DashboardPage />} />
               <Route path="/history" element={<HistoryPage />} />
-              <Route path="/trends" element={<TrendsPage />} />
+              <Route
+                path="/trends"
+                element={
+                  <Suspense fallback={<div className="flex items-center justify-center h-64 text-gray-400">Loading…</div>}>
+                    <TrendsPage />
+                  </Suspense>
+                }
+              />
               <Route path="/settings" element={<SettingsPage />} />
             </Route>
           </Route>
