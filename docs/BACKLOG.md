@@ -15,9 +15,7 @@ This file is a parking lot for features and improvements that aren't yet schedul
 - [ ] Add pronouns field to profile
 - [ ] Add phone number field to profile
 - [ ] Profile picture upload (avatar)
-- [ ] Allow user to change their email address
 - [ ] Email verification — send a confirmation link; show a green verified badge on the profile once confirmed
-- [ ] Show last login date/time on the profile page
 - [ ] Two-factor authentication (TOTP / authenticator app)
 - [ ] Account deletion with full data erasure (GDPR right-to-erasure)
 
@@ -26,34 +24,15 @@ This file is a parking lot for features and improvements that aren't yet schedul
 - [ ] Printable / shareable summary report for sharing with a healthcare provider
 - [ ] Customizable dashboard — let users pin/unpin widgets and reorder cards
 
-## Notifications & Reminders
-
-- [ ] Daily logging reminder (email or push notification)
-- [ ] Medication reminder alerts
-- [ ] Streak milestone celebrations / badges (e.g., 7-day, 30-day streak)
-- [ ] Weekly wellness summary email digest
-
-## Data & Integrations
-
-- [ ] PDF export of logs and trend charts
-- [ ] Bulk CSV import of historical data
-- [ ] Apple Health / Google Fit integration (read activity and sleep data)
-- [ ] Wearable device sync (Fitbit, Garmin)
-
 ## App Experience & Support
 
-- [ ] Help page — FAQs and how-to guides
-- [ ] Contact us page — support form or mailto link
 - [ ] In-app link to API documentation (e.g., Swagger/OpenAPI viewer)
-- [ ] Dark mode / light-dark theme toggle
 - [ ] Progressive Web App (PWA) — installable on mobile home screen, basic offline caching
 - [ ] Multi-language / i18n support
 
 ## Platform & Infrastructure
 
 - [ ] Admin dashboard — aggregate usage stats (no PII) for monitoring platform health
-- [ ] Per-user rate limiting hardening (beyond global express-rate-limit)
-- [ ] Audit log — record sensitive account events (password change, email change, new-device login)
 
 ## Documentation
 
