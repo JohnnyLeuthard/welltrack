@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
-import type { ApiError, AuditLogEntry, Habit, Medication, Symptom, UserProfile } from '../types/api';
+import type { ApiError, AuditLogEntry, Habit, ImportResult, Medication, Symptom, UserProfile } from '../types/api';
 import { useAuth } from '../hooks/useAuth';
 import { useTheme } from '../context/ThemeContext';
 
@@ -834,6 +834,106 @@ function ExportSection() {
   );
 }
 
+// ─── Import ───────────────────────────────────────────────────────────────────
+
+function ImportSection() {
+  const [file, setFile] = useState<File | null>(null);
+  const [isImporting, setIsImporting] = useState(false);
+  const [result, setResult] = useState<ImportResult | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const totalSkipped =
+    (result?.skipped.symptomLogs ?? 0) +
+    (result?.skipped.moodLogs ?? 0) +
+    (result?.skipped.medicationLogs ?? 0) +
+    (result?.skipped.habitLogs ?? 0);
+
+  async function handleImport(e: React.FormEvent) {
+    e.preventDefault();
+    if (!file) return;
+    setError(null);
+    setResult(null);
+    setIsImporting(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      const response = await api.post<ImportResult>('/api/import/csv', formData);
+      setResult(response.data);
+      setFile(null);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    } catch (err) {
+      setError(apiError(err));
+    } finally {
+      setIsImporting(false);
+    }
+  }
+
+  return (
+    <SectionCard>
+      <SectionTitle>Import Data</SectionTitle>
+      <p className="mb-5 text-sm text-gray-500 dark:text-gray-400">
+        Upload a CSV file previously exported from WellTrack to backfill historical log data.
+        Symptoms, habits, and medications referenced in the file must already exist in your account.
+      </p>
+      <form onSubmit={(e) => void handleImport(e)} className="space-y-4">
+        <div>
+          <label
+            className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
+            htmlFor="importFile"
+          >
+            CSV file
+          </label>
+          <input
+            id="importFile"
+            ref={fileInputRef}
+            type="file"
+            accept=".csv,text/csv"
+            onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+            className="block w-full text-sm text-gray-600 dark:text-gray-300 file:mr-3 file:rounded-lg file:border-0 file:bg-teal-50 dark:file:bg-teal-900/30 file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-teal-700 dark:file:text-teal-400 hover:file:bg-teal-100 dark:hover:file:bg-teal-900/50"
+          />
+        </div>
+        {error && <p role="alert" className="text-sm text-rose-600">{error}</p>}
+        {result && (
+          <div className="rounded-lg border border-teal-100 bg-teal-50 dark:border-teal-800 dark:bg-teal-900/20 p-4 text-sm space-y-1">
+            <p className="font-medium text-teal-800 dark:text-teal-300">Import complete</p>
+            <p className="text-teal-700 dark:text-teal-400">
+              Imported: {result.imported.symptomLogs} symptom,{' '}
+              {result.imported.moodLogs} mood,{' '}
+              {result.imported.medicationLogs} medication,{' '}
+              {result.imported.habitLogs} habit log(s)
+            </p>
+            {totalSkipped > 0 && (
+              <p className="text-amber-700 dark:text-amber-400">
+                Skipped: {totalSkipped} row(s)
+              </p>
+            )}
+            {result.errors.length > 0 && (
+              <details className="mt-1">
+                <summary className="cursor-pointer text-amber-700 dark:text-amber-400">
+                  {result.errors.length} row error(s) — click to expand
+                </summary>
+                <ul className="mt-1 space-y-0.5 text-xs text-gray-600 dark:text-gray-400">
+                  {result.errors.map((msg, i) => (
+                    <li key={i}>{msg}</li>
+                  ))}
+                </ul>
+              </details>
+            )}
+          </div>
+        )}
+        <button
+          type="submit"
+          disabled={!file || isImporting}
+          className="rounded-lg bg-teal-600 px-4 py-2 text-sm font-medium text-white hover:bg-teal-700 disabled:opacity-50"
+        >
+          {isImporting ? 'Importing…' : 'Import CSV'}
+        </button>
+      </form>
+    </SectionCard>
+  );
+}
+
 // ─── Appearance ───────────────────────────────────────────────────────────────
 
 function AppearanceSection() {
@@ -1012,7 +1112,12 @@ export default function SettingsPage() {
       {active === 'symptoms' && <SymptomsSection />}
       {active === 'habits' && <HabitsSection />}
       {active === 'medications' && <MedicationsSection />}
-      {active === 'export' && <ExportSection />}
+      {active === 'export' && (
+        <div className="space-y-6">
+          <ExportSection />
+          <ImportSection />
+        </div>
+      )}
       {active === 'appearance' && <AppearanceSection />}
       {active === 'audit-log' && <AuditLogSection />}
       {active === 'account' && <AccountSection />}

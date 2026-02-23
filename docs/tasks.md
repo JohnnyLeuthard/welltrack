@@ -250,6 +250,6 @@ Checkbox list of tasks organized by phase. Stack: React + TypeScript + Tailwind 
 
 ### Data & Integrations
 
-- [ ] Bulk CSV import — accept a CSV upload to backfill historical log data for any log type
+- [x] Bulk CSV import — accept a CSV upload to backfill historical log data for any log type
 - [ ] Apple Health / Google Fit integration — read activity and sleep data from Apple Health or Google Fit and surface it alongside user logs
 - [ ] Wearable device sync — sync data from Fitbit or Garmin devices into the relevant log types

@@ -118,6 +118,23 @@ export interface ActivityPoint {
   count: number;
 }
 
+// Import
+export interface ImportResult {
+  imported: {
+    symptomLogs: number;
+    moodLogs: number;
+    medicationLogs: number;
+    habitLogs: number;
+  };
+  skipped: {
+    symptomLogs: number;
+    moodLogs: number;
+    medicationLogs: number;
+    habitLogs: number;
+  };
+  errors: string[];
+}
+
 // Audit log
 export type AuditAction = 'login' | 'password_change' | 'email_change';
 
