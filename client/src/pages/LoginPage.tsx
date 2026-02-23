@@ -8,7 +8,8 @@ export default function LoginPage() {
   const { login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const passwordReset = (location.state as { passwordReset?: boolean } | null)?.passwordReset;
+  const passwordReset = (location.state as { passwordReset?: boolean; idleLogout?: boolean } | null)?.passwordReset;
+  const idleLogout = (location.state as { idleLogout?: boolean } | null)?.idleLogout;
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -45,6 +46,12 @@ export default function LoginPage() {
         {passwordReset && (
           <p role="status" className="mb-4 rounded-md bg-teal-50 dark:bg-teal-900/30 px-3 py-2 text-sm text-teal-700 dark:text-teal-300">
             Password updated. Sign in with your new password.
+          </p>
+        )}
+
+        {idleLogout && (
+          <p role="status" className="mb-4 rounded-md bg-amber-50 dark:bg-amber-900/30 px-3 py-2 text-sm text-amber-700 dark:text-amber-400">
+            You were signed out due to inactivity. Please sign in again.
           </p>
         )}
 
