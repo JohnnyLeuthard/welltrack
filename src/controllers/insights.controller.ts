@@ -1,5 +1,5 @@
 import type { Request, Response } from 'express';
-import { getActivity, getMoodTrend, getSymptomTrend } from '../services/insights.service';
+import { getActivity, getMoodTrend, getStreak, getSymptomTrend } from '../services/insights.service';
 
 const VALID_DAYS = [7, 30, 60, 90, 120, 365];
 const MOOD_METRICS = ['mood', 'energy', 'stress'] as const;
@@ -23,6 +23,17 @@ export async function getTrends(req: Request, res: Response): Promise<void> {
       const data = await getSymptomTrend(userId, type, days);
       res.json(data);
     }
+  } catch (err) {
+    const status = (err as Error & { status?: number }).status ?? 500;
+    res.status(status).json({ error: (err as Error).message });
+  }
+}
+
+export async function getStreakSummary(req: Request, res: Response): Promise<void> {
+  const userId = req.user!.userId;
+  try {
+    const data = await getStreak(userId);
+    res.json(data);
   } catch (err) {
     const status = (err as Error & { status?: number }).status ?? 500;
     res.status(status).json({ error: (err as Error).message });

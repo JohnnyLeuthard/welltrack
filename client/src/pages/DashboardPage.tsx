@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import api from '../services/api';
-import type { HabitLog, MedicationLog, MoodLog, SymptomLog } from '../types/api';
+import type { HabitLog, MedicationLog, MoodLog, StreakInfo, SymptomLog } from '../types/api';
 import LogSymptomModal from '../components/LogSymptomModal';
 import LogMoodModal from '../components/LogMoodModal';
 import LogMedicationModal from '../components/LogMedicationModal';
@@ -31,6 +31,19 @@ function getWeekRange(): { weekStart: string; today: string; daysFromMonday: num
 }
 
 const WEEK_DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'] as const;
+const STREAK_MILESTONES = [7, 30] as const;
+
+function getMilestoneStorageKey(userId: string, milestone: number): string {
+  return `welltrack_milestone_${userId}_${milestone}`;
+}
+
+function isMilestoneNew(userId: string, milestone: number): boolean {
+  return localStorage.getItem(getMilestoneStorageKey(userId, milestone)) === null;
+}
+
+function dismissMilestone(userId: string, milestone: number): void {
+  localStorage.setItem(getMilestoneStorageKey(userId, milestone), 'seen');
+}
 
 function getGreeting(): string {
   const hour = new Date().getHours();
@@ -68,9 +81,17 @@ export default function DashboardPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [quickAdd, setQuickAdd] = useState<QuickAddType | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [activeMilestone, setActiveMilestone] = useState<number | null>(null);
 
   function refreshCounts() {
     setRefreshKey((k) => k + 1);
+  }
+
+  function handleDismissMilestone() {
+    if (activeMilestone !== null && user?.id) {
+      dismissMilestone(user.id, activeMilestone);
+    }
+    setActiveMilestone(null);
   }
 
   useEffect(() => {
@@ -84,8 +105,9 @@ export default function DashboardPage() {
       api.get<MoodLog[]>('/api/mood-logs', { params }),
       api.get<MedicationLog[]>('/api/medication-logs', { params }),
       api.get<HabitLog[]>('/api/habit-logs', { params }),
+      api.get<StreakInfo>('/api/insights/streak'),
     ])
-      .then(([sym, mood, med, habit]) => {
+      .then(([sym, mood, med, habit, streakRes]) => {
         setCounts({
           symptoms: sym.data.filter((l) => l.loggedAt.startsWith(today)).length,
           moods: mood.data.filter((l) => l.loggedAt.startsWith(today)).length,
@@ -100,12 +122,20 @@ export default function DashboardPage() {
             ...habit.data.map((l) => l.loggedAt.split('T')[0]!),
           ]),
         );
+        // Check for a milestone to surface
+        if (user?.id) {
+          const streak = streakRes.data.currentStreak;
+          const hit = STREAK_MILESTONES.find(
+            (m) => streak >= m && isMilestoneNew(user.id, m),
+          );
+          if (hit !== undefined) setActiveMilestone(hit);
+        }
       })
       .catch(() => {
         setCounts({ symptoms: 0, moods: 0, medications: 0, habits: 0 });
       })
       .finally(() => setIsLoading(false));
-  }, [refreshKey]);
+  }, [refreshKey, user?.id]);
 
   const name = user?.displayName ?? null;
   const { weekStart, today, daysFromMonday } = getWeekRange();
@@ -119,6 +149,34 @@ export default function DashboardPage() {
           {getGreeting()}{name ? `, ${name}` : ''}
         </h1>
       </div>
+
+      {/* Milestone banner */}
+      {activeMilestone !== null && (
+        <div
+          role="status"
+          aria-live="polite"
+          className="mb-6 flex items-start gap-3 rounded-xl bg-teal-50 dark:bg-teal-900/30 px-5 py-4 shadow-sm"
+        >
+          <span className="mt-0.5 text-2xl" aria-hidden="true">
+            {activeMilestone >= 30 ? '🏅' : '🎉'}
+          </span>
+          <div className="flex-1">
+            <p className="font-semibold text-teal-800 dark:text-teal-200">
+              {activeMilestone}-day streak!
+            </p>
+            <p className="mt-0.5 text-sm text-teal-700 dark:text-teal-300">
+              You've logged your health for {activeMilestone} days in a row. Keep it up!
+            </p>
+          </div>
+          <button
+            onClick={handleDismissMilestone}
+            aria-label="Dismiss milestone notification"
+            className="mt-0.5 text-teal-500 hover:text-teal-700 dark:text-teal-400 dark:hover:text-teal-200"
+          >
+            ✕
+          </button>
+        </div>
+      )}
 
       {/* Streak */}
       <section className="mb-8">

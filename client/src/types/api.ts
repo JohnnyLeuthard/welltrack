@@ -118,6 +118,10 @@ export interface ActivityPoint {
   count: number;
 }
 
+export interface StreakInfo {
+  currentStreak: number;
+}
+
 // Import
 export interface ImportResult {
   imported: {
