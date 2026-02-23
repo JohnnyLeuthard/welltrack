@@ -1,4 +1,4 @@
-import rateLimit from 'express-rate-limit';
+import rateLimit, { ipKeyGenerator } from 'express-rate-limit';
 import type { Request } from 'express';
 
 /**
@@ -11,7 +11,7 @@ import type { Request } from 'express';
 export const writeRateLimit = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   limit: 200,                // max 200 write requests per window per user
-  keyGenerator: (req: Request) => req.user?.userId ?? req.ip ?? 'unknown',
+  keyGenerator: (req: Request) => req.user?.userId ?? ipKeyGenerator(req.ip ?? ''),
   standardHeaders: 'draft-8',
   legacyHeaders: false,
   message: { error: 'Too many requests, please try again later.' },
