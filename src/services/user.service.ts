@@ -1,4 +1,6 @@
 import crypto from 'crypto';
+import fs from 'fs';
+import path from 'path';
 import prisma from '../lib/prisma';
 import { AuditAction, recordAuditEvent } from './audit.service';
 
@@ -8,6 +10,7 @@ export interface UserProfile {
   displayName: string | null;
   pronouns: string | null;
   phoneNumber: string | null;
+  avatarUrl: string | null;
   timezone: string;
   createdAt: Date;
   lastLoginAt: Date | null;
@@ -20,6 +23,7 @@ const USER_SELECT = {
   displayName: true,
   pronouns: true,
   phoneNumber: true,
+  avatarUrl: true,
   timezone: true,
   createdAt: true,
   lastLoginAt: true,
@@ -104,6 +108,22 @@ export async function updateMe(userId: string, input: UpdateMeInput): Promise<Us
     await recordAuditEvent(userId, AuditAction.email_change);
   }
 
+  return user;
+}
+
+export async function updateAvatar(userId: string, filePath: string): Promise<UserProfile> {
+  // Delete the previous avatar file from disk if one exists
+  const current = await prisma.user.findUnique({ where: { id: userId }, select: { avatarUrl: true } });
+  if (current?.avatarUrl) {
+    const oldFile = path.join(process.cwd(), 'public', current.avatarUrl);
+    fs.rm(oldFile, { force: true }, () => { /* ignore errors */ });
+  }
+
+  const user = await prisma.user.update({
+    where: { id: userId },
+    data: { avatarUrl: filePath },
+    select: USER_SELECT,
+  });
   return user;
 }
 

@@ -40,3 +40,7 @@ Thumbs.db
 
 # Test coverage
 coverage/
+
+# Uploaded avatar images (keep directory structure, ignore actual files)
+public/uploads/avatars/*
+!public/uploads/avatars/.gitkeep

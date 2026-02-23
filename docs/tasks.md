@@ -242,7 +242,7 @@ Checkbox list of tasks organized by phase. Stack: React + TypeScript + Tailwind 
 
 - [x] Add pronouns field — extend `User` model with optional `pronouns` field; expose via `PATCH /api/users/me`; add pronouns input to Settings > Profile section
 - [x] Add phone number field — extend `User` model with optional `phone_number` field; expose via `PATCH /api/users/me`; add phone input to Settings > Profile section
-- [ ] Profile picture upload — add avatar image upload to `PATCH /api/users/me` (multipart/form-data); store URL in `User.avatar_url`; display in sidebar and Settings
+- [x] Profile picture upload — add avatar image upload to `PATCH /api/users/me` (multipart/form-data); store URL in `User.avatar_url`; display in sidebar and Settings
 - [ ] Full account deletion (GDPR right-to-erasure) — extend `DELETE /api/users/me` to hard-delete all associated data and anonymize any audit records per GDPR Article 17; return a dated erasure confirmation to the user
 
 ### Export

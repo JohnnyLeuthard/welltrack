@@ -1,5 +1,8 @@
+import { useEffect, useState } from 'react';
 import { NavLink, Outlet } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
+import api from '../services/api';
+import type { UserProfile } from '../types/api';
 
 const navLinks = [
   { to: '/', label: 'Dashboard', end: true },
@@ -11,7 +14,18 @@ const navLinks = [
 ];
 
 export default function AppLayout() {
-  const { user, logout } = useAuth();
+  const { user, logout, isAuthenticated } = useAuth();
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    api
+      .get<UserProfile>('/api/users/me')
+      .then((r) => setAvatarUrl(r.data.avatarUrl))
+      .catch(() => undefined);
+  }, [isAuthenticated]);
+
+  const displayLabel = user?.displayName ?? user?.email;
 
   return (
     <div className="flex min-h-screen bg-gray-50 dark:bg-gray-900">
@@ -42,12 +56,27 @@ export default function AppLayout() {
         </nav>
 
         <div className="border-t border-gray-100 dark:border-gray-700 px-4 py-4">
-          <p className="mb-0.5 truncate text-sm font-medium text-gray-700 dark:text-gray-200">
-            {user?.displayName ?? user?.email}
-          </p>
-          {user?.displayName && (
-            <p className="mb-3 truncate text-xs text-gray-400 dark:text-gray-500">{user.email}</p>
-          )}
+          <div className="mb-2 flex items-center gap-2">
+            {avatarUrl ? (
+              <img
+                src={avatarUrl}
+                alt="Profile"
+                className="h-8 w-8 rounded-full object-cover shrink-0"
+              />
+            ) : (
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-teal-100 dark:bg-teal-900/40 text-sm font-medium text-teal-700 dark:text-teal-300">
+                {(displayLabel ?? '?')[0].toUpperCase()}
+              </div>
+            )}
+            <div className="min-w-0">
+              <p className="truncate text-sm font-medium text-gray-700 dark:text-gray-200">
+                {user?.displayName ?? user?.email}
+              </p>
+              {user?.displayName && (
+                <p className="truncate text-xs text-gray-400 dark:text-gray-500">{user.email}</p>
+              )}
+            </div>
+          </div>
           <button
             onClick={() => void logout()}
             className="text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"

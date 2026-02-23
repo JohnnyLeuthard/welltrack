@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { deleteMe, getMe, isValidIANATimezone, unsubscribeWeeklyDigest, updateMe } from '../services/user.service';
+import { deleteMe, getMe, isValidIANATimezone, unsubscribeWeeklyDigest, updateAvatar, updateMe } from '../services/user.service';
 
 export async function getMeHandler(req: Request, res: Response): Promise<void> {
   const user = await getMe(req.user!.userId);
@@ -54,6 +54,18 @@ export async function updateMeHandler(req: Request, res: Response): Promise<void
 export async function deleteMeHandler(req: Request, res: Response): Promise<void> {
   await deleteMe(req.user!.userId);
   res.status(200).json({ message: 'Account deleted successfully' });
+}
+
+export async function uploadAvatarHandler(req: Request, res: Response): Promise<void> {
+  if (!req.file) {
+    res.status(422).json({ error: 'No image file provided' });
+    return;
+  }
+  // req.file.path is relative to cwd (e.g. "public/uploads/avatars/uuid.jpg")
+  // Store the URL path portion so it is served as /uploads/avatars/uuid.jpg
+  const urlPath = '/' + req.file.path.replace(/\\/g, '/');
+  const user = await updateAvatar(req.user!.userId, urlPath);
+  res.status(200).json(user);
 }
 
 /** Public one-click unsubscribe — no auth required; linked from digest emails. */

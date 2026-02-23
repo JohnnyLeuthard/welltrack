@@ -1,4 +1,5 @@
 import 'dotenv/config';
+import path from 'path';
 import cors from 'cors';
 import express, { Request, Response } from 'express';
 import authRouter from './routes/auth.router';
@@ -23,6 +24,7 @@ app.use(cors({
   credentials: true,
 }));
 app.use(express.json());
+app.use('/uploads', express.static(path.join(process.cwd(), 'public/uploads')));
 
 app.get('/health', (_req, res) => {
   res.json({ status: 'ok' });

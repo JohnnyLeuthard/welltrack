@@ -51,8 +51,10 @@ function ProfileSection() {
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const avatarInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     api
@@ -87,6 +89,27 @@ function ProfileSection() {
     }
   }
 
+  async function handleAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setError(null);
+    setIsUploadingAvatar(true);
+    try {
+      const form = new FormData();
+      form.append('avatar', file);
+      const res = await api.post<UserProfile>('/api/users/me/avatar', form, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      setProfile(res.data);
+    } catch (err) {
+      setError(apiError(err));
+    } finally {
+      setIsUploadingAvatar(false);
+      // Reset file input so the same file can be selected again if needed
+      if (avatarInputRef.current) avatarInputRef.current.value = '';
+    }
+  }
+
   if (isLoading) return <div className="h-40 animate-pulse rounded-lg bg-gray-100" />;
 
   return (
@@ -100,6 +123,38 @@ function ProfileSection() {
           </span>
         </p>
       )}
+      {/* Avatar */}
+      <div className="mb-5 flex items-center gap-4">
+        {profile?.avatarUrl ? (
+          <img
+            src={profile.avatarUrl}
+            alt="Profile picture"
+            className="h-16 w-16 rounded-full object-cover"
+          />
+        ) : (
+          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-teal-100 dark:bg-teal-900/40 text-xl font-medium text-teal-700 dark:text-teal-300">
+            {(profile?.displayName ?? profile?.email ?? '?')[0].toUpperCase()}
+          </div>
+        )}
+        <div>
+          <input
+            ref={avatarInputRef}
+            type="file"
+            accept="image/jpeg,image/png,image/gif,image/webp"
+            className="hidden"
+            onChange={(e) => void handleAvatarChange(e)}
+          />
+          <button
+            type="button"
+            disabled={isUploadingAvatar}
+            onClick={() => avatarInputRef.current?.click()}
+            className="rounded-lg border border-gray-200 dark:border-gray-600 px-3 py-1.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50"
+          >
+            {isUploadingAvatar ? 'Uploading…' : 'Change photo'}
+          </button>
+          <p className="mt-1 text-xs text-gray-400">JPEG, PNG, GIF or WebP · max 5 MB</p>
+        </div>
+      </div>
       <form onSubmit={(e) => void handleSave(e)} className="space-y-4">
         <div>
           <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300" htmlFor="email">

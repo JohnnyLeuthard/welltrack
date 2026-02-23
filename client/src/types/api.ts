@@ -23,6 +23,7 @@ export interface UserProfile {
   displayName: string | null;
   pronouns: string | null;
   phoneNumber: string | null;
+  avatarUrl: string | null;
   timezone: string;
   createdAt: string;
   lastLoginAt: string | null;
