@@ -228,12 +228,12 @@ function SymptomsSection() {
           {symptoms.map((s) => {
             const isSystem = s.userId === null;
             return (
-              <li key={s.id} className="flex items-center gap-3 py-2.5">
+              <li key={s.id} className="flex items-center gap-4 py-2.5">
                 <button
                   onClick={() => !isSystem && void handleToggle(s)}
                   disabled={isSystem}
                   title={isSystem ? 'System default — cannot be toggled' : undefined}
-                  className={`relative h-5 w-9 flex-shrink-0 rounded-full transition-colors ${
+                  className={`relative h-5 w-9 flex-shrink-0 overflow-hidden rounded-full transition-colors ${
                     s.isActive ? 'bg-teal-500' : 'bg-gray-200'
                   } ${isSystem ? 'cursor-not-allowed opacity-40' : 'cursor-pointer'}`}
                 >
@@ -377,12 +377,12 @@ function HabitsSection() {
           {habits.map((h) => {
             const isSystem = h.userId === null;
             return (
-              <li key={h.id} className="flex items-center gap-3 py-2.5">
+              <li key={h.id} className="flex items-center gap-4 py-2.5">
                 <button
                   onClick={() => !isSystem && void handleToggle(h)}
                   disabled={isSystem}
                   title={isSystem ? 'System default — cannot be toggled' : undefined}
-                  className={`relative h-5 w-9 flex-shrink-0 rounded-full transition-colors ${
+                  className={`relative h-5 w-9 flex-shrink-0 overflow-hidden rounded-full transition-colors ${
                     h.isActive ? 'bg-teal-500' : 'bg-gray-200'
                   } ${isSystem ? 'cursor-not-allowed opacity-40' : 'cursor-pointer'}`}
                 >
@@ -615,10 +615,10 @@ function MedicationsSection() {
                   </div>
                 </div>
               ) : (
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-4">
                   <button
                     onClick={() => void handleToggle(m)}
-                    className={`relative h-5 w-9 flex-shrink-0 cursor-pointer rounded-full transition-colors ${
+                    className={`relative h-5 w-9 flex-shrink-0 cursor-pointer overflow-hidden rounded-full transition-colors ${
                       m.isActive ? 'bg-teal-500' : 'bg-gray-200'
                     }`}
                   >
