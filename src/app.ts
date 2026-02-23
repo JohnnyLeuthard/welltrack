@@ -16,7 +16,7 @@ import insightsRouter from './routes/insights.router';
 import exportRouter from './routes/export.router';
 import importRouter from './routes/import.router';
 import { errorHandler } from './middleware/error.middleware';
-import { writeRateLimit } from './middleware/rate-limit.middleware';
+import { authRateLimit, writeRateLimit } from './middleware/rate-limit.middleware';
 
 const app = express();
 
@@ -44,7 +44,7 @@ app.get('/health', (_req, res) => {
   res.json({ status: 'ok' });
 });
 
-app.use('/api/auth', authRouter);
+app.use('/api/auth', authRateLimit, authRouter);
 app.use('/api/users', writeRateLimit, userRouter);
 app.use('/api/symptoms', writeRateLimit, symptomRouter);
 app.use('/api/symptom-logs', writeRateLimit, symptomLogRouter);
