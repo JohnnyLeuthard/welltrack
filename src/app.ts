@@ -1,6 +1,7 @@
 import 'dotenv/config';
 import path from 'path';
 import cors from 'cors';
+import helmet from 'helmet';
 import express, { Request, Response } from 'express';
 import authRouter from './routes/auth.router';
 import userRouter from './routes/user.router';
@@ -15,9 +16,22 @@ import insightsRouter from './routes/insights.router';
 import exportRouter from './routes/export.router';
 import importRouter from './routes/import.router';
 import { errorHandler } from './middleware/error.middleware';
-import { writeRateLimit } from './middleware/rate-limit.middleware';
+import { authRateLimit, writeRateLimit } from './middleware/rate-limit.middleware';
 
 const app = express();
+
+// Security headers — must be first middleware so all responses are covered.
+// style-src allows 'unsafe-inline' because the unsubscribe handler renders an
+// HTML page with inline style= attributes; all other CSP directives use Helmet
+// defaults (HSTS, X-Frame-Options, X-Content-Type-Options, Referrer-Policy…).
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      ...helmet.contentSecurityPolicy.getDefaultDirectives(),
+      'style-src': ["'self'", "'unsafe-inline'"],
+    },
+  },
+}));
 
 app.use(cors({
   origin: process.env['CLIENT_ORIGIN'] ?? 'http://localhost:5173',
@@ -30,7 +44,7 @@ app.get('/health', (_req, res) => {
   res.json({ status: 'ok' });
 });
 
-app.use('/api/auth', authRouter);
+app.use('/api/auth', authRateLimit, authRouter);
 app.use('/api/users', writeRateLimit, userRouter);
 app.use('/api/symptoms', writeRateLimit, symptomRouter);
 app.use('/api/symptom-logs', writeRateLimit, symptomLogRouter);
