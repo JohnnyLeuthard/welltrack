@@ -7,7 +7,7 @@ export async function getMeHandler(req: Request, res: Response): Promise<void> {
 }
 
 export async function updateMeHandler(req: Request, res: Response): Promise<void> {
-  const { displayName, pronouns, timezone, email, weeklyDigestOptIn } = req.body as Record<string, unknown>;
+  const { displayName, pronouns, phoneNumber, timezone, email, weeklyDigestOptIn } = req.body as Record<string, unknown>;
 
   if (displayName !== undefined && displayName !== null && typeof displayName !== 'string') {
     res.status(422).json({ error: 'displayName must be a string or null' });
@@ -15,6 +15,10 @@ export async function updateMeHandler(req: Request, res: Response): Promise<void
   }
   if (pronouns !== undefined && pronouns !== null && typeof pronouns !== 'string') {
     res.status(422).json({ error: 'pronouns must be a string or null' });
+    return;
+  }
+  if (phoneNumber !== undefined && phoneNumber !== null && typeof phoneNumber !== 'string') {
+    res.status(422).json({ error: 'phoneNumber must be a string or null' });
     return;
   }
   if (timezone !== undefined) {
@@ -31,12 +35,14 @@ export async function updateMeHandler(req: Request, res: Response): Promise<void
   const input: {
     displayName?: string | null;
     pronouns?: string | null;
+    phoneNumber?: string | null;
     timezone?: string;
     email?: string;
     weeklyDigestOptIn?: boolean;
   } = {};
   if (displayName !== undefined) input.displayName = displayName as string | null;
   if (pronouns !== undefined) input.pronouns = pronouns as string | null;
+  if (phoneNumber !== undefined) input.phoneNumber = phoneNumber as string | null;
   if (timezone !== undefined) input.timezone = timezone as string;
   if (email !== undefined) input.email = email as string;
   if (weeklyDigestOptIn !== undefined) input.weeklyDigestOptIn = weeklyDigestOptIn as boolean;

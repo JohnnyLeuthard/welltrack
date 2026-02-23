@@ -46,6 +46,7 @@ function ProfileSection() {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [displayName, setDisplayName] = useState('');
   const [pronouns, setPronouns] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
   const [timezone, setTimezone] = useState('');
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(true);
@@ -60,6 +61,7 @@ function ProfileSection() {
         setProfile(r.data);
         setDisplayName(r.data.displayName ?? '');
         setPronouns(r.data.pronouns ?? '');
+        setPhoneNumber(r.data.phoneNumber ?? '');
         setTimezone(r.data.timezone);
         setEmail(r.data.email);
       })
@@ -73,7 +75,7 @@ function ProfileSection() {
     setSuccess(false);
     setIsSaving(true);
     try {
-      const body: Record<string, unknown> = { displayName: displayName || null, pronouns: pronouns || null, timezone };
+      const body: Record<string, unknown> = { displayName: displayName || null, pronouns: pronouns || null, phoneNumber: phoneNumber || null, timezone };
       if (email && profile && email !== profile.email) body.email = email;
       const res = await api.patch<UserProfile>('/api/users/me', body);
       setProfile(res.data);
@@ -135,6 +137,19 @@ function ProfileSection() {
             value={pronouns}
             onChange={(e) => setPronouns(e.target.value)}
             placeholder="e.g. she/her, they/them"
+            className="w-full rounded-lg border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 px-3 py-2 text-sm outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
+          />
+        </div>
+        <div>
+          <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300" htmlFor="phoneNumber">
+            Phone number
+          </label>
+          <input
+            id="phoneNumber"
+            type="tel"
+            value={phoneNumber}
+            onChange={(e) => setPhoneNumber(e.target.value)}
+            placeholder="+1 555 000 0000"
             className="w-full rounded-lg border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 px-3 py-2 text-sm outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
           />
         </div>

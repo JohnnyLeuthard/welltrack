@@ -22,6 +22,7 @@ export interface UserProfile {
   email: string;
   displayName: string | null;
   pronouns: string | null;
+  phoneNumber: string | null;
   timezone: string;
   createdAt: string;
   lastLoginAt: string | null;

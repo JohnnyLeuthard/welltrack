@@ -14,6 +14,7 @@ model User {
   displayName  String?  @map("display_name")
   timezone     String   @default("UTC")
   pronouns          String?   @map("pronouns")
+  phoneNumber       String?   @map("phone_number")
   lastLoginAt       DateTime? @map("last_login_at")
   weeklyDigestOptIn Boolean   @default(false) @map("weekly_digest_opt_in")
   weeklyDigestToken String?   @unique         @map("weekly_digest_token")
