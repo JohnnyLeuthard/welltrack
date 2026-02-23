@@ -5,7 +5,7 @@ import type { ApiError, AuditLogEntry, Habit, ImportResult, Medication, Symptom,
 import { useAuth } from '../hooks/useAuth';
 import { useTheme } from '../context/ThemeContext';
 
-type Section = 'profile' | 'symptoms' | 'habits' | 'medications' | 'export' | 'appearance' | 'audit-log' | 'account';
+type Section = 'profile' | 'symptoms' | 'habits' | 'medications' | 'export' | 'notifications' | 'appearance' | 'audit-log' | 'account';
 
 const NAV: { key: Section; label: string }[] = [
   { key: 'profile', label: 'Profile' },
@@ -13,6 +13,7 @@ const NAV: { key: Section; label: string }[] = [
   { key: 'habits', label: 'Habits' },
   { key: 'medications', label: 'Medications' },
   { key: 'export', label: 'Export' },
+  { key: 'notifications', label: 'Notifications' },
   { key: 'appearance', label: 'Appearance' },
   { key: 'audit-log', label: 'Activity Log' },
   { key: 'account', label: 'Account' },
@@ -934,6 +935,82 @@ function ImportSection() {
   );
 }
 
+// ─── Notifications ────────────────────────────────────────────────────────────
+
+function NotificationsSection() {
+  const [optIn, setOptIn] = useState<boolean | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    api.get<UserProfile>('/api/users/me')
+      .then((r) => setOptIn(r.data.weeklyDigestOptIn))
+      .catch(() => setError('Failed to load notification preferences.'))
+      .finally(() => setIsLoading(false));
+  }, []);
+
+  async function handleToggle() {
+    if (optIn === null) return;
+    const next = !optIn;
+    setIsSaving(true);
+    setError('');
+    setSuccess(false);
+    try {
+      const r = await api.patch<UserProfile>('/api/users/me', { weeklyDigestOptIn: next });
+      setOptIn(r.data.weeklyDigestOptIn);
+      setSuccess(true);
+    } catch (err) {
+      setError(apiError(err));
+    } finally {
+      setIsSaving(false);
+    }
+  }
+
+  return (
+    <SectionCard>
+      <SectionTitle>Notifications</SectionTitle>
+      {isLoading ? (
+        <div className="h-10 w-48 animate-pulse rounded bg-gray-100 dark:bg-gray-700" />
+      ) : (
+        <div className="space-y-4">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <p className="font-medium text-gray-800 dark:text-gray-100">Weekly wellness digest</p>
+              <p className="mt-0.5 text-sm text-gray-500 dark:text-gray-400">
+                Receive a weekly email every Monday summarising your logged activity, averages, and
+                current streak. Includes a one-click unsubscribe link.
+              </p>
+            </div>
+            <button
+              role="switch"
+              aria-checked={optIn ?? false}
+              onClick={handleToggle}
+              disabled={isSaving}
+              className={`relative mt-0.5 inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 disabled:opacity-50 ${
+                optIn ? 'bg-teal-500' : 'bg-gray-200 dark:bg-gray-600'
+              }`}
+            >
+              <span
+                className={`inline-block h-5 w-5 transform rounded-full bg-white shadow transition-transform ${
+                  optIn ? 'translate-x-5' : 'translate-x-0'
+                }`}
+              />
+            </button>
+          </div>
+          {error && <p role="alert" className="text-sm text-red-600 dark:text-red-400">{error}</p>}
+          {success && (
+            <p className="text-sm text-teal-600 dark:text-teal-400">
+              {optIn ? 'Weekly digest enabled.' : 'Weekly digest disabled.'}
+            </p>
+          )}
+        </div>
+      )}
+    </SectionCard>
+  );
+}
+
 // ─── Appearance ───────────────────────────────────────────────────────────────
 
 function AppearanceSection() {
@@ -1118,6 +1195,7 @@ export default function SettingsPage() {
           <ImportSection />
         </div>
       )}
+      {active === 'notifications' && <NotificationsSection />}
       {active === 'appearance' && <AppearanceSection />}
       {active === 'audit-log' && <AuditLogSection />}
       {active === 'account' && <AccountSection />}

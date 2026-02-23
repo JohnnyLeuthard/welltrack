@@ -24,6 +24,7 @@ export interface UserProfile {
   timezone: string;
   createdAt: string;
   lastLoginAt: string | null;
+  weeklyDigestOptIn: boolean;
 }
 
 // Symptoms
