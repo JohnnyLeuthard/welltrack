@@ -114,21 +114,21 @@ export default function LogHabitModal({ isOpen, onClose, onSuccess, log }: Props
     <Modal isOpen={isOpen} onClose={onClose} title={log ? 'Edit Habit Log' : 'Log Habit'}>
       <form onSubmit={handleSubmit} className="space-y-4">
         {error && (
-          <p role="alert" className="rounded-md bg-rose-50 px-4 py-3 text-sm text-rose-600">
+          <p role="alert" className="rounded-md bg-rose-50 dark:bg-rose-900/30 px-4 py-3 text-sm text-rose-600 dark:text-rose-400">
             {error}
           </p>
         )}
 
         {noHabits && (
-          <p className="rounded-md bg-amber-50 px-4 py-3 text-sm text-amber-700">
+          <p className="rounded-md bg-amber-50 dark:bg-amber-900/30 px-4 py-3 text-sm text-amber-700 dark:text-amber-400">
             No active habits found. Add one in Settings first.
           </p>
         )}
 
         <div>
-          <label className="mb-1 block text-sm font-medium text-gray-700">Habit</label>
+          <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Habit</label>
           {loadingHabits ? (
-            <div className="h-9 animate-pulse rounded-md bg-gray-100" />
+            <div className="h-9 animate-pulse rounded-md bg-gray-100 dark:bg-gray-700" />
           ) : (
             <select
               value={habitId}
@@ -141,7 +141,7 @@ export default function LogHabitModal({ isOpen, onClose, onSuccess, log }: Props
               }}
               required
               disabled={noHabits}
-              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500 disabled:bg-gray-50"
+              className="w-full rounded-md border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 px-3 py-2 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500 disabled:bg-gray-50 dark:disabled:bg-gray-800"
             >
               <option value="">Select a habit…</option>
               {habits.map((h) => (
@@ -156,7 +156,7 @@ export default function LogHabitModal({ isOpen, onClose, onSuccess, log }: Props
         {/* Adaptive value input based on tracking_type */}
         {selectedHabit?.trackingType === 'boolean' && (
           <div>
-            <label className="mb-2 block text-sm font-medium text-gray-700">
+            <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
               Did you do it?
             </label>
             <div className="flex gap-3">
@@ -165,8 +165,8 @@ export default function LogHabitModal({ isOpen, onClose, onSuccess, log }: Props
                 onClick={() => setValueBoolean(true)}
                 className={`flex-1 rounded-md border py-2 text-sm font-medium transition-colors ${
                   valueBoolean
-                    ? 'border-teal-500 bg-teal-50 text-teal-700'
-                    : 'border-gray-200 text-gray-500 hover:border-teal-300'
+                    ? 'border-teal-500 bg-teal-50 dark:bg-teal-900/30 text-teal-700 dark:text-teal-300'
+                    : 'border-gray-200 dark:border-gray-600 text-gray-500 dark:text-gray-400 hover:border-teal-300'
                 }`}
               >
                 Yes
@@ -176,8 +176,8 @@ export default function LogHabitModal({ isOpen, onClose, onSuccess, log }: Props
                 onClick={() => setValueBoolean(false)}
                 className={`flex-1 rounded-md border py-2 text-sm font-medium transition-colors ${
                   !valueBoolean
-                    ? 'border-rose-400 bg-rose-50 text-rose-700'
-                    : 'border-gray-200 text-gray-500 hover:border-rose-300'
+                    ? 'border-rose-400 bg-rose-50 dark:bg-rose-900/30 text-rose-700 dark:text-rose-300'
+                    : 'border-gray-200 dark:border-gray-600 text-gray-500 dark:text-gray-400 hover:border-rose-300'
                 }`}
               >
                 No
@@ -188,7 +188,7 @@ export default function LogHabitModal({ isOpen, onClose, onSuccess, log }: Props
 
         {selectedHabit?.trackingType === 'numeric' && (
           <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">
+            <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
               Amount{selectedHabit.unit ? ` (${selectedHabit.unit})` : ''}
             </label>
             <input
@@ -201,14 +201,14 @@ export default function LogHabitModal({ isOpen, onClose, onSuccess, log }: Props
               }
               placeholder="Enter amount…"
               required
-              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
+              className="w-full rounded-md border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 px-3 py-2 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
             />
           </div>
         )}
 
         {selectedHabit?.trackingType === 'duration' && (
           <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">
+            <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
               Duration (minutes)
             </label>
             <input
@@ -221,24 +221,24 @@ export default function LogHabitModal({ isOpen, onClose, onSuccess, log }: Props
               }
               placeholder="Enter minutes…"
               required
-              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
+              className="w-full rounded-md border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 px-3 py-2 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
             />
           </div>
         )}
 
         <div>
-          <label className="mb-1 block text-sm font-medium text-gray-700">Date &amp; time</label>
+          <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Date &amp; time</label>
           <input
             type="datetime-local"
             value={loggedAt}
             max={toLocalDateTimeString(new Date())}
             onChange={(e) => setLoggedAt(e.target.value)}
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
+            className="w-full rounded-md border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 px-3 py-2 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
           />
         </div>
 
         <div>
-          <label className="mb-1 block text-sm font-medium text-gray-700">
+          <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
             Notes (optional)
           </label>
           <textarea
@@ -246,7 +246,7 @@ export default function LogHabitModal({ isOpen, onClose, onSuccess, log }: Props
             onChange={(e) => setNotes(e.target.value)}
             rows={3}
             placeholder="Any additional notes…"
-            className="w-full resize-none rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
+            className="w-full resize-none rounded-md border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 px-3 py-2 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
           />
         </div>
 
@@ -254,7 +254,7 @@ export default function LogHabitModal({ isOpen, onClose, onSuccess, log }: Props
           <button
             type="button"
             onClick={onClose}
-            className="w-full rounded-md px-4 py-2 text-sm text-gray-600 hover:text-gray-800 sm:w-auto"
+            className="w-full rounded-md px-4 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 sm:w-auto"
           >
             Cancel
           </button>

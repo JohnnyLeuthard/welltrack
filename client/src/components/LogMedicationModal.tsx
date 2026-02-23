@@ -103,28 +103,28 @@ export default function LogMedicationModal({ isOpen, onClose, onSuccess, log }: 
     >
       <form onSubmit={handleSubmit} className="space-y-4">
         {error && (
-          <p role="alert" className="rounded-md bg-rose-50 px-4 py-3 text-sm text-rose-600">
+          <p role="alert" className="rounded-md bg-rose-50 dark:bg-rose-900/30 px-4 py-3 text-sm text-rose-600 dark:text-rose-400">
             {error}
           </p>
         )}
 
         {noMeds && (
-          <p className="rounded-md bg-amber-50 px-4 py-3 text-sm text-amber-700">
+          <p className="rounded-md bg-amber-50 dark:bg-amber-900/30 px-4 py-3 text-sm text-amber-700 dark:text-amber-400">
             No active medications found. Add one in Settings first.
           </p>
         )}
 
         <div>
-          <label className="mb-1 block text-sm font-medium text-gray-700">Medication</label>
+          <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Medication</label>
           {loadingMeds ? (
-            <div className="h-9 animate-pulse rounded-md bg-gray-100" />
+            <div className="h-9 animate-pulse rounded-md bg-gray-100 dark:bg-gray-700" />
           ) : (
             <select
               value={medicationId}
               onChange={(e) => setMedicationId(e.target.value)}
               required
               disabled={noMeds}
-              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500 disabled:bg-gray-50"
+              className="w-full rounded-md border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 px-3 py-2 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500 disabled:bg-gray-50 dark:disabled:bg-gray-800"
             >
               <option value="">Select a medication…</option>
               {medications.map((m) => (
@@ -138,15 +138,15 @@ export default function LogMedicationModal({ isOpen, onClose, onSuccess, log }: 
         </div>
 
         <div>
-          <label className="mb-2 block text-sm font-medium text-gray-700">Did you take it?</label>
+          <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Did you take it?</label>
           <div className="flex gap-3">
             <button
               type="button"
               onClick={() => setTaken(true)}
               className={`flex-1 rounded-md border py-2 text-sm font-medium transition-colors ${
                 taken
-                  ? 'border-teal-500 bg-teal-50 text-teal-700'
-                  : 'border-gray-200 text-gray-500 hover:border-teal-300'
+                  ? 'border-teal-500 bg-teal-50 dark:bg-teal-900/30 text-teal-700 dark:text-teal-300'
+                  : 'border-gray-200 dark:border-gray-600 text-gray-500 dark:text-gray-400 hover:border-teal-300'
               }`}
             >
               Yes — taken
@@ -156,8 +156,8 @@ export default function LogMedicationModal({ isOpen, onClose, onSuccess, log }: 
               onClick={() => setTaken(false)}
               className={`flex-1 rounded-md border py-2 text-sm font-medium transition-colors ${
                 !taken
-                  ? 'border-rose-400 bg-rose-50 text-rose-700'
-                  : 'border-gray-200 text-gray-500 hover:border-rose-300'
+                  ? 'border-rose-400 bg-rose-50 dark:bg-rose-900/30 text-rose-700 dark:text-rose-300'
+                  : 'border-gray-200 dark:border-gray-600 text-gray-500 dark:text-gray-400 hover:border-rose-300'
               }`}
             >
               No — skipped
@@ -167,19 +167,19 @@ export default function LogMedicationModal({ isOpen, onClose, onSuccess, log }: 
 
         {taken && (
           <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">Taken at</label>
+            <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Taken at</label>
             <input
               type="datetime-local"
               value={takenAt}
               max={toLocalDateTimeString(new Date())}
               onChange={(e) => setTakenAt(e.target.value)}
-              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
+              className="w-full rounded-md border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 px-3 py-2 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
             />
           </div>
         )}
 
         <div>
-          <label className="mb-1 block text-sm font-medium text-gray-700">
+          <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
             Notes (optional)
           </label>
           <textarea
@@ -187,7 +187,7 @@ export default function LogMedicationModal({ isOpen, onClose, onSuccess, log }: 
             onChange={(e) => setNotes(e.target.value)}
             rows={3}
             placeholder="Any additional notes…"
-            className="w-full resize-none rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
+            className="w-full resize-none rounded-md border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 px-3 py-2 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
           />
         </div>
 
@@ -195,7 +195,7 @@ export default function LogMedicationModal({ isOpen, onClose, onSuccess, log }: 
           <button
             type="button"
             onClick={onClose}
-            className="w-full rounded-md px-4 py-2 text-sm text-gray-600 hover:text-gray-800 sm:w-auto"
+            className="w-full rounded-md px-4 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 sm:w-auto"
           >
             Cancel
           </button>
