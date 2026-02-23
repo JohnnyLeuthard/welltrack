@@ -26,6 +26,8 @@ export default function LogSymptomModal({ isOpen, onClose, onSuccess, log }: Pro
   const [error, setError] = useState<string | null>(null);
   const [loadingSymptoms, setLoadingSymptoms] = useState(false);
 
+  const noSymptoms = !loadingSymptoms && symptoms.length === 0;
+
   // Fetch symptom list when modal opens
   useEffect(() => {
     if (!isOpen) return;
@@ -97,6 +99,12 @@ export default function LogSymptomModal({ isOpen, onClose, onSuccess, log }: Pro
           </p>
         )}
 
+        {noSymptoms && (
+          <p className="rounded-md bg-amber-50 dark:bg-amber-900/30 px-4 py-3 text-sm text-amber-700 dark:text-amber-400">
+            No symptoms found. Add a custom symptom in Settings first.
+          </p>
+        )}
+
         <div>
           <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Symptom</label>
           {loadingSymptoms ? (
@@ -106,7 +114,8 @@ export default function LogSymptomModal({ isOpen, onClose, onSuccess, log }: Pro
               value={symptomId}
               onChange={(e) => setSymptomId(e.target.value)}
               required
-              className="w-full rounded-md border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 px-3 py-2 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
+              disabled={noSymptoms}
+              className="w-full rounded-md border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 px-3 py-2 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500 disabled:bg-gray-50 dark:disabled:bg-gray-800"
             >
               <option value="">Select a symptom…</option>
               {symptoms.map((s) => (
@@ -171,7 +180,7 @@ export default function LogSymptomModal({ isOpen, onClose, onSuccess, log }: Pro
           </button>
           <button
             type="submit"
-            disabled={isSubmitting || !symptomId}
+            disabled={isSubmitting || !symptomId || noSymptoms}
             className="w-full rounded-md bg-teal-600 px-4 py-2 text-sm font-medium text-white hover:bg-teal-700 disabled:opacity-50 sm:w-auto"
           >
             {isSubmitting ? 'Saving…' : 'Save'}
