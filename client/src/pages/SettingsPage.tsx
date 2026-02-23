@@ -245,7 +245,7 @@ function SymptomsSection() {
                 </button>
                 <span className="flex-1 text-sm text-gray-700 dark:text-gray-300">{s.name}</span>
                 {s.category && (
-                  <span className="rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-500">
+                  <span className="rounded-full bg-gray-100 dark:bg-gray-700 px-2 py-0.5 text-xs text-gray-500 dark:text-gray-300">
                     {s.category}
                   </span>
                 )}
@@ -282,7 +282,7 @@ function SymptomsSection() {
             value={newCategory}
             onChange={(e) => setNewCategory(e.target.value)}
             placeholder="Category (optional)"
-            className="w-40 rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
+            className="w-40 rounded-lg border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 px-3 py-2 text-sm outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
           />
           <button
             type="submit"
@@ -393,7 +393,7 @@ function HabitsSection() {
                   />
                 </button>
                 <span className="flex-1 text-sm text-gray-700 dark:text-gray-300">{h.name}</span>
-                <span className="rounded-full bg-teal-50 px-2 py-0.5 text-xs text-teal-700">
+                <span className="rounded-full bg-teal-50 dark:bg-teal-900/30 px-2 py-0.5 text-xs text-teal-700 dark:text-teal-400">
                   {TYPE_LABELS[h.trackingType]}
                 </span>
                 {h.unit && <span className="text-xs text-gray-400">{h.unit}</span>}
@@ -440,7 +440,7 @@ function HabitsSection() {
               value={newUnit}
               onChange={(e) => setNewUnit(e.target.value)}
               placeholder="Unit (optional)"
-              className="w-32 rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
+              className="w-32 rounded-lg border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 px-3 py-2 text-sm outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
             />
           )}
           <button
@@ -637,13 +637,13 @@ function MedicationsSection() {
                     )}
                   </div>
                   {!m.isActive && (
-                    <span className="rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-400">
+                    <span className="rounded-full bg-gray-100 dark:bg-gray-700 px-2 py-0.5 text-xs text-gray-400">
                       inactive
                     </span>
                   )}
                   {confirmDeleteId === m.id ? (
                     <div className="flex items-center gap-2 text-xs">
-                      <span className="text-gray-500">Delete?</span>
+                      <span className="text-gray-500 dark:text-gray-400">Delete?</span>
                       <button
                         onClick={() => void handleDelete(m.id)}
                         className="font-medium text-rose-600 hover:text-rose-700"
@@ -697,14 +697,14 @@ function MedicationsSection() {
             value={newDosage}
             onChange={(e) => setNewDosage(e.target.value)}
             placeholder="Dosage (optional)"
-            className="w-36 rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
+            className="w-36 rounded-lg border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 px-3 py-2 text-sm outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
           />
           <input
             type="text"
             value={newFrequency}
             onChange={(e) => setNewFrequency(e.target.value)}
             placeholder="Frequency (optional)"
-            className="w-36 rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
+            className="w-36 rounded-lg border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 px-3 py-2 text-sm outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
           />
           <button
             type="submit"
@@ -1124,7 +1124,7 @@ function AccountSection() {
   return (
     <SectionCard>
       <SectionTitle>Account</SectionTitle>
-      <div className="rounded-lg border border-rose-100 bg-rose-50 p-5">
+      <div className="rounded-lg border border-rose-100 dark:border-rose-900/50 bg-rose-50 dark:bg-rose-950/30 p-5">
         <h3 className="mb-2 text-sm font-semibold text-rose-700">Delete Account</h3>
         <p className="mb-4 text-sm text-rose-600">
           This permanently deletes your account and all your data. This cannot be undone.
@@ -1142,7 +1142,7 @@ function AccountSection() {
               value={confirmEmail}
               onChange={(e) => setConfirmEmail(e.target.value)}
               placeholder={user?.email ?? 'your@email.com'}
-              className="w-full rounded-lg border border-rose-200 bg-white px-3 py-2 text-sm outline-none focus:border-rose-400 focus:ring-1 focus:ring-rose-400"
+              className="w-full rounded-lg border border-rose-200 dark:border-rose-800 bg-white dark:bg-gray-700 dark:text-gray-100 px-3 py-2 text-sm outline-none focus:border-rose-400 focus:ring-1 focus:ring-rose-400"
             />
           </div>
           {error && <p role="alert" className="text-sm text-rose-600">{error}</p>}
