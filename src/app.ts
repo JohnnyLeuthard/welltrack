@@ -12,6 +12,7 @@ import habitRouter from './routes/habit.router';
 import habitLogRouter from './routes/habit-log.router';
 import insightsRouter from './routes/insights.router';
 import exportRouter from './routes/export.router';
+import importRouter from './routes/import.router';
 import { errorHandler } from './middleware/error.middleware';
 import { writeRateLimit } from './middleware/rate-limit.middleware';
 
@@ -38,6 +39,7 @@ app.use('/api/habits', writeRateLimit, habitRouter);
 app.use('/api/habit-logs', writeRateLimit, habitLogRouter);
 app.use('/api/insights', insightsRouter);
 app.use('/api/export', exportRouter);
+app.use('/api/import', importRouter);
 
 // Catch-all 404 handler for unknown routes
 app.use((_req: Request, res: Response) => {
