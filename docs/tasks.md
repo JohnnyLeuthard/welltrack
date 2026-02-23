@@ -229,6 +229,7 @@ Checkbox list of tasks organized by phase. Stack: React + TypeScript + Tailwind 
 - [x] Correlation chart — add a second metric overlay to the Trends chart so users can compare two metrics (e.g., mood vs. energy) on the same axis
 - [x] Help page — add a `/help` route with FAQs and how-to guides for logging, viewing trends, and exporting data
 - [x] Contact page — add a `/contact` route with a support mailto link and links to relevant help resources
+- [ ] In-app API documentation — add a link/page in the app (e.g., Settings or Help) that surfaces the OpenAPI/Swagger spec or links to the hosted API docs
 
 ### Backend + Frontend
 
@@ -236,6 +237,13 @@ Checkbox list of tasks organized by phase. Stack: React + TypeScript + Tailwind 
 - [x] Allow email change — extend `PATCH /api/users/me` to accept a new `email` field with uniqueness validation; add an email field to the profile form in Settings
 - [x] Per-user rate limiting — add per-user rate limiting middleware (e.g., `express-rate-limit` keyed by `req.user.userId`) to protect write endpoints from abuse
 - [x] Audit log — record sensitive account events (password change, email change, login) to a new `AuditLog` model; expose `GET /api/users/me/audit-log` for the authenticated user to view their own history
+
+### User Profile Enhancements
+
+- [x] Add pronouns field — extend `User` model with optional `pronouns` field; expose via `PATCH /api/users/me`; add pronouns input to Settings > Profile section
+- [x] Add phone number field — extend `User` model with optional `phone_number` field; expose via `PATCH /api/users/me`; add phone input to Settings > Profile section
+- [x] Profile picture upload — add avatar image upload to `PATCH /api/users/me` (multipart/form-data); store URL in `User.avatar_url`; display in sidebar and Settings
+- [ ] Full account deletion (GDPR right-to-erasure) — extend `DELETE /api/users/me` to hard-delete all associated data and anonymize any audit records per GDPR Article 17; return a dated erasure confirmation to the user
 
 ### Export
 
@@ -253,3 +261,11 @@ Checkbox list of tasks organized by phase. Stack: React + TypeScript + Tailwind 
 - [x] Bulk CSV import — accept a CSV upload to backfill historical log data for any log type
 - [ ] Apple Health / Google Fit integration — read activity and sleep data from Apple Health or Google Fit and surface it alongside user logs
 - [ ] Wearable device sync — sync data from Fitbit or Garmin devices into the relevant log types
+
+### Admin & Access Control
+
+- [ ] RBAC foundation — add a `role` field (`user | admin | super_admin`) to the `User` model; seed a static super-admin user via the seed script; add `requireRole(role)` middleware to guard admin routes
+- [ ] Admin dashboard — add `GET /api/admin/stats` returning aggregate platform metrics (total users, logs per type, DAU — no PII); build a protected `/admin` page in the frontend visible only to admins
+- [ ] Admin: edit user profile — admins can `PATCH /api/admin/users/:id` to update `display_name`, `email`, `pronouns`, `phone_number`, `is_active`; only super-admins can change `role`
+- [ ] Admin: account actions — admins can unlock a suspended account, trigger a password-reset email on behalf of a user, and force-logout (invalidate all refresh tokens) for any user via dedicated endpoints
+- [ ] Admin: delegate rights — super-admin can promote/demote users between `user` and `admin` roles via `PATCH /api/admin/users/:id/role`; every role change is recorded in `AuditLog`

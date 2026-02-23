@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { deleteMe, getMe, isValidIANATimezone, unsubscribeWeeklyDigest, updateMe } from '../services/user.service';
+import { deleteMe, getMe, isValidIANATimezone, unsubscribeWeeklyDigest, updateAvatar, updateMe } from '../services/user.service';
 
 export async function getMeHandler(req: Request, res: Response): Promise<void> {
   const user = await getMe(req.user!.userId);
@@ -7,10 +7,18 @@ export async function getMeHandler(req: Request, res: Response): Promise<void> {
 }
 
 export async function updateMeHandler(req: Request, res: Response): Promise<void> {
-  const { displayName, timezone, email, weeklyDigestOptIn } = req.body as Record<string, unknown>;
+  const { displayName, pronouns, phoneNumber, timezone, email, weeklyDigestOptIn } = req.body as Record<string, unknown>;
 
   if (displayName !== undefined && displayName !== null && typeof displayName !== 'string') {
     res.status(422).json({ error: 'displayName must be a string or null' });
+    return;
+  }
+  if (pronouns !== undefined && pronouns !== null && typeof pronouns !== 'string') {
+    res.status(422).json({ error: 'pronouns must be a string or null' });
+    return;
+  }
+  if (phoneNumber !== undefined && phoneNumber !== null && typeof phoneNumber !== 'string') {
+    res.status(422).json({ error: 'phoneNumber must be a string or null' });
     return;
   }
   if (timezone !== undefined) {
@@ -26,11 +34,15 @@ export async function updateMeHandler(req: Request, res: Response): Promise<void
 
   const input: {
     displayName?: string | null;
+    pronouns?: string | null;
+    phoneNumber?: string | null;
     timezone?: string;
     email?: string;
     weeklyDigestOptIn?: boolean;
   } = {};
   if (displayName !== undefined) input.displayName = displayName as string | null;
+  if (pronouns !== undefined) input.pronouns = pronouns as string | null;
+  if (phoneNumber !== undefined) input.phoneNumber = phoneNumber as string | null;
   if (timezone !== undefined) input.timezone = timezone as string;
   if (email !== undefined) input.email = email as string;
   if (weeklyDigestOptIn !== undefined) input.weeklyDigestOptIn = weeklyDigestOptIn as boolean;
@@ -42,6 +54,18 @@ export async function updateMeHandler(req: Request, res: Response): Promise<void
 export async function deleteMeHandler(req: Request, res: Response): Promise<void> {
   await deleteMe(req.user!.userId);
   res.status(200).json({ message: 'Account deleted successfully' });
+}
+
+export async function uploadAvatarHandler(req: Request, res: Response): Promise<void> {
+  if (!req.file) {
+    res.status(422).json({ error: 'No image file provided' });
+    return;
+  }
+  // req.file.path is relative to cwd (e.g. "public/uploads/avatars/uuid.jpg")
+  // Store the URL path portion so it is served as /uploads/avatars/uuid.jpg
+  const urlPath = '/' + req.file.path.replace(/\\/g, '/');
+  const user = await updateAvatar(req.user!.userId, urlPath);
+  res.status(200).json(user);
 }
 
 /** Public one-click unsubscribe — no auth required; linked from digest emails. */
