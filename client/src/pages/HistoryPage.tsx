@@ -84,6 +84,7 @@ export default function HistoryPage() {
     new Set(['symptom', 'mood', 'medication', 'habit']),
   );
   const [expandedDays, setExpandedDays] = useState<Set<string>>(new Set());
+  const [deleteEnabled, setDeleteEnabled] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState<{ id: string; type: LogType } | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [editTarget, setEditTarget] = useState<EditTarget>(null);
@@ -272,21 +273,36 @@ export default function HistoryPage() {
     <div className="p-8">
       <h1 className="mb-6 text-2xl font-semibold text-gray-800 dark:text-gray-100">History</h1>
 
-      {/* Type filter chips */}
-      <div className="mb-6 flex flex-wrap gap-2">
-        {TYPE_FILTERS.map(({ type, label }) => (
-          <button
-            key={type}
-            onClick={() => toggleType(type)}
-            className={`rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${
-              activeTypes.has(type)
-                ? TYPE_COLORS[type]
-                : 'bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500 hover:bg-gray-200 dark:hover:bg-gray-600'
-            }`}
-          >
-            {label}
-          </button>
-        ))}
+      {/* Type filter chips + delete toggle */}
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+        <div className="flex flex-wrap gap-2">
+          {TYPE_FILTERS.map(({ type, label }) => (
+            <button
+              key={type}
+              onClick={() => toggleType(type)}
+              className={`rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${
+                activeTypes.has(type)
+                  ? TYPE_COLORS[type]
+                  : 'bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500 hover:bg-gray-200 dark:hover:bg-gray-600'
+              }`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+        <button
+          onClick={() => {
+            setDeleteEnabled((v) => !v);
+            setConfirmDelete(null);
+          }}
+          className={`rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors ${
+            deleteEnabled
+              ? 'border-rose-300 bg-rose-50 text-rose-600 dark:border-rose-700 dark:bg-rose-900/20 dark:text-rose-400'
+              : 'border-gray-200 dark:border-gray-600 text-gray-400 dark:text-gray-500 hover:border-gray-300 dark:hover:border-gray-500 hover:text-gray-600 dark:hover:text-gray-300'
+          }`}
+        >
+          {deleteEnabled ? 'Done deleting' : 'Enable deleting'}
+        </button>
       </div>
 
       {deleteError && (
@@ -385,14 +401,16 @@ export default function HistoryPage() {
                               >
                                 Edit
                               </button>
-                              <button
-                                onClick={() =>
-                                  setConfirmDelete({ id: entry.id, type: entry.type })
-                                }
-                                className="font-medium text-gray-400 hover:text-rose-500"
-                              >
-                                Delete
-                              </button>
+                              {deleteEnabled && (
+                                <button
+                                  onClick={() =>
+                                    setConfirmDelete({ id: entry.id, type: entry.type })
+                                  }
+                                  className="font-medium text-gray-400 hover:text-rose-500"
+                                >
+                                  Delete
+                                </button>
+                              )}
                             </div>
                           )}
                         </div>
