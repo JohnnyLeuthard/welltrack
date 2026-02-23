@@ -1,3 +1,4 @@
+import crypto from 'crypto';
 import prisma from '../lib/prisma';
 import { AuditAction, recordAuditEvent } from './audit.service';
 
@@ -8,12 +9,23 @@ export interface UserProfile {
   timezone: string;
   createdAt: Date;
   lastLoginAt: Date | null;
+  weeklyDigestOptIn: boolean;
 }
+
+const USER_SELECT = {
+  id: true,
+  email: true,
+  displayName: true,
+  timezone: true,
+  createdAt: true,
+  lastLoginAt: true,
+  weeklyDigestOptIn: true,
+} as const;
 
 export async function getMe(userId: string): Promise<UserProfile> {
   const user = await prisma.user.findUnique({
     where: { id: userId },
-    select: { id: true, email: true, displayName: true, timezone: true, createdAt: true, lastLoginAt: true },
+    select: USER_SELECT,
   });
 
   if (!user) {
@@ -29,6 +41,7 @@ export interface UpdateMeInput {
   displayName?: string | null;
   timezone?: string;
   email?: string;
+  weeklyDigestOptIn?: boolean;
 }
 
 export function isValidIANATimezone(tz: string): boolean {
@@ -55,14 +68,28 @@ export async function updateMe(userId: string, input: UpdateMeInput): Promise<Us
     }
   }
 
+  // When opting in to the weekly digest, generate a unique unsubscribe token if not already set
+  let digestTokenUpdate: { weeklyDigestToken?: string } = {};
+  if (input.weeklyDigestOptIn === true) {
+    const current = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { weeklyDigestToken: true },
+    });
+    if (!current?.weeklyDigestToken) {
+      digestTokenUpdate = { weeklyDigestToken: crypto.randomBytes(32).toString('hex') };
+    }
+  }
+
   const user = await prisma.user.update({
     where: { id: userId },
     data: {
       ...(input.displayName !== undefined && { displayName: input.displayName }),
       ...(input.timezone !== undefined && { timezone: input.timezone }),
       ...(input.email !== undefined && { email: input.email }),
+      ...(input.weeklyDigestOptIn !== undefined && { weeklyDigestOptIn: input.weeklyDigestOptIn }),
+      ...digestTokenUpdate,
     },
-    select: { id: true, email: true, displayName: true, timezone: true, createdAt: true, lastLoginAt: true },
+    select: USER_SELECT,
   });
 
   if (input.email !== undefined) {
@@ -70,4 +97,18 @@ export async function updateMe(userId: string, input: UpdateMeInput): Promise<Us
   }
 
   return user;
+}
+
+/** One-click unsubscribe from weekly digest via token in email link. */
+export async function unsubscribeWeeklyDigest(token: string): Promise<void> {
+  const user = await prisma.user.findUnique({ where: { weeklyDigestToken: token } });
+  if (!user) {
+    const err = new Error('Invalid or expired unsubscribe link');
+    (err as Error & { status: number }).status = 404;
+    throw err;
+  }
+  await prisma.user.update({
+    where: { id: user.id },
+    data: { weeklyDigestOptIn: false },
+  });
 }

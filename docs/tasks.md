@@ -246,7 +246,7 @@ Checkbox list of tasks organized by phase. Stack: React + TypeScript + Tailwind 
 - [ ] Daily logging reminder — send a daily email (or push notification) prompting the user to log if they haven't yet that day
 - [ ] Medication reminder alerts — send reminders for scheduled medications based on frequency
 - [x] Streak milestone celebrations / badges — detect 7-day, 30-day streak milestones and surface a congratulatory message or badge in the UI
-- [ ] Weekly wellness summary email digest — send a weekly email with a summary of the user's logged activity and trends
+- [x] Weekly wellness summary email digest — send a weekly email with a summary of the user's logged activity and trends
 
 ### Data & Integrations
 
