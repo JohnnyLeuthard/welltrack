@@ -229,22 +229,27 @@ function SymptomsSection() {
             const isSystem = s.userId === null;
             return (
               <li key={s.id} className="flex items-center gap-4 py-2.5">
-                <button
-                  role="switch"
-                  aria-checked={s.isActive}
-                  onClick={() => !isSystem && void handleToggle(s)}
-                  disabled={isSystem}
-                  title={isSystem ? 'System default — cannot be toggled' : undefined}
-                  className={`relative inline-flex h-6 w-11 flex-shrink-0 rounded-full border-2 border-transparent transition-colors focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 ${
-                    s.isActive ? 'bg-teal-500' : 'bg-gray-200 dark:bg-gray-600'
-                  } ${isSystem ? 'cursor-not-allowed opacity-40' : 'cursor-pointer'}`}
-                >
+                {isSystem ? (
                   <span
-                    className={`inline-block h-5 w-5 transform rounded-full bg-white shadow transition-transform ${
-                      s.isActive ? 'translate-x-5' : 'translate-x-0'
-                    }`}
+                    title="System default"
+                    className={`flex-shrink-0 h-2.5 w-2.5 rounded-full ${s.isActive ? 'bg-teal-400' : 'bg-gray-300 dark:bg-gray-500'}`}
                   />
-                </button>
+                ) : (
+                  <button
+                    role="switch"
+                    aria-checked={s.isActive}
+                    onClick={() => void handleToggle(s)}
+                    className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 ${
+                      s.isActive ? 'bg-teal-500' : 'bg-gray-200 dark:bg-gray-600'
+                    }`}
+                  >
+                    <span
+                      className={`inline-block h-5 w-5 transform rounded-full bg-white shadow transition-transform ${
+                        s.isActive ? 'translate-x-5' : 'translate-x-0'
+                      }`}
+                    />
+                  </button>
+                )}
                 <span className="flex-1 text-sm text-gray-700 dark:text-gray-300">{s.name}</span>
                 {s.category && (
                   <span className="rounded-full bg-gray-100 dark:bg-gray-700 px-2 py-0.5 text-xs text-gray-500 dark:text-gray-300">
@@ -380,22 +385,27 @@ function HabitsSection() {
             const isSystem = h.userId === null;
             return (
               <li key={h.id} className="flex items-center gap-4 py-2.5">
-                <button
-                  role="switch"
-                  aria-checked={h.isActive}
-                  onClick={() => !isSystem && void handleToggle(h)}
-                  disabled={isSystem}
-                  title={isSystem ? 'System default — cannot be toggled' : undefined}
-                  className={`relative inline-flex h-6 w-11 flex-shrink-0 rounded-full border-2 border-transparent transition-colors focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 ${
-                    h.isActive ? 'bg-teal-500' : 'bg-gray-200 dark:bg-gray-600'
-                  } ${isSystem ? 'cursor-not-allowed opacity-40' : 'cursor-pointer'}`}
-                >
+                {isSystem ? (
                   <span
-                    className={`inline-block h-5 w-5 transform rounded-full bg-white shadow transition-transform ${
-                      h.isActive ? 'translate-x-5' : 'translate-x-0'
-                    }`}
+                    title="System default"
+                    className={`flex-shrink-0 h-2.5 w-2.5 rounded-full ${h.isActive ? 'bg-teal-400' : 'bg-gray-300 dark:bg-gray-500'}`}
                   />
-                </button>
+                ) : (
+                  <button
+                    role="switch"
+                    aria-checked={h.isActive}
+                    onClick={() => void handleToggle(h)}
+                    className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 ${
+                      h.isActive ? 'bg-teal-500' : 'bg-gray-200 dark:bg-gray-600'
+                    }`}
+                  >
+                    <span
+                      className={`inline-block h-5 w-5 transform rounded-full bg-white shadow transition-transform ${
+                        h.isActive ? 'translate-x-5' : 'translate-x-0'
+                      }`}
+                    />
+                  </button>
+                )}
                 <span className="flex-1 text-sm text-gray-700 dark:text-gray-300">{h.name}</span>
                 <span className="rounded-full bg-teal-50 dark:bg-teal-900/30 px-2 py-0.5 text-xs text-teal-700 dark:text-teal-400">
                   {TYPE_LABELS[h.trackingType]}
