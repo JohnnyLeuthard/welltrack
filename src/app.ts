@@ -1,6 +1,7 @@
 import 'dotenv/config';
 import path from 'path';
 import cors from 'cors';
+import helmet from 'helmet';
 import express, { Request, Response } from 'express';
 import authRouter from './routes/auth.router';
 import userRouter from './routes/user.router';
@@ -18,6 +19,19 @@ import { errorHandler } from './middleware/error.middleware';
 import { writeRateLimit } from './middleware/rate-limit.middleware';
 
 const app = express();
+
+// Security headers — must be first middleware so all responses are covered.
+// style-src allows 'unsafe-inline' because the unsubscribe handler renders an
+// HTML page with inline style= attributes; all other CSP directives use Helmet
+// defaults (HSTS, X-Frame-Options, X-Content-Type-Options, Referrer-Policy…).
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      ...helmet.contentSecurityPolicy.getDefaultDirectives(),
+      'style-src': ["'self'", "'unsafe-inline'"],
+    },
+  },
+}));
 
 app.use(cors({
   origin: process.env['CLIENT_ORIGIN'] ?? 'http://localhost:5173',
