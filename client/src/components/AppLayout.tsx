@@ -1,8 +1,11 @@
-import { useEffect, useState } from 'react';
-import { NavLink, Outlet } from 'react-router-dom';
+import { useCallback, useEffect, useState } from 'react';
+import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
+import { useIdleLogout } from '../hooks/useIdleLogout';
 import api from '../services/api';
 import type { UserProfile } from '../types/api';
+
+const IDLE_TIMEOUT_MS = 30 * 60 * 1000; // 30 minutes
 
 const navLinks = [
   { to: '/', label: 'Dashboard', end: true },
@@ -15,6 +18,7 @@ const navLinks = [
 
 export default function AppLayout() {
   const { user, logout, isAuthenticated } = useAuth();
+  const navigate = useNavigate();
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
 
   useEffect(() => {
@@ -24,6 +28,13 @@ export default function AppLayout() {
       .then((r) => setAvatarUrl(r.data.avatarUrl))
       .catch(() => undefined);
   }, [isAuthenticated]);
+
+  const handleIdleLogout = useCallback(async () => {
+    await logout();
+    navigate('/login', { state: { idleLogout: true }, replace: true });
+  }, [logout, navigate]);
+
+  useIdleLogout(handleIdleLogout, IDLE_TIMEOUT_MS);
 
   const displayLabel = user?.displayName ?? user?.email;
 
