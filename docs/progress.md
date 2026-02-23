@@ -36,14 +36,32 @@ All backend foundation, frontend foundation, and full-feature work is done and m
 | Bundle audit + code-split Trends page | [#80](https://github.com/JohnnyLeuthard/welltrack/pull/80) | `React.lazy` + `Suspense` for TrendsPage; `manualChunks: { recharts }` in vite.config; initial bundle 207 KB → 97 KB gzip (−53%) |
 | API Content-Type and status code audit | [#81](https://github.com/JohnnyLeuthard/welltrack/pull/81) | All JSON endpoints confirmed correct; fixed `DELETE /api/symptoms/:id` returning `200` instead of `204` |
 
-### Documentation overhaul (post-Phase 3)
+### Phase 5 Enhancements: In Progress 🔄
+
+| Task | PR | Notes |
+|---|---|---|
+| Extended trends date range (60/120/365 day) | _(merged)_ | Frontend selector updated; backend accepts any `days` value |
+| Dark mode toggle | _(merged)_ | `localStorage` persistence; Tailwind `darkMode: 'class'`; toggle in Settings |
+| Correlation chart | _(merged)_ | Second metric overlay on Trends line chart (e.g., mood vs. energy) |
+| Help page `/help` | _(merged)_ | FAQs and how-to guides for logging, trends, and export |
+| Contact page `/contact` | _(merged)_ | Support mailto link + links to help resources |
+| Track last login | _(merged)_ | `last_login_at` on User model; shown in Settings profile section |
+| Allow email change | _(merged)_ | `PATCH /api/users/me` accepts `email`; uniqueness validated; profile form updated |
+| Per-user rate limiting | _(merged)_ | `express-rate-limit` keyed by `req.user.userId` on all write endpoints |
+| Audit log | _(merged)_ | `AuditLog` model; records login, password change, email change; `GET /api/users/me/audit-log` |
+| PDF export | [#94](https://github.com/JohnnyLeuthard/welltrack/pull/94) | `GET /api/export/pdf` via pdfkit; log summaries + trend data; "Download PDF" button in Settings |
+
+Remaining Phase 5 tasks (Notifications & Reminders, Data & Integrations) — see `docs/tasks.md`.
+
+### Documentation overhaul (ongoing)
 
 | Work | PR | Notes |
 |---|---|---|
-| BACKLOG.md created | [#70](https://github.com/JohnnyLeuthard/welltrack/pull/70) | 27 future feature ideas across 7 categories (including new Documentation category) |
-| OVERVIEW.md + TECHNICAL.md created; progress.md formalized | [#82](https://github.com/JohnnyLeuthard/welltrack/pull/82) | OVERVIEW.md: public-facing product pitch; TECHNICAL.md: stack, costs, ops reference; progress.md: living status doc |
-| All docs moved to `docs/` folder | [#83](https://github.com/JohnnyLeuthard/welltrack/pull/83) | Root cleaned up; CLAUDE.md stays at root (required); all cross-references updated; docs table in CLAUDE.md expanded |
-| CLAUDE.md auto-load imports added | _(this session)_ | `@docs/tasks.md` and `@docs/Requirements.md` auto-loaded into every Claude Code session so workflow rules and product scope are always in context |
+| BACKLOG.md created | [#70](https://github.com/JohnnyLeuthard/welltrack/pull/70) | Future feature ideas across categories |
+| OVERVIEW.md + TECHNICAL.md created; progress.md formalized | [#82](https://github.com/JohnnyLeuthard/welltrack/pull/82) | OVERVIEW.md: product pitch; TECHNICAL.md: stack/ops reference |
+| All docs moved to `docs/` folder | [#83](https://github.com/JohnnyLeuthard/welltrack/pull/83) | Root cleaned up; CLAUDE.md stays at root; cross-references updated |
+| CLAUDE.md auto-load imports added | _(in session)_ | `@docs/tasks.md` and `@docs/Requirements.md` auto-loaded into every session |
+| Backlog cleanup + Phase 5 task promotion | [#95](https://github.com/JohnnyLeuthard/welltrack/pull/95) | Removed 8 completed items from BACKLOG.md; added Notifications & Reminders and Data & Integrations sections to Phase 5 |
 
 ---
 
@@ -55,10 +73,8 @@ All backend foundation, frontend foundation, and full-feature work is done and m
 Phase 1  ████████████████████  100%  (all checkboxes ✅)
 Phase 2  ████████████████████  100%  (all checkboxes ✅)
 Phase 3  ████████████████████  100%  (all checkboxes ✅)
-Phase 4  ████████████░░░░░░░░   56%  (9/16 checkboxes ✅)
-         └─ Testing     ✅ 5/5
-         └─ Performance ✅ 4/4
-         └─ Deployment  ⬜ 0/7
+Phase 4  ████████████░░░░░░░░   56%  (9/16 — Testing ✅ Performance ✅ Deployment ⬜)
+Phase 5  ████████████░░░░░░░░   59%  (10/17 — Frontend ✅ Backend+FE ✅ Export ✅ Notifications ⬜ Integrations ⬜)
 ```
 
 ### Test coverage (backend)
@@ -87,69 +103,97 @@ Phase 4  ████████████░░░░░░░░   56%  (9/
 
 ---
 
-## Immediate next steps — Phase 4 Deployment (7 tasks)
+## Immediate next steps
 
-These are the remaining checked tasks in `docs/tasks.md`. Complete in order:
+### Phase 5 — Notifications & Reminders (4 tasks)
 
-1. **Set up production PostgreSQL** — Railway (`$5/mo`) or Render Starter (`$7/mo`); avoid free-tier expiry on Render
-2. **Run `prisma migrate deploy` + seed** — apply all migrations against production DB; seed system symptoms and habits
-3. **Deploy backend** — Railway or Render with env vars: `DATABASE_URL`, `JWT_SECRET`, `JWT_REFRESH_SECRET`, `CLIENT_ORIGIN`
-4. **Deploy frontend** — Vercel (free hobby tier); set `VITE_API_URL` to production backend URL
-5. **Confirm HTTPS** — both services should auto-provision TLS; verify no mixed-content warnings
-6. **Production smoke test** — register a new user, log one entry of each type, view trends, export CSV
-7. **Uptime monitoring** — UptimeRobot free tier; monitor `GET /health` every 5 minutes
+1. **Daily logging reminder** — email prompt if user hasn't logged by end of day; requires real email delivery to be wired up first
+2. **Medication reminder alerts** — per-medication reminders based on frequency; needs a scheduler (cron or a queue)
+3. **Streak milestone badges** — detect 7/30-day streaks; surface in-app message or badge on Dashboard
+4. **Weekly wellness summary email** — aggregate stats email each Monday; again depends on real email delivery
+
+### Phase 5 — Data & Integrations (3 tasks)
+
+5. **Bulk CSV import** — CSV upload endpoint to backfill historical data
+6. **Apple Health / Google Fit integration** — read sleep and activity data
+7. **Wearable device sync** — Fitbit/Garmin data sync
+
+### Phase 4 — Deployment (7 tasks, still pending)
+
+These can be tackled in parallel with Phase 5 features:
+
+1. Set up production PostgreSQL (Railway or Render)
+2. Run `prisma migrate deploy` + seed against production DB
+3. Deploy backend with env vars (`DATABASE_URL`, `JWT_SECRET`, `JWT_REFRESH_SECRET`, `CLIENT_ORIGIN`)
+4. Deploy frontend to Vercel; set `VITE_API_URL`
+5. Confirm HTTPS on both services
+6. Production smoke test (register → log → trends → export CSV)
+7. Uptime monitoring (UptimeRobot free tier on `GET /health`)
+
+### Pre-deployment blockers
+
+| Item | Why it matters |
+|---|---|
+| **Wire up real email delivery** | Password reset and future notification emails are `console.log`'d — broken in production. Use SendGrid (free: 100/day), Postmark, or AWS SES |
+| **GitHub Actions CI pipeline** | `npm test` should run automatically on every PR to catch regressions before review |
+| **README.md at repo root** | GitHub shows nothing on the repo homepage; should link to `docs/OVERVIEW.md`, `docs/DEVELOPMENT.md`, and the live app URL |
 
 ---
 
-## Suggested next steps (post-deployment)
+## Lessons Learned
 
-These are not in `docs/tasks.md` yet but are high-value follow-ups worth scheduling soon after launch.
+Patterns and workflow rules that emerged from building this project — worth carrying forward.
 
-### High priority — launch blockers or near-blockers
+### Git & PR discipline
 
-| Item | Why it matters |
-|---|---|
-| **Add a `README.md` at the repo root** | GitHub shows README on the repo homepage; currently there's nothing there. Should link to `docs/OVERVIEW.md`, `docs/DEVELOPMENT.md`, and the live app URL |
-| **Wire up real email delivery** | Password reset emails are currently `console.log`'d — the feature is broken in production. Needs a real provider: SendGrid (free tier: 100/day), Postmark, or AWS SES (~$0.10/1000 emails) |
-| **GitHub Actions CI pipeline** | Run `npm test` automatically on every PR so regressions are caught before review. A basic workflow file is 15 lines of YAML |
+- **Every change, including docs, needs a branch + commit + PR.** Documentation edits feel minor but they represent real decisions (scope, architecture, workflow rules) that should be reviewable and revertable independently.
+- **One checkbox = one branch = one PR — no exceptions.** Batching multiple checkboxes into a single PR makes rollback harder and obscures the history of what changed when and why.
+- **Commit the checkbox check in the same commit as the code.** This keeps `tasks.md` accurate at every point in git history.
 
-### Medium priority — meaningfully improves the product
+### Backlog hygiene
 
-| Item | Why it matters |
-|---|---|
-| **Rate limiting** | No per-IP or per-user rate limiting exists yet — the app is vulnerable to brute-force on the auth endpoints in production |
-| **Swagger / OpenAPI docs** | Auto-generated API docs from route definitions; makes the API usable by future integrations and is already in the BACKLOG |
-| **Timezone display** | User timezone is stored but logs are displayed in UTC in the UI — a frequent pain point for users not in UTC |
-| **Correlation insights** | "You sleep worse on days with high caffeine" — the most-requested feature type for chronic illness trackers; data is already there |
+- **Remove items from BACKLOG.md the moment they're promoted to `tasks.md`.** Leaving stale items in the backlog creates confusion about what's actually scheduled vs. what's just an idea. The git history is the audit trail.
+- **The backlog is not a second task list.** Items there are unscheduled ideas; items in `tasks.md` are committed work. Keeping them distinct keeps planning clean.
 
-### Longer term — when the user base grows
+### Documentation
 
-| Item | Why it matters |
-|---|---|
-| **PDF export** | More useful than CSV for sharing with doctors; already in BACKLOG |
-| **Daily email digest / reminders** | Drives retention and consistent logging habit; depends on real email being wired up first |
-| **PWA / installable app** | Adds to mobile home screen, improves the mobile experience significantly without requiring a native app |
-| **Connection pooling (PgBouncer)** | At ~500+ concurrent users the single Prisma connection pool will become a bottleneck |
+- **Keep `progress.md` current.** Stale progress docs mislead contributors (and AI agents) about the state of the project. Update it whenever a phase completes or significant work merges.
+- **The "Suggested next steps" section rots quickly.** Things listed as future ideas get implemented and the section stops reflecting reality. Either promote items to `tasks.md` or remove them rather than letting them accumulate.
+- **Auto-loading `@docs/tasks.md` and `@docs/Requirements.md` in CLAUDE.md** means Claude Code always has workflow rules and product scope in context without needing to be reminded — a small config change with large productivity impact.
+
+### Architecture
+
+- **The Service → Controller → Router layer separation pays off.** Adding features like rate limiting, audit logging, and email change required touching only the service layer — controllers and routes were unchanged.
+- **Prisma 7 + `PrismaPg` driver adapter** requires datasource config in `prisma.config.ts` instead of `schema.prisma` — this trips up documentation and tooling that assumes the older pattern.
+- **Express v5 async error propagation** means try/catch is unnecessary in controllers for async route handlers — errors bubble automatically to the error middleware.
 
 ---
 
 ## Remaining work at a glance
 
 ```
-Phase 4 Deployment (7 tasks — in docs/tasks.md)
+Phase 4 Deployment (7 tasks)
   [ ] Production database setup
-  [ ] Run migrations + seed on production
+  [ ] Migrations + seed on production
   [ ] Backend deployment with env vars
-  [ ] Frontend deployment (Vercel) with VITE_API_URL
+  [ ] Frontend deployment (Vercel)
   [ ] HTTPS confirmation
   [ ] Production smoke test
   [ ] Uptime monitoring
 
-Post-launch suggestions (not yet in tasks.md)
+Phase 5 Notifications & Reminders (4 tasks)
+  [ ] Daily logging reminder email
+  [ ] Medication reminder alerts
+  [ ] Streak milestone celebrations / badges
+  [ ] Weekly wellness summary email
+
+Phase 5 Data & Integrations (3 tasks)
+  [ ] Bulk CSV import
+  [ ] Apple Health / Google Fit integration
+  [ ] Wearable device sync (Fitbit, Garmin)
+
+Pre-deployment (not yet in tasks.md)
   [ ] README.md at repo root
   [ ] Real email delivery (SendGrid / Postmark / SES)
-  [ ] GitHub Actions CI
-  [ ] Rate limiting on auth endpoints
-  [ ] Timezone display fix
-  [ ] Swagger/OpenAPI docs
+  [ ] GitHub Actions CI pipeline
 ```
