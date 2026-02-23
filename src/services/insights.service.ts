@@ -92,6 +92,61 @@ export async function getSymptomTrend(
     .sort((a, b) => a.date.localeCompare(b.date));
 }
 
+export interface StreakInfo {
+  currentStreak: number;
+}
+
+export async function getStreak(userId: string): Promise<StreakInfo> {
+  // Look back up to 400 days to cover any reasonable streak length
+  const startDate = new Date();
+  startDate.setDate(startDate.getDate() - 400);
+  startDate.setHours(0, 0, 0, 0);
+
+  const [symptomLogs, moodLogs, medicationLogs, habitLogs] = await Promise.all([
+    prisma.symptomLog.findMany({
+      where: { userId, loggedAt: { gte: startDate } },
+      select: { loggedAt: true },
+    }),
+    prisma.moodLog.findMany({
+      where: { userId, loggedAt: { gte: startDate } },
+      select: { loggedAt: true },
+    }),
+    prisma.medicationLog.findMany({
+      where: { userId, createdAt: { gte: startDate } },
+      select: { createdAt: true },
+    }),
+    prisma.habitLog.findMany({
+      where: { userId, loggedAt: { gte: startDate } },
+      select: { loggedAt: true },
+    }),
+  ]);
+
+  const loggedDates = new Set<string>();
+  for (const log of symptomLogs) loggedDates.add(toDateKey(log.loggedAt));
+  for (const log of moodLogs) loggedDates.add(toDateKey(log.loggedAt));
+  for (const log of medicationLogs) loggedDates.add(toDateKey(log.createdAt));
+  for (const log of habitLogs) loggedDates.add(toDateKey(log.loggedAt));
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const todayStr = toDateKey(today);
+
+  // If today has no logs yet, start counting from yesterday (streak still alive)
+  const startDay = new Date(today);
+  if (!loggedDates.has(todayStr)) {
+    startDay.setDate(today.getDate() - 1);
+  }
+
+  let currentStreak = 0;
+  const cursor = new Date(startDay);
+  while (loggedDates.has(toDateKey(cursor))) {
+    currentStreak++;
+    cursor.setDate(cursor.getDate() - 1);
+  }
+
+  return { currentStreak };
+}
+
 export async function getActivity(userId: string, days: number): Promise<ActivityPoint[]> {
   const startDate = startOfRange(days);
 
