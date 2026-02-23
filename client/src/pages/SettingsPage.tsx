@@ -45,6 +45,7 @@ const TIMEZONES: string[] = (() => {
 function ProfileSection() {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [displayName, setDisplayName] = useState('');
+  const [pronouns, setPronouns] = useState('');
   const [timezone, setTimezone] = useState('');
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(true);
@@ -58,6 +59,7 @@ function ProfileSection() {
       .then((r) => {
         setProfile(r.data);
         setDisplayName(r.data.displayName ?? '');
+        setPronouns(r.data.pronouns ?? '');
         setTimezone(r.data.timezone);
         setEmail(r.data.email);
       })
@@ -71,7 +73,7 @@ function ProfileSection() {
     setSuccess(false);
     setIsSaving(true);
     try {
-      const body: Record<string, unknown> = { displayName: displayName || null, timezone };
+      const body: Record<string, unknown> = { displayName: displayName || null, pronouns: pronouns || null, timezone };
       if (email && profile && email !== profile.email) body.email = email;
       const res = await api.patch<UserProfile>('/api/users/me', body);
       setProfile(res.data);
@@ -120,6 +122,19 @@ function ProfileSection() {
             value={displayName}
             onChange={(e) => setDisplayName(e.target.value)}
             placeholder="Your name"
+            className="w-full rounded-lg border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 px-3 py-2 text-sm outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
+          />
+        </div>
+        <div>
+          <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300" htmlFor="pronouns">
+            Pronouns
+          </label>
+          <input
+            id="pronouns"
+            type="text"
+            value={pronouns}
+            onChange={(e) => setPronouns(e.target.value)}
+            placeholder="e.g. she/her, they/them"
             className="w-full rounded-lg border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 px-3 py-2 text-sm outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
           />
         </div>

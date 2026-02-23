@@ -6,6 +6,7 @@ export interface UserProfile {
   id: string;
   email: string;
   displayName: string | null;
+  pronouns: string | null;
   timezone: string;
   createdAt: Date;
   lastLoginAt: Date | null;
@@ -16,6 +17,7 @@ const USER_SELECT = {
   id: true,
   email: true,
   displayName: true,
+  pronouns: true,
   timezone: true,
   createdAt: true,
   lastLoginAt: true,
@@ -39,6 +41,7 @@ export async function getMe(userId: string): Promise<UserProfile> {
 
 export interface UpdateMeInput {
   displayName?: string | null;
+  pronouns?: string | null;
   timezone?: string;
   email?: string;
   weeklyDigestOptIn?: boolean;
@@ -84,6 +87,7 @@ export async function updateMe(userId: string, input: UpdateMeInput): Promise<Us
     where: { id: userId },
     data: {
       ...(input.displayName !== undefined && { displayName: input.displayName }),
+      ...(input.pronouns !== undefined && { pronouns: input.pronouns }),
       ...(input.timezone !== undefined && { timezone: input.timezone }),
       ...(input.email !== undefined && { email: input.email }),
       ...(input.weeklyDigestOptIn !== undefined && { weeklyDigestOptIn: input.weeklyDigestOptIn }),

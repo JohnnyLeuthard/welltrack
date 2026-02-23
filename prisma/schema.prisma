@@ -13,6 +13,7 @@ model User {
   passwordHash String   @map("password_hash")
   displayName  String?  @map("display_name")
   timezone     String   @default("UTC")
+  pronouns          String?   @map("pronouns")
   lastLoginAt       DateTime? @map("last_login_at")
   weeklyDigestOptIn Boolean   @default(false) @map("weekly_digest_opt_in")
   weeklyDigestToken String?   @unique         @map("weekly_digest_token")
