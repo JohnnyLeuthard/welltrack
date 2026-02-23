@@ -230,16 +230,18 @@ function SymptomsSection() {
             return (
               <li key={s.id} className="flex items-center gap-4 py-2.5">
                 <button
+                  role="switch"
+                  aria-checked={s.isActive}
                   onClick={() => !isSystem && void handleToggle(s)}
                   disabled={isSystem}
                   title={isSystem ? 'System default — cannot be toggled' : undefined}
-                  className={`relative h-5 w-9 flex-shrink-0 overflow-hidden rounded-full transition-colors ${
-                    s.isActive ? 'bg-teal-500' : 'bg-gray-200'
+                  className={`relative inline-flex h-6 w-11 flex-shrink-0 rounded-full border-2 border-transparent transition-colors focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 ${
+                    s.isActive ? 'bg-teal-500' : 'bg-gray-200 dark:bg-gray-600'
                   } ${isSystem ? 'cursor-not-allowed opacity-40' : 'cursor-pointer'}`}
                 >
                   <span
-                    className={`absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform ${
-                      s.isActive ? 'translate-x-4' : 'translate-x-0.5'
+                    className={`inline-block h-5 w-5 transform rounded-full bg-white shadow transition-transform ${
+                      s.isActive ? 'translate-x-5' : 'translate-x-0'
                     }`}
                   />
                 </button>
@@ -379,16 +381,18 @@ function HabitsSection() {
             return (
               <li key={h.id} className="flex items-center gap-4 py-2.5">
                 <button
+                  role="switch"
+                  aria-checked={h.isActive}
                   onClick={() => !isSystem && void handleToggle(h)}
                   disabled={isSystem}
                   title={isSystem ? 'System default — cannot be toggled' : undefined}
-                  className={`relative h-5 w-9 flex-shrink-0 overflow-hidden rounded-full transition-colors ${
-                    h.isActive ? 'bg-teal-500' : 'bg-gray-200'
+                  className={`relative inline-flex h-6 w-11 flex-shrink-0 rounded-full border-2 border-transparent transition-colors focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 ${
+                    h.isActive ? 'bg-teal-500' : 'bg-gray-200 dark:bg-gray-600'
                   } ${isSystem ? 'cursor-not-allowed opacity-40' : 'cursor-pointer'}`}
                 >
                   <span
-                    className={`absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform ${
-                      h.isActive ? 'translate-x-4' : 'translate-x-0.5'
+                    className={`inline-block h-5 w-5 transform rounded-full bg-white shadow transition-transform ${
+                      h.isActive ? 'translate-x-5' : 'translate-x-0'
                     }`}
                   />
                 </button>
@@ -617,14 +621,16 @@ function MedicationsSection() {
               ) : (
                 <div className="flex items-center gap-4">
                   <button
+                    role="switch"
+                    aria-checked={m.isActive}
                     onClick={() => void handleToggle(m)}
-                    className={`relative h-5 w-9 flex-shrink-0 cursor-pointer overflow-hidden rounded-full transition-colors ${
-                      m.isActive ? 'bg-teal-500' : 'bg-gray-200'
+                    className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 ${
+                      m.isActive ? 'bg-teal-500' : 'bg-gray-200 dark:bg-gray-600'
                     }`}
                   >
                     <span
-                      className={`absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform ${
-                        m.isActive ? 'translate-x-4' : 'translate-x-0.5'
+                      className={`inline-block h-5 w-5 transform rounded-full bg-white shadow transition-transform ${
+                        m.isActive ? 'translate-x-5' : 'translate-x-0'
                       }`}
                     />
                   </button>
@@ -1031,13 +1037,13 @@ function AppearanceSection() {
           role="switch"
           aria-checked={isDark}
           onClick={toggleTheme}
-          className={`relative h-6 w-11 flex-shrink-0 rounded-full transition-colors ${
-            isDark ? 'bg-teal-500' : 'bg-gray-200'
+          className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 ${
+            isDark ? 'bg-teal-500' : 'bg-gray-200 dark:bg-gray-600'
           }`}
         >
           <span
-            className={`absolute top-1 h-4 w-4 rounded-full bg-white shadow transition-transform ${
-              isDark ? 'translate-x-6' : 'translate-x-1'
+            className={`inline-block h-5 w-5 transform rounded-full bg-white shadow transition-transform ${
+              isDark ? 'translate-x-5' : 'translate-x-0'
             }`}
           />
         </button>
