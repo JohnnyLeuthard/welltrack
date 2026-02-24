@@ -5,7 +5,7 @@ import { useIdleLogout } from '../hooks/useIdleLogout';
 import api from '../services/api';
 import type { UserProfile } from '../types/api';
 
-const IDLE_TIMEOUT_MS = 30 * 60 * 1000; // 30 minutes
+const IDLE_TIMEOUT_MS = 5 * 60 * 1000; // 5 minutes
 
 const navLinks = [
   { to: '/', label: 'Dashboard', end: true },
