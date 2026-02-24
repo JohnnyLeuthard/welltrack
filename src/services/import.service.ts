@@ -41,6 +41,11 @@ function parseCsvLine(line: string): string[] {
   return values;
 }
 
+/** Strip leading formula-injection characters from user-controlled string fields. */
+function sanitizeCsvField(value: string): string {
+  return value.replace(/^[=+\-@\t\r]+/, '');
+}
+
 function parseDate(dateStr: string): Date | null {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) return null;
   const d = new Date(dateStr + 'T00:00:00.000Z');
@@ -148,7 +153,7 @@ async function processSymptomLogs(
       continue;
     }
 
-    const notes = (row['notes'] ?? '').trim() || null;
+    const notes = sanitizeCsvField((row['notes'] ?? '').trim()) || null;
 
     await prisma.symptomLog.create({
       data: { userId, symptomId, severity, notes, loggedAt: date },
@@ -196,7 +201,7 @@ async function processMoodLogs(
       continue;
     }
 
-    const notes = (row['notes'] ?? '').trim() || null;
+    const notes = sanitizeCsvField((row['notes'] ?? '').trim()) || null;
 
     await prisma.moodLog.create({
       data: { userId, moodScore, energyLevel, stressLevel, notes, loggedAt: date },
@@ -247,7 +252,7 @@ async function processMedicationLogs(
     }
     const taken = takenRaw === 'yes';
 
-    const notes = (row['notes'] ?? '').trim() || null;
+    const notes = sanitizeCsvField((row['notes'] ?? '').trim()) || null;
 
     await prisma.medicationLog.create({
       data: { userId, medicationId, taken, notes, takenAt: taken ? date : null },
@@ -289,7 +294,7 @@ async function processHabitLogs(
     }
 
     const valueRaw = (row['value'] ?? '').trim();
-    const notes = (row['notes'] ?? '').trim() || null;
+    const notes = sanitizeCsvField((row['notes'] ?? '').trim()) || null;
 
     let valueBoolean: boolean | null = null;
     let valueNumeric: number | null = null;
