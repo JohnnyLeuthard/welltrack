@@ -9,6 +9,7 @@ export default defineConfig({
     tailwindcss(),
   ],
   build: {
+    sourcemap: false, // explicit: prevent accidental exposure of source code in production
     rollupOptions: {
       output: {
         manualChunks: {
