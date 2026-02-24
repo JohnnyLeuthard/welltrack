@@ -64,6 +64,14 @@ export async function uploadAvatarHandler(req: Request, res: Response): Promise<
   // req.file.path is relative to cwd (e.g. "public/uploads/avatars/uuid.jpg")
   // Store the URL path portion so it is served as /uploads/avatars/uuid.jpg
   const urlPath = '/' + req.file.path.replace(/\\/g, '/');
+
+  // Defensive: ensure path is within the expected avatar directory.
+  // Guards against future multer misconfiguration.
+  if (!urlPath.startsWith('/uploads/avatars/')) {
+    res.status(500).json({ error: 'Avatar storage misconfiguration' });
+    return;
+  }
+
   const user = await updateAvatar(req.user!.userId, urlPath);
   res.status(200).json(user);
 }
